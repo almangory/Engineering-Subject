@@ -1,0 +1,21 @@
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Cairo", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+}
+
+/* Custom CSS to hide interactives when printing worksheets */
+@media print {
+  body {
+    background-color: white !important;
+    color: black !important;
+  }
+  header, footer, .print\:hidden, button, input, select {
+    display: none !important;
+  }
+  .print\:col-span-12 {
+    grid-column: span 12 / span 12 !important;
+  }
+}
