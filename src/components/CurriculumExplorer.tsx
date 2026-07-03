@@ -12,7 +12,7 @@ const CHAPTER_VIDEOS: Record<string, string> = {
 
 interface CurriculumExplorerProps {
   onAskAi: (topic: string) => void;
-  onGoToLab?: (labId: "projection" | "engine" | "elasticity" | "capacitor") => void;
+  onGoToLab?: (labId: string) => void;
 }
 
 const lessonLabMapping: Record<
@@ -1545,7 +1545,7 @@ export default function CurriculumExplorer({ onAskAi, onGoToLab }: CurriculumExp
                 </div>
                 {onGoToLab && (
                   <button
-                    onClick={() => onGoToLab(mappedLab.labId)}
+                    onClick={() => onGoToLab(currentLesson.id)}
                     className="inline-flex items-center gap-2 px-5 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs shadow-md shadow-emerald-600/10 hover:shadow-lg transition duration-300 active:scale-95 shrink-0"
                   >
                     <span>دخول المعمل وإجراء التجربة</span>

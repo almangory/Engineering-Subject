@@ -11,7 +11,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<string>("curriculum");
   const [aiTutorOpen, setAiTutorOpen] = useState(false);
   const [presetTopic, setPresetTopic] = useState<string | undefined>(undefined);
-  const [activeLab, setActiveLab] = useState<"projection" | "engine" | "elasticity" | "capacitor">("projection");
+  const [activeLab, setActiveLab] = useState<string>("projection");
   const [isHeaderCollapsed, setIsHeaderCollapsed] = useState(false);
 
   const handleAskAi = (topic: string) => {
@@ -19,7 +19,7 @@ export default function App() {
     setAiTutorOpen(true);
   };
 
-  const handleGoToLab = (labId: "projection" | "engine" | "elasticity" | "capacitor") => {
+  const handleGoToLab = (labId: string) => {
     setActiveLab(labId);
     setActiveTab("lab");
     // Scroll smoothly to top when switching tab

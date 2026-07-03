@@ -1,39 +1,133 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Activity, Compass, Zap, HelpCircle, RefreshCw, Play, Pause, ChevronLeft, Award } from "lucide-react";
+import { Activity, Compass, Zap, HelpCircle, RefreshCw, Play, Pause, ChevronLeft, Award, Flame, Droplet, Layers, HelpCircle as Info, CheckCircle2, RotateCcw, Sparkles } from "lucide-react";
 
 interface LabSectionProps {
-  activeLab?: "projection" | "engine" | "elasticity" | "capacitor";
-  setActiveLab?: (lab: "projection" | "engine" | "elasticity" | "capacitor") => void;
+  activeLab?: string; // Can be a lab ID or lesson ID
+  setActiveLab?: (lab: any) => void;
 }
 
-export default function LabSection({ activeLab: propActiveLab, setActiveLab: propSetActiveLab }: LabSectionProps = {}) {
-  const [localActiveLab, setLocalActiveLab] = useState<"projection" | "engine" | "elasticity" | "capacitor">("projection");
+// Lesson data inside Lab for standalone navigation
+const CHAPTER_LESSONS = {
+  projection: [
+    { id: "intro-projection", name: "١. مفهوم ونظرية الإسقاط", desc: "محاكاة أشعة النظر العمودية الساقطة لتكوين ظل الجسم المستوي" },
+    { id: "ortho-principles", name: "٢. حالات الإسقاط المتعامد", desc: "دوران مستقيم أو سطح لمعاينة طول المسقط الفعلي والكامل" },
+    { id: "three-planes", name: "٣. المساقط الثلاثة والزوايا", desc: "ترتيب المساقط في ورقة الرسم (الزاوية الأولى السودانية vs الثالثة)" },
+    { id: "isometric-oblique", name: "٤. المنظور: أيزومتري ومائل", desc: "مقارنة المنظور الأيزومتري (30°) بالمنظور المائل (45° مع نصف العمق)" },
+    { id: "dim-1-1", name: "٥. وضع الأبعاد الفني", desc: "تطبيق قواعد الأبعاد (التنبيه إذا كان خط البعد أقرب من 8-10 مم)" },
+    { id: "sketch-1-2", name: "٦. التكريك باليد الحرة", desc: "تطبيق يدوي لقياس دقة رسم الخطوط والدوائر كروكياً" },
+  ],
+  engine: [
+    { id: "metals-intro", name: "١. خواص واختبارات الفلزات", desc: "فحص المغناطيسية، والشرر، والكثافة للحديد والصلب والألومنيوم" },
+    { id: "iron-production", name: "٢. صهر الفرن اللافح والكيوبولا", desc: "شحن الفرن لفصل زهر التماسيح والخبث عند 1300° مئوية" },
+    { id: "steel-rolling", name: "٣. دحرجة ودرفلة الصلب", desc: "تمرير الصلب بين درافيل (على الساخن والبارد) لتغيير السمك" },
+    { id: "non-ferrous-alloys", name: "٤. سباكة النحاس والبرنز", desc: "خلط النحاس بالخارصين (أصفر)، القصدير (برنز)، البيضاء (البلي)" },
+    { id: "engines-cycles", name: "٥. محاكي الأشواط الأربعة", desc: "دورة أوتو الكاملة للمكبس والصمامات وشمعة الاشتعال" },
+    { id: "car-engine-systems", name: "٦. أنظمة محرك السيارة", desc: "التحكم في المغذي، الرديتر، زيت التزييت، والاسبراتير" },
+  ],
+  capacitor: [
+    { id: "electrical-units", name: "١. شحنات كولوم والفيض", desc: "حساب القوة الميكانيكية الجاذبة والطارحة بين شحنتين" },
+    { id: "capacitors", name: "٢. شحن المكثفات والطاقة", desc: "تغير السعة والشحنة بتغير مساحة اللوح، المسافة والوسط العازل" },
+    { id: "electromagnetism-induction", name: "٣. حث فارادي الكهرومغناطيسي", desc: "تحريك المغناطيس داخل الملف لتوليد تيار في الجلفانومتر" },
+    { id: "self-inductance", name: "٤. ظاهرة الحث الذاتي ولينز", desc: "تأخر توهج المصباح وتوليد شرارة الفتح الكهربائي للملف" },
+    { id: "semiconductors-doping", name: "٥. تشويب أشباه الموصلات", desc: "صناعة بلورة n-type (زرنيخ خماسي) و p-type (بورون ثلاثي)" },
+  ],
+  elasticity: [
+    { id: "structures-trusses", name: "١. الجملونات وقوى الأعضاء", desc: "تحميل الجملون المثلث ورصد أعضاء الشد (أزرق) والضغط (أحمر)" },
+    { id: "arches-foundations", name: "٢. الأقواس وتصميم الأساسات", desc: "اختبار القواعد السطحية والعميقة (الخوازيق) تحت ثقل المبنى" },
+    { id: "stress-strain-hooke", name: "٣. منحنى الإجهاد والانفعال", desc: "شد عمود معدني ورسم منحنى هوك لتحديد الكسر والتشوه" },
+    { id: "fluid-mechanics-viscosity", name: "٤. موائع ولزوجة نيوتن", desc: "إسقاط كرات في الزيت والماء والعسل وحساب مقاومة القص" },
+    { id: "environmental-pollution", name: "٥. تلوث البيئة وأمراض المياه", desc: "صناعة أمطار حمضية غازية مسؤولة عن هلاك النباتات والتربة" },
+  ],
+};
 
-  const activeLab = propActiveLab !== undefined ? propActiveLab : localActiveLab;
-  const setActiveLab = propSetActiveLab !== undefined ? propSetActiveLab : setLocalActiveLab;
+export default function LabSection({ activeLab: propActiveLab, setActiveLab: propSetActiveLab }: LabSectionProps) {
+  const [localActiveLab, setLocalActiveLab] = useState<string>("projection");
+  const activeTabId = propActiveLab !== undefined ? propActiveLab : localActiveLab;
+  const setActiveTabId = propSetActiveLab !== undefined ? propSetActiveLab : setLocalActiveLab;
 
-  // ==========================================
-  // 1. Orthographic Projection Simulator State
-  // ==========================================
+  // Track selected category (Chapter)
+  const [activeCategory, setActiveCategory] = useState<"projection" | "engine" | "capacitor" | "elasticity">("projection");
+
+  // Map input propActiveLab to current category and lesson if it matches a lesson ID
+  useEffect(() => {
+    if (propActiveLab) {
+      for (const [cat, lessons] of Object.entries(CHAPTER_LESSONS)) {
+        if (lessons.some((l) => l.id === propActiveLab)) {
+          setActiveCategory(cat as any);
+          setSelectedLessonId(propActiveLab);
+          break;
+        }
+      }
+      if (["projection", "engine", "capacitor", "elasticity"].includes(propActiveLab)) {
+        setActiveCategory(propActiveLab as any);
+        setSelectedLessonId(CHAPTER_LESSONS[propActiveLab as keyof typeof CHAPTER_LESSONS][0].id);
+      }
+    }
+  }, [propActiveLab]);
+
+  const lessonsInCat = CHAPTER_LESSONS[activeCategory];
+  const [selectedLessonId, setSelectedLessonId] = useState<string>(lessonsInCat[0].id);
+
+  // Sync selectedLessonId if category changes manually
+  const handleCategoryChange = (cat: "projection" | "engine" | "capacitor" | "elasticity") => {
+    setActiveCategory(cat);
+    setActiveTabId(cat);
+    setSelectedLessonId(CHAPTER_LESSONS[cat][0].id);
+  };
+
+  // ==========================================================
+  // STATE DEFINITIONS FOR THE 22 SIMULATIONS (Highly Optimized)
+  // ==========================================================
+  
+  // 1. Concept of Projection
+  const [projBeamActive, setProjBeamActive] = useState(true);
+
+  // 2. Orthographic Principles
+  const [orthoAngle, setOrthoAngle] = useState(0); // 0 to 90 degrees
+
+  // 3. Three Planes Layout
   const [projectionAngle, setProjectionAngle] = useState<"first" | "third">("first");
-  const [selectedView, setSelectedView] = useState<"isometric" | "front" | "top" | "side">("isometric");
 
-  // ==========================================
-  // 2. 4-Stroke Engine Simulator State
-  // ==========================================
+  // 4. Isometric vs Oblique
+  const [isometricStyle, setIsometricStyle] = useState<"iso" | "oblique">("iso");
+
+  // 5. Dimensioning Check
+  const [dimDistance, setDimDistance] = useState(5); // in mm (typically 2 to 15)
+
+  // 6. Freehand Taktik Canvas
+  const [freehandPoints, setFreehandPoints] = useState<{ x: number; y: number }[]>([]);
+  const [freehandDrawing, setFreehandDrawing] = useState(false);
+  const [sketchScore, setSketchScore] = useState<number | null>(null);
+
+  // 7. Metals properties tests
+  const [metalTestType, setMetalTestType] = useState<"magnet" | "spark" | "density">("magnet");
+  const [metalSelected, setMetalSelected] = useState<"steel" | "cast-iron" | "copper" | "aluminum">("steel");
+
+  // 8. Blast Furnace state
+  const [furnaceCoke, setFurnaceCoke] = useState(50);
+  const [furnaceLimestone, setFurnaceLimestone] = useState(30);
+  const [furnaceTemp, setFurnaceTemp] = useState(500); // degrees C
+  const [furnaceRunning, setFurnaceRunning] = useState(false);
+  const [furnaceTapped, setFurnaceTapped] = useState(false);
+
+  // 9. Steel Rolling
+  const [rollingTemp, setRollingTemp] = useState<"hot" | "cold">("hot");
+  const [rollerGap, setRollerGap] = useState(10); // mm, 1 to 20
+
+  // 10. Non-ferrous alloys
+  const [alloyMixCopper, setAlloyMixCopper] = useState(70);
+  const [alloyMixOther, setAlloyMixOther] = useState(30); // Zinc or Tin or Lead
+
+  // 11. Four-Stroke Engine (Integrated State)
   const [enginePlaying, setEnginePlaying] = useState(false);
-  const [engineStroke, setEngineStroke] = useState<0 | 1 | 2 | 3>(0); // 0: Suction, 1: Compression, 2: Power, 3: Exhaust
-  const [pistonPosition, setPistonPosition] = useState(50); // percentage 20 to 100
+  const [engineStroke, setEngineStroke] = useState<0 | 1 | 2 | 3>(0); // 0: Suck, 1: Compress, 2: Power, 3: Exhaust
   const engineTimer = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (enginePlaying) {
       engineTimer.current = setInterval(() => {
-        setEngineStroke((prev) => {
-          const next = ((prev + 1) % 4) as 0 | 1 | 2 | 3;
-          return next;
-        });
-      }, 1800);
+        setEngineStroke((prev) => ((prev + 1) % 4) as any);
+      }, 1500);
     } else {
       if (engineTimer.current) clearInterval(engineTimer.current);
     }
@@ -42,771 +136,1669 @@ export default function LabSection({ activeLab: propActiveLab, setActiveLab: pro
     };
   }, [enginePlaying]);
 
-  // Adjust piston height dynamically based on stroke state
-  useEffect(() => {
-    // 0: Suction (piston moves down: 20 -> 90)
-    // 1: Compression (piston moves up: 90 -> 20)
-    // 2: Power (piston driven down: 20 -> 95)
-    // 3: Exhaust (piston moves up: 95 -> 20)
-    if (engineStroke === 0) setPistonPosition(85);
-    else if (engineStroke === 1) setPistonPosition(25);
-    else if (engineStroke === 2) setPistonPosition(90);
-    else if (engineStroke === 3) setPistonPosition(20);
-  }, [engineStroke]);
+  // 12. Car Systems
+  const [activeCarSystem, setActiveCarSystem] = useState<"fuel" | "cooling" | "lube" | "ignition">("fuel");
+  const [carburetorRatio, setCarburetorRatio] = useState(10); // fuel-air ratio
 
-  // ==========================================
-  // 3. Stress-Strain Elasticity Tester State
-  // ==========================================
-  const [selectedMaterial, setSelectedMaterial] = useState<"steel" | "cast-iron" | "copper" | "aluminum">("steel");
-  const [appliedForce, setAppliedForce] = useState(15000); // Newtons
+  // 13. Coulomb's Law
+  const [coulombQ1, setCoulombQ1] = useState(5); // uC
+  const [coulombQ2, setCoulombQ2] = useState(-5); // uC
+  const [coulombDist, setCoulombDist] = useState(3); // cm
+  const [coulombMedium, setCoulombMedium] = useState<"vacuum" | "mica" | "water">("vacuum");
 
-  const materialProperties = {
-    "steel": { name: "الصلب الكربوني", E: 200, yieldPoint: 250, ultimate: 400, color: "stroke-slate-400 fill-slate-350" },
-    "cast-iron": { name: "حديد الزهر الرمادي", E: 100, yieldPoint: 120, ultimate: 200, color: "stroke-slate-500 fill-slate-450" },
-    "copper": { name: "النحاس النقي", E: 110, yieldPoint: 70, ultimate: 220, color: "stroke-amber-600 fill-amber-500" },
-    "aluminum": { name: "الألومنيوم الطري", E: 70, yieldPoint: 95, ultimate: 150, color: "stroke-cyan-500 fill-cyan-400" },
-  };
-
-  const currentProps = materialProperties[selectedMaterial] || materialProperties["steel"];
-  const barArea = 100; // cross sectional area in mm2 (10x10)
-  const barLength = 200; // original length in mm
-
-  // stress = Force / Area (N/mm2 or MPa)
-  const calculatedStress = appliedForce / barArea;
-  // strain = Stress / Young's modulus E (Young modulus is in GPa, convert to MPa by multiplying by 1000)
-  const calculatedStrain = calculatedStress / (currentProps.E * 1000);
-  // change in length delta_L = strain * original_length
-  const extension = calculatedStrain * barLength;
-
-  // Determine current structural zone
-  const getStructuralZone = () => {
-    if (calculatedStress <= currentProps.yieldPoint * 0.8) {
-      return { label: "حد التناسب (المرونة الكاملة)", color: "text-emerald-400 bg-emerald-500/10 border-emerald-500/30" };
-    } else if (calculatedStress <= currentProps.yieldPoint) {
-      return { label: "نقطة الخضوع (بداية التشوه الدائم)", color: "text-amber-400 bg-amber-500/10 border-amber-500/30" };
-    } else if (calculatedStress <= currentProps.ultimate) {
-      return { label: "الإجهاد الأقصى (مقاومة قصوى)", color: "text-orange-400 bg-orange-500/10 border-orange-500/30" };
-    } else {
-      return { label: "نقطة الكسر (انهيار المادة وتفتتها!)", color: "text-rose-500 bg-rose-500/10 border-rose-500/30" };
-    }
-  };
-
-  const zone = getStructuralZone();
-
-  // ==========================================
-  // 4. Capacitor Charger Lab State
-  // ==========================================
-  const [plateArea, setBarArea] = useState(15); // Area in cm2
-  const [plateDistance, setPlateDistance] = useState(2); // Distance in mm (0.5 to 5.0)
-  const [dielectric, setDielectric] = useState<"air" | "paper" | "ceramic" | "mica">("air");
+  // 14. Capacitor Charger Lab
+  const [plateArea, setPlateArea] = useState(15);
+  const [plateDist, setPlateDist] = useState(2); // mm
+  const [dielectric, setDielectric] = useState<"air" | "paper" | "ceramic">("air");
   const [voltage, setVoltage] = useState(6); // Volts
 
-  const dielectricValues = {
-    "air": { name: "الهواء (فراغ)", er: 1.0 },
-    "paper": { name: "الورق المشبع بالشمع", er: 4.5 },
-    "ceramic": { name: "السيراميك المستقر", er: 6.0 },
-    "mica": { name: "المايكا الدقيقة", er: 7.0 },
-  };
+  // 15. Faraday Induction
+  const [inductionMagnetX, setInductionMagnetX] = useState(50); // 0 to 100
+  const [galvanometerReading, setGalvanometerReading] = useState(0); // -100 to 100
+  const lastMagnetX = useRef(50);
 
-  const currentEr = dielectricValues[dielectric].er;
-  const eo = 8.854; // pF/m or 10^-12 F/m
-  // C = (er * eo * Area_cm2 * 10^-4) / (Distance_mm * 10^-3) = er * eo * Area_cm2 * 0.1 / Distance_mm
-  const capacitance = (currentEr * eo * plateArea * 0.1) / plateDistance; // in pF
-  const storedCharge = capacitance * voltage; // in pC
-  const storedEnergy = 0.5 * capacitance * Math.pow(voltage, 2); // in pJ
+  useEffect(() => {
+    // Determine velocity of magnet drag to move galvanometer needle
+    const deltaX = inductionMagnetX - lastMagnetX.current;
+    if (Math.abs(deltaX) > 0.5) {
+      setGalvanometerReading(Math.min(Math.max(deltaX * 12, -90), 90));
+    } else {
+      setGalvanometerReading(0);
+    }
+    lastMagnetX.current = inductionMagnetX;
+  }, [inductionMagnetX]);
+
+  // 16. Self-inductance
+  const [selfIndSwitchOpen, setSelfIndSwitchOpen] = useState(true);
+  const [selfIndLValue, setSelfIndLValue] = useState(5); // Henrys
+  const [selfIndLampGlow, setSelfIndLampGlow] = useState(0); // 0 to 100
+  const [sparkArcFlash, setSparkArcFlash] = useState(false);
+
+  useEffect(() => {
+    let timeout: NodeJS.Timeout;
+    if (!selfIndSwitchOpen) {
+      // Delay rise based on self-inductance L
+      let step = 0;
+      const interval = setInterval(() => {
+        step += 10 / selfIndLValue;
+        if (step >= 100) {
+          setSelfIndLampGlow(100);
+          clearInterval(interval);
+        } else {
+          setSelfIndLampGlow(step);
+        }
+      }, 50);
+      return () => clearInterval(interval);
+    } else {
+      // Open switch produces instant turn off but sparks the switch contact due to Lenz Back EMF
+      setSelfIndLampGlow(0);
+      if (selfIndLValue > 2) {
+        setSparkArcFlash(true);
+        timeout = setTimeout(() => setSparkArcFlash(false), 300);
+      }
+    }
+    return () => clearTimeout(timeout);
+  }, [selfIndSwitchOpen, selfIndLValue]);
+
+  // 17. Semiconductors Doping
+  const [semiconductorDopeType, setSemiconductorDopeType] = useState<"pure" | "n" | "p">("pure");
+
+  // 18. Trusses analysis
+  const [trussLoad, setTrussLoad] = useState(10); // kN
+
+  // 19. Arches and Foundations
+  const [foundationType, setFoundationType] = useState<"shallow" | "deep">("shallow");
+  const [buildingWeight, setBuildingWeight] = useState(5); // Floors 1 to 15
+
+  // 20. Stress-Strain Elasticity (Existing state modified)
+  const [elasticForce, setElasticForce] = useState(15000);
+  const [elasticMaterial, setElasticMaterial] = useState<"steel" | "copper" | "aluminum">("steel");
+
+  // 21. Fluid Mechanics & Viscosity
+  const [viscosityFluid, setViscosityFluid] = useState<"water" | "oil" | "honey">("oil");
+  const [fluidBallY, setFluidBallY] = useState(10); // percent top
+  const [fluidBallRolling, setFluidBallRolling] = useState(false);
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (fluidBallRolling) {
+      const speed = viscosityFluid === "water" ? 15 : viscosityFluid === "oil" ? 6 : 1.5;
+      interval = setInterval(() => {
+        setFluidBallY((y) => {
+          if (y >= 85) {
+            setFluidBallRolling(false);
+            return 85;
+          }
+          return y + speed;
+        });
+      }, 50);
+    }
+    return () => clearInterval(interval);
+  }, [fluidBallRolling, viscosityFluid]);
+
+  // 22. Environmental Air pollution & water quiz
+  const [pollutionSlider, setPollutionSlider] = useState(25); // ppm of SOx
+  const [waterQuizSelected, setWaterQuizSelected] = useState<string | null>(null);
+  const [waterQuizCorrect, setWaterQuizCorrect] = useState<boolean | null>(null);
 
   return (
-    <div className="space-y-6" id="interactive-lab">
-      {/* Lab Tabs switcher */}
-      <div className="flex flex-wrap gap-2.5 bg-white p-2 rounded-2xl border border-slate-200 shadow-sm" id="lab-selector">
+    <div className="space-y-6 text-slate-800" id="complete-virtual-lab">
+      {/* 1. Main Chapters Categories Switcher (Bento Layout style) */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3" id="lab-chapters-switcher">
         {[
-          { id: "projection", name: "معمل الإسقاط المتعامد", icon: Compass },
-          { id: "engine", name: "محاكي الأشواط الأربعة", icon: RefreshCw },
-          { id: "elasticity", name: "معمل الإجهاد وقانون هوك", icon: Activity },
-          { id: "capacitor", name: "معمل شحن المكثفات والفيض", icon: Zap },
+          { id: "projection", name: "الباب الأول: الرسم الهندسي", icon: Compass, color: "border-blue-500/30 text-blue-600 bg-blue-50/50" },
+          { id: "engine", name: "الباب الثاني: الميكانيكا", icon: RefreshCw, color: "border-emerald-500/30 text-emerald-600 bg-emerald-50/50" },
+          { id: "capacitor", name: "الباب الثالث: الكهرباء والبلورات", icon: Zap, color: "border-indigo-500/30 text-indigo-600 bg-indigo-50/50" },
+          { id: "elasticity", name: "الباب الرابع: المدنية والبيئة", icon: Activity, color: "border-rose-500/30 text-rose-600 bg-rose-50/50" },
         ].map((tab) => {
           const Icon = tab.icon;
-          const isActive = activeLab === tab.id;
+          const isActive = activeCategory === tab.id;
           return (
             <button
               key={tab.id}
-              onClick={() => setActiveLab(tab.id as any)}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all duration-300 ${
+              onClick={() => handleCategoryChange(tab.id as any)}
+              className={`flex flex-col items-center justify-center p-4 rounded-2xl border text-center transition-all duration-300 relative overflow-hidden ${
                 isActive
-                  ? "bg-emerald-600 text-white shadow-md scale-105"
-                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+                  ? "bg-slate-900 text-white border-slate-900 shadow-lg scale-102"
+                  : "bg-white hover:bg-slate-50 border-slate-200"
               }`}
             >
-              <Icon className="h-4 w-4" />
-              <span>{tab.name}</span>
+              <div className={`p-2.5 rounded-xl mb-2 ${isActive ? "bg-white/10 text-white" : "bg-slate-50 text-slate-700"}`}>
+                <Icon className={`h-5 w-5 ${isActive && tab.id === "engine" ? "animate-spin-slow" : ""}`} />
+              </div>
+              <span className="text-xs sm:text-sm font-black tracking-tight">{tab.name}</span>
             </button>
           );
         })}
       </div>
 
-      {/* =========================================================================
-          LAB 1: Orthographic Projection Simulator
-          ========================================================================= */}
-      {activeLab === "projection" && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8" id="projection-lab">
-          {/* Controls */}
-          <div className="lg:col-span-4 bg-white border border-slate-200 rounded-2xl p-5 space-y-6 shadow-sm">
-            <div>
-              <h3 className="text-base font-bold text-slate-800 mb-2">محاكاة الإسقاط المتعامد</h3>
-              <p className="text-xs text-slate-500 leading-relaxed">
-                راقب إسقاط حواف مكعب معقد ذو تجويف على مستويات الإسقاط الثلاثة. تعلم كيف يتغير موضع المساقط بحسب نظام الزاوية الأولى أو الثالثة.
-              </p>
-            </div>
-
-            {/* Projection system selection */}
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-700">نظام الإسقاط المتبع:</label>
-              <div className="grid grid-cols-2 gap-2 bg-slate-50 p-1 rounded-xl border border-slate-200">
-                <button
-                  onClick={() => setProjectionAngle("first")}
-                  className={`py-2 rounded-lg text-xs font-bold transition ${
-                    projectionAngle === "first" ? "bg-emerald-600 text-white shadow-sm" : "text-slate-500 hover:text-slate-800"
-                  }`}
-                >
-                  الزاوية الأولى (السوداني)
-                </button>
-                <button
-                  onClick={() => setProjectionAngle("third")}
-                  className={`py-2 rounded-lg text-xs font-bold transition ${
-                    projectionAngle === "third" ? "bg-emerald-600 text-white shadow-sm" : "text-slate-500 hover:text-slate-800"
-                  }`}
-                >
-                  الزاوية الثالثة
-                </button>
-              </div>
-            </div>
-
-            {/* View Selector */}
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-700">اختيار زاوية النظر والمساقط:</label>
-              <div className="flex flex-col gap-1.5">
-                {[
-                  { id: "isometric", name: "المنظور ثلاثي الأبعاد (الأيزومتري)" },
-                  { id: "front", name: "منظر رأسي / أمامي (Front View)" },
-                  { id: "top", name: "منظر أفقي (Top View)" },
-                  { id: "side", name: "منظر جانبي (Side View)" },
-                ].map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() => setSelectedView(item.id as any)}
-                    className={`w-full text-right px-3 py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-between ${
-                      selectedView === item.id
-                        ? "bg-emerald-50 text-emerald-600 border border-emerald-500/20"
-                        : "text-slate-600 bg-slate-50 hover:bg-slate-100 border border-transparent"
-                    }`}
-                  >
-                    <span>{item.name}</span>
-                    <ChevronLeft className="h-3.5 w-3.5 text-slate-400" />
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Rule card */}
-            <div className="bg-emerald-50/50 border border-emerald-100 p-4 rounded-xl text-xs text-slate-600 space-y-2">
-              <span className="font-bold text-emerald-600">💡 قاعدة المنهج السوداني للزاوية الأولى:</span>
-              <p className="leading-relaxed">
-                في الإسقاط بزاوية أولى، نضع دائماً المسقط الأفقي (العلوي) في لوحة الرسم <strong>بالأسفل</strong> (تحت المسقط الأمامي الرأسي).
-              </p>
-            </div>
-          </div>
-
-          {/* Interactive Screen Display */}
-          <div className="lg:col-span-8 bg-slate-950 border border-slate-800 rounded-2xl p-6 min-h-[400px] flex flex-col items-center justify-center relative overflow-hidden">
-            <h4 className="absolute top-4 right-4 text-xs font-bold text-slate-400">شاشة العرض الهندسية التفاعلية</h4>
-
-            {/* Simulated 3D block projection */}
-            <div className="w-full max-w-lg flex flex-col items-center">
-              {selectedView === "isometric" && (
-                <div className="w-full flex justify-center py-6">
-                  {/* Elegant Isometric projection layout */}
-                  <svg viewBox="0 0 320 220" className="w-80 h-auto text-slate-300">
-                    {/* Draw projection grid background */}
-                    <path d="M 160 0 L 160 220 M 0 110 L 320 110" stroke="rgba(255,255,255,0.05)" strokeWidth="1" />
-                    
-                    {/* Base plane */}
-                    <polygon points="160,110 240,150 160,190 80,150" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="1" />
-                    
-                    {/* Standard L-Shaped Block in Isometric view (30 degrees) */}
-                    {/* Front-left face */}
-                    <polygon points="160,110 160,150 120,130 120,90" fill="#1e293b" stroke="#f59e0b" strokeWidth="2" />
-                    {/* Front-right face */}
-                    <polygon points="160,110 160,150 200,130 200,90" fill="#334155" stroke="#f59e0b" strokeWidth="2" />
-                    {/* Top block top face */}
-                    <polygon points="160,110 120,90 160,70 200,90" fill="#475569" stroke="#f59e0b" strokeWidth="2" />
-                    {/* Pushed in step cavity block layout */}
-                    <polygon points="140,100 140,120 180,100 180,80" fill="rgba(245,158,11,0.1)" stroke="#f59e0b" strokeWidth="1.5" strokeDasharray="2" />
-
-                    {/* Left coordinate 30 degree line */}
-                    <line x1="160" y1="150" x2="60" y2="100" stroke="#f59e0b" strokeWidth="1" strokeDasharray="3" />
-                    {/* Right coordinate 30 degree line */}
-                    <line x1="160" y1="150" x2="260" y2="100" stroke="#f59e0b" strokeWidth="1" strokeDasharray="3" />
-
-                    {/* Angle labels */}
-                    <text x="80" y="125" fill="#f59e0b" className="text-[10px] font-mono">°٣٠</text>
-                    <text x="235" y="125" fill="#f59e0b" className="text-[10px] font-mono">°٣٠</text>
-                  </svg>
-                </div>
-              )}
-
-              {/* Front, Top, and Side 2D layout based on selection */}
-              {selectedView === "front" && (
-                <div className="flex flex-col items-center">
-                  <svg viewBox="0 0 160 160" className="w-48 h-auto">
-                    <rect x="20" y="20" width="120" height="120" fill="none" stroke="#f59e0b" strokeWidth="2.5" />
-                    <rect x="20" y="80" width="120" height="60" fill="rgba(245,158,11,0.08)" stroke="#f59e0b" strokeWidth="1.5" />
-                    <line x1="20" y1="80" x2="140" y2="80" stroke="#f59e0b" strokeWidth="2" />
-                  </svg>
-                  <span className="text-sm font-bold text-white mt-4">المسقط الرأسي (Front View)</span>
-                  <p className="text-xs text-slate-400 mt-1">يظهر كشكل L أو كتلتين مستطيلتين بسبب النظر من الأمام تماماً</p>
-                </div>
-              )}
-
-              {selectedView === "top" && (
-                <div className="flex flex-col items-center">
-                  <svg viewBox="0 0 160 160" className="w-48 h-auto">
-                    <rect x="20" y="20" width="120" height="120" fill="none" stroke="#60a5fa" strokeWidth="2.5" />
-                    <rect x="20" y="20" width="60" height="120" fill="rgba(96,165,250,0.08)" stroke="#60a5fa" strokeWidth="1.5" />
-                    <line x1="80" y1="20" x2="80" y2="140" stroke="#60a5fa" strokeWidth="2" />
-                  </svg>
-                  <span className="text-sm font-bold text-white mt-4">المسقط الأفقي (Top View)</span>
-                  <p className="text-xs text-slate-400 mt-1">يظهر كتلتين متجاورتين ممتدتين من الأعلى</p>
-                </div>
-              )}
-
-              {selectedView === "side" && (
-                <div className="flex flex-col items-center">
-                  <svg viewBox="0 0 160 160" className="w-48 h-auto">
-                    <rect x="20" y="20" width="120" height="120" fill="none" stroke="#34d399" strokeWidth="2.5" />
-                    <line x1="20" y1="60" x2="140" y2="60" stroke="#34d399" strokeWidth="2" />
-                    <rect x="20" y="60" width="120" height="80" fill="rgba(52,211,153,0.08)" stroke="#34d399" strokeWidth="1.5" />
-                  </svg>
-                  <span className="text-sm font-bold text-white mt-4">المسقط الجانبي (Side View)</span>
-                  <p className="text-xs text-slate-400 mt-1">يظهر كتلتين مختلفتي الارتفاع عند النظر من الجانب الأيسر</p>
-                </div>
-              )}
-
-              {/* Dynamic 2D Board Arrangement layout comparing Angle 1 vs Angle 3 */}
-              <div className="mt-8 border-t border-slate-800/80 pt-6 w-full max-w-md">
-                <span className="text-xs text-slate-400 block text-center mb-3">ترتيب المساقط على ورقة الرسم الفنية:</span>
-                <div className="grid grid-cols-3 gap-2 text-center text-[10px] font-bold text-slate-400">
-                  {projectionAngle === "first" ? (
-                    <>
-                      {/* Row 1 */}
-                      <div className="border border-slate-800 p-2.5 rounded-lg bg-slate-900/50">الجانبي الأيمن</div>
-                      <div className="border-2 border-amber-500/50 p-2.5 rounded-lg bg-slate-900 text-white">الرأسي (الأمامي)</div>
-                      <div className="border border-slate-800 p-2.5 rounded-lg bg-slate-900/50">الجانبي الأيسر</div>
-                      {/* Row 2 */}
-                      <div></div>
-                      <div className="border-2 border-sky-500/50 p-2.5 rounded-lg bg-slate-900 text-white">الأفقي (العلوي)</div>
-                      <div></div>
-                    </>
-                  ) : (
-                    <>
-                      {/* Row 1 */}
-                      <div></div>
-                      <div className="border-2 border-sky-500/50 p-2.5 rounded-lg bg-slate-900 text-white">الأفقي (العلوي)</div>
-                      <div></div>
-                      {/* Row 2 */}
-                      <div className="border border-slate-800 p-2.5 rounded-lg bg-slate-900/50">الجانبي الأيسر</div>
-                      <div className="border-2 border-amber-500/50 p-2.5 rounded-lg bg-slate-900 text-white">الرأسي (الأمامي)</div>
-                      <div className="border border-slate-800 p-2.5 rounded-lg bg-slate-900/50">الجانبي الأيمن</div>
-                    </>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* =========================================================================
-          LAB 2: 4-Stroke Engine Simulator
-          ========================================================================= */}
-      {activeLab === "engine" && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8" id="engine-lab">
-          {/* Controls */}
-          <div className="lg:col-span-4 bg-white border border-slate-200 rounded-2xl p-5 space-y-6 shadow-sm">
-            <div>
-              <h3 className="text-base font-bold text-slate-800 mb-2">محاكي المحرك رباعي الأشواط</h3>
-              <p className="text-xs text-slate-500 leading-relaxed">
-                شاهد كيف يتحول الضغط والحرارة الناتجة عن احتراق خليط الوقود والهواء بداخل غرفة الأسطوانة إلى حركة ترددية للمكبس، ومن ثم حركة دورانية عبر ذراع التوصيل لعمود المرفق.
-              </p>
-            </div>
-
-            {/* Play Pause Auto-animation */}
-            <div className="flex items-center gap-3">
+      {/* 2. Sub-navigator Horizontal List of Lessons for Active Chapter */}
+      <div className="bg-slate-100 p-2 rounded-2xl border border-slate-200" id="lab-lessons-nav">
+        <span className="text-[10px] text-slate-500 font-bold block mb-1.5 px-2">اختر الدرس لإجراء التجربة العملية الخاصة به:</span>
+        <div className="flex flex-wrap gap-1.5">
+          {lessonsInCat.map((lesson) => {
+            const isSelected = selectedLessonId === lesson.id;
+            return (
               <button
-                onClick={() => setEnginePlaying(!enginePlaying)}
-                className={`flex-1 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition ${
-                  enginePlaying ? "bg-emerald-700 text-white" : "bg-emerald-600 text-white shadow-sm"
+                key={lesson.id}
+                onClick={() => setSelectedLessonId(lesson.id)}
+                className={`text-right px-3 py-2 rounded-xl text-xs font-bold transition-all duration-300 flex-1 min-w-[140px] max-w-[240px] border ${
+                  isSelected
+                    ? "bg-emerald-600 text-white border-transparent shadow-sm scale-102"
+                    : "bg-white hover:bg-slate-50 text-slate-700 border-slate-200/60"
                 }`}
               >
-                {enginePlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4 fill-current" />}
-                <span>{enginePlaying ? "إيقاف الحركة" : "تشغيل مستمر"}</span>
+                <div className="truncate">{lesson.name}</div>
+                <div className={`text-[9px] truncate mt-0.5 ${isSelected ? "text-emerald-100" : "text-slate-400"}`}>
+                  {lesson.desc}
+                </div>
               </button>
-              
-              <button
-                onClick={() => {
-                  setEnginePlaying(false);
-                  setEngineStroke((prev) => ((prev + 1) % 4) as 0 | 1 | 2 | 3);
-                }}
-                className="px-4 py-2.5 bg-slate-100 border border-slate-200 text-slate-700 rounded-xl text-xs font-bold hover:bg-slate-200 transition"
-              >
-                خطوة تالية
-              </button>
-            </div>
+            );
+          })}
+        </div>
+      </div>
 
-            {/* Step selections */}
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-700">أشواط المكبس (اختر شوطاً يدوياً):</label>
-              <div className="flex flex-col gap-1.5">
-                {[
-                  { id: 0, name: "١. شوط السحب (Suction)", desc: "صمام السحب مفتوح، الطرد مغلق. المكبس يتحرك لأسفل" },
-                  { id: 1, name: "٢. شوط الضغط (Compression)", desc: "الصمامات مغلقة. المكبس يصعد ويضغط الخليط" },
-                  { id: 2, name: "٣. شوط القدرة / الاشتعال (Power)", desc: "شرارة شمعة الإشعال تحرق المزيج بقوة لأسفل" },
-                  { id: 3, name: "٤. شوط الطرد (Exhaust)", desc: "صمام الطرد مفتوح. المكبس يصعد ويطرد العادم" },
-                ].map((stroke) => (
-                  <button
-                    key={stroke.id}
-                    onClick={() => {
-                      setEnginePlaying(false);
-                      setEngineStroke(stroke.id as any);
-                    }}
-                    className={`w-full text-right p-3 rounded-xl transition border flex flex-col text-xs ${
-                      engineStroke === stroke.id
-                        ? "bg-emerald-50 border-emerald-500 text-slate-800 shadow-sm"
-                        : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-                    }`}
-                  >
-                    <span className={`font-bold ${engineStroke === stroke.id ? "text-emerald-700" : "text-slate-700"}`}>{stroke.name}</span>
-                    <span className="text-[10px] text-slate-500 mt-1">{stroke.desc}</span>
-                  </button>
-                ))}
+      {/* 3. Main Experiment Ground (Interactive Two-Column Panel) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6" id="experiment-stage-panel">
+        
+        {/* Left Column: Interactive Controls & Formulas */}
+        <div className="lg:col-span-4 bg-white border border-slate-200 rounded-2xl p-5 flex flex-col justify-between space-y-6 shadow-sm">
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
+              <div className="bg-emerald-50 text-emerald-600 p-2 rounded-lg">
+                <Award className="h-5 w-5" />
+              </div>
+              <div>
+                <h3 className="text-sm font-black text-slate-800">بطاقة تحكّم التجربة</h3>
+                <p className="text-[10px] text-slate-500">عدّل المتغيرات الفيزيائية ولاحظ النتائج فوراً</p>
               </div>
             </div>
-          </div>
 
-          {/* Graphical Display of Piston */}
-          <div className="lg:col-span-8 bg-slate-950 border border-slate-800 rounded-2xl p-6 min-h-[420px] flex flex-col items-center justify-center relative overflow-hidden">
-            {/* Dynamic visual indicator representing flame or fuel */}
-            <div className="absolute top-4 right-4 flex items-center gap-2">
-              <span className="text-xs text-slate-400">حالة الشوط الحالية:</span>
-              <span className="text-xs font-bold px-2.5 py-1 bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-full">
-                {engineStroke === 0 ? "السحب" : engineStroke === 1 ? "الضغط" : engineStroke === 2 ? "القدرة (الشرارة)" : "الطرد"}
-              </span>
-            </div>
+            {/* Render Context-specific description and controls */}
+            <div className="space-y-4 text-xs">
+              {/* DESCRIPTION SECTION */}
+              <div className="bg-slate-50 border border-slate-200/60 p-3 rounded-xl space-y-1.5">
+                <span className="font-bold text-slate-800">موضوع التجربة:</span>
+                <p className="text-[11px] text-slate-600 leading-relaxed">
+                  {lessonsInCat.find((l) => l.id === selectedLessonId)?.desc}
+                </p>
+              </div>
 
-            {/* Animated SVG Piston, Crankshaft, Spark Plug and Valves */}
-            <svg viewBox="0 0 240 320" className="w-64 h-auto text-slate-300">
-              {/* Cylinder wall boundaries */}
-              <line x1="60" y1="40" x2="60" y2="240" stroke="currentColor" strokeWidth="4" />
-              <line x1="180" y1="40" x2="180" y2="240" stroke="currentColor" strokeWidth="4" />
-              <line x1="60" y1="40" x2="180" y2="40" stroke="currentColor" strokeWidth="4" />
-
-              {/* Spark Plug in center top */}
-              <rect x="110" y="15" width="20" height="25" fill="none" stroke="currentColor" strokeWidth="2" />
-              <line x1="120" y1="40" x2="120" y2="44" stroke="#f59e0b" strokeWidth="1.5" />
-              {/* Power Stroke - Flame explosion spark effect */}
-              {engineStroke === 2 && (
-                <g>
-                  <circle cx="120" cy="48" r="18" fill="rgba(239, 68, 68, 0.4)" className="animate-ping" />
-                  <path d="M 120 40 L 105 55 L 115 52 L 110 65 L 135 48 L 125 48 Z" fill="#ef4444" stroke="#f59e0b" strokeWidth="1" />
-                </g>
-              )}
-
-              {/* Intake Valve (Left) and Exhaust Valve (Right) */}
-              {/* Valve state dynamically rendering based on stroke */}
-              {/* Stroke 0: Suction - Intake open (moved down) */}
-              <g id="intake-valve" transform={engineStroke === 0 ? "translate(0, 12)" : "translate(0, 0)"}>
-                <line x1="85" y1="20" x2="85" y2="40" stroke={engineStroke === 0 ? "#10b981" : "currentColor"} strokeWidth="3" />
-                <polygon points="75,40 95,40 85,35" fill={engineStroke === 0 ? "#10b981" : "currentColor"} />
-              </g>
-
-              {/* Stroke 3: Exhaust - Exhaust open (moved down) */}
-              <g id="exhaust-valve" transform={engineStroke === 3 ? "translate(0, 12)" : "translate(0, 0)"}>
-                <line x1="155" y1="20" x2="155" y2="40" stroke={engineStroke === 3 ? "#ef4444" : "currentColor"} strokeWidth="3" />
-                <polygon points="145,40 165,40 155,35" fill={engineStroke === 3 ? "#ef4444" : "currentColor"} />
-              </g>
-
-              {/* Gas / Fuel color inside cylinder */}
-              {/* Suction/Compression shows fuel/air mixture (greenish-sky), Power shows orange fire, Exhaust shows gray smoke */}
-              <rect
-                x="62"
-                y="42"
-                width="116"
-                height={pistonPosition}
-                fill={
-                  engineStroke === 0 || engineStroke === 1
-                    ? "rgba(14, 165, 233, 0.15)"
-                    : engineStroke === 2
-                    ? "rgba(245, 158, 11, 0.25)"
-                    : "rgba(148, 163, 184, 0.2)"
-                }
-              />
-
-              {/* The Piston moving up/down */}
-              <g transform={`translate(0, ${pistonPosition})`}>
-                {/* Piston body */}
-                <rect x="62" y="40" width="116" height="50" rx="3" fill="#1e293b" stroke="currentColor" strokeWidth="2" />
-                {/* Piston pin */}
-                <circle cx="120" cy="65" r="8" fill="#475569" stroke="currentColor" strokeWidth="1.5" />
-                {/* Piston rings notches */}
-                <line x1="62" y1="48" x2="68" y2="48" stroke="currentColor" strokeWidth="2" />
-                <line x1="62" y1="56" x2="68" y2="56" stroke="currentColor" strokeWidth="2" />
-                <line x1="174" y1="48" x2="180" y2="48" stroke="currentColor" strokeWidth="2" />
-                <line x1="174" y1="56" x2="180" y2="56" stroke="currentColor" strokeWidth="2" />
+              {/* RENDER DYNAMIC CONTROLS BASED ON ACTIVE LESSON */}
+              <div className="space-y-4 pt-2">
                 
-                {/* Connecting rod (top pin attachment) */}
-                <line x1="120" y1="65" x2="120" y2="120" stroke="currentColor" strokeWidth="5" strokeLinecap="round" />
-              </g>
-
-              {/* Rotating Crankshaft representation linked with piston height */}
-              {/* Dynamically draw linking line from bottom of rod to rotation wheel */}
-              {(() => {
-                const rodY = pistonPosition + 120;
-                // Calculate rotational angle based on stroke
-                const angleRad = (engineStroke * Math.PI) / 2;
-                const crankRadius = 35;
-                const crankX = 120 + crankRadius * Math.cos(angleRad);
-                const crankY = 240 + crankRadius * Math.sin(angleRad);
-                return (
-                  <g>
-                    {/* Connecting rod from piston base pin to crank pin */}
-                    <line x1="120" y1={rodY} x2={crankX} y2={crankY} stroke="#f59e0b" strokeWidth="5" strokeLinecap="round" />
-                    
-                    {/* Rotational Crank wheel */}
-                    <circle cx="120" cy="240" r="35" fill="none" stroke="currentColor" strokeWidth="2.5" strokeDasharray="3" />
-                    <circle cx={crankX} cy={crankY} r="5" fill="#f59e0b" />
-                    <line x1="120" y1="240" x2={crankX} y2={crankY} stroke="currentColor" strokeWidth="2" />
-                    <circle cx="120" cy="240" r="8" fill="#475569" stroke="currentColor" strokeWidth="2" />
-                  </g>
-                );
-              })()}
-            </svg>
-            <p className="text-[11px] text-slate-400 mt-4 text-center max-w-sm">
-              أثناء حركة المكبس لأسفل في شوط القدرة، يدور عمود المرفق بمقدار ١٨٠ درجة لنقل الحركة الدائرية لبقية عجلات السيارة.
-            </p>
-          </div>
-        </div>
-      )}
-
-      {/* =========================================================================
-          LAB 3: Stress-Strain Elasticity Tester
-          ========================================================================= */}
-      {activeLab === "elasticity" && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8" id="elasticity-lab">
-          {/* Controls */}
-          <div className="lg:col-span-4 bg-white border border-slate-200 rounded-2xl p-5 space-y-6 shadow-sm text-slate-800">
-            <div>
-              <h3 className="text-base font-bold text-slate-800 mb-1">معمل إجهاد المواد وقانون هوك</h3>
-              <p className="text-xs text-slate-500 leading-relaxed">
-                اضبط الحمل المؤثر وشاهد التمدد والاستجابة الميكانيكية للمعدن. حدد متى يحدث التشوه الدائم ومتى ينهار العمود بالكامل!
-              </p>
-            </div>
-
-            {/* Select Material */}
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-700">اختر مادة العمود المعدني:</label>
-              <div className="grid grid-cols-2 gap-1.5">
-                {(Object.keys(materialProperties) as Array<keyof typeof materialProperties>).map((key) => {
-                  const props = materialProperties[key];
-                  const isSelected = selectedMaterial === key;
-                  return (
+                {/* 1. intro-projection CONTROLS */}
+                {selectedLessonId === "intro-projection" && (
+                  <div className="space-y-3">
+                    <label className="font-bold text-slate-700 block">خطوط إسقاط النظر (الأشعة):</label>
                     <button
-                      key={key}
-                      onClick={() => setSelectedMaterial(key)}
-                      className={`py-2 rounded-xl text-xs font-bold transition border ${
-                        isSelected ? "bg-emerald-600 text-white shadow-sm border-transparent" : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                      onClick={() => setProjBeamActive(!projBeamActive)}
+                      className={`w-full py-2.5 rounded-xl text-xs font-bold transition border ${
+                        projBeamActive ? "bg-emerald-600 text-white" : "bg-slate-100 border-slate-200 text-slate-700"
                       }`}
                     >
-                      {props.name}
+                      {projBeamActive ? "إخفاء أشعة الإسقاط" : "إظهار أشعة الإسقاط العمودية"}
                     </button>
-                  );
-                })}
-              </div>
-            </div>
+                    <div className="text-[10px] text-slate-500 leading-relaxed">
+                      * لاحظ أن الأشعة تسقط عمودياً تماماً من الجسم باتجاه الشاشة لتكوين مسقط ثنائي الأبعاد بدون أبعاد مائلة.
+                    </div>
+                  </div>
+                )}
 
-            {/* Slider for Force */}
-            <div className="space-y-3">
-              <div className="flex justify-between items-center text-xs">
-                <span className="font-bold text-slate-700">القوة المؤثرة (ق):</span>
-                <span className="font-mono text-emerald-600 font-bold">{appliedForce.toLocaleString()} نيوتن</span>
-              </div>
-              <input
-                type="range"
-                min="1000"
-                max="50000"
-                step="1000"
-                value={appliedForce}
-                onChange={(e) => setAppliedForce(Number(e.target.value))}
-                className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600"
-              />
-              <div className="flex justify-between text-[10px] text-slate-400 font-mono">
-                <span>١,٠٠٠ N</span>
-                <span>٢٥,٠٠٠ N</span>
-                <span>٥٠,٠٠٠ N</span>
-              </div>
-            </div>
+                {/* 2. ortho-principles CONTROLS */}
+                {selectedLessonId === "ortho-principles" && (
+                  <div className="space-y-3">
+                    <div className="flex justify-between font-bold text-slate-700">
+                      <span>زاوية ميل السطح (θ):</span>
+                      <span className="font-mono text-emerald-600">{orthoAngle} درجة</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="0"
+                      max="90"
+                      step="15"
+                      value={orthoAngle}
+                      onChange={(e) => setOrthoAngle(Number(e.target.value))}
+                      className="w-full accent-emerald-600 cursor-pointer h-1.5 bg-slate-200 rounded-lg appearance-none"
+                    />
+                    <div className="bg-emerald-50 border border-emerald-100 p-3 rounded-xl space-y-1">
+                      <span className="font-bold text-emerald-700">القانون الرياضي للمسقط:</span>
+                      <p className="text-[11px] text-slate-600 font-mono">طول المسقط = الطول الحقيقي × جتا(θ)</p>
+                      <p className="text-[10px] text-slate-500">
+                        {orthoAngle === 0 ? "يوازي المستوى: الطول كامل ومطابق (جتا ٠ = ١)" :
+                         orthoAngle === 90 ? "عمودي على المستوى: يظهر كخط مستقيم أو نقطة (جتا ٩٠ = ٠)" :
+                         `مائل: يقل الطول بنسبة ${(Math.cos((orthoAngle * Math.PI) / 180)).toFixed(2)}`}
+                      </p>
+                    </div>
+                  </div>
+                )}
 
-            {/* Calculated Values */}
-            <div className="bg-slate-50 rounded-xl p-4 space-y-3 border border-slate-200 text-xs font-mono text-slate-700">
-              <div className="flex justify-between border-b border-slate-200 pb-2">
-                <span className="text-slate-500">مساحة المقطع العرضي (م):</span>
-                <span className="text-slate-800 font-bold">{barArea} ملم²</span>
-              </div>
-              <div className="flex justify-between border-b border-slate-200 pb-2">
-                <span className="text-slate-500 font-bold text-emerald-600">الإجهاد (هـ = ق / م):</span>
-                <span className="text-emerald-600 font-bold">{calculatedStress.toFixed(1)} نيوتن/ملم²</span>
-              </div>
-              <div className="flex justify-between border-b border-slate-200 pb-2">
-                <span className="text-slate-500">معامل المرونة (ي):</span>
-                <span className="text-slate-800 font-bold">{currentProps.E} جيجا باسكال</span>
-              </div>
-              <div className="flex justify-between border-b border-slate-200 pb-2">
-                <span className="text-slate-500">الانفعال الناتج (ع):</span>
-                <span className="text-slate-800 font-bold">{calculatedStrain.toFixed(6)}</span>
-              </div>
-              <div className="flex justify-between font-bold">
-                <span className="text-emerald-600">التمدد الإجمالي (Δل):</span>
-                <span className="text-emerald-600">{extension.toFixed(4)} ملم</span>
+                {/* 3. three-planes CONTROLS */}
+                {selectedLessonId === "three-planes" && (
+                  <div className="space-y-3">
+                    <label className="font-bold text-slate-700 block">نظام الإسقاط العالمي:</label>
+                    <div className="grid grid-cols-2 gap-2 bg-slate-50 p-1 rounded-xl border border-slate-200">
+                      <button
+                        onClick={() => setProjectionAngle("first")}
+                        className={`py-2 rounded-lg text-xs font-bold transition ${
+                          projectionAngle === "first" ? "bg-blue-600 text-white" : "text-slate-500 hover:text-slate-800"
+                        }`}
+                      >
+                        الزاوية الأولى (السوداني)
+                      </button>
+                      <button
+                        onClick={() => setProjectionAngle("third")}
+                        className={`py-2 rounded-lg text-xs font-bold transition ${
+                          projectionAngle === "third" ? "bg-blue-600 text-white" : "text-slate-500 hover:text-slate-800"
+                        }`}
+                      >
+                        الزاوية الثالثة
+                      </button>
+                    </div>
+                    <p className="text-[10px] text-slate-500 leading-relaxed">
+                      * المنهج السوداني يعتمد نظام الزاوية الأولى، حيث يرسم المسقط الأفقي بالأسفل والجانبي الأيسر على يمين المسقط الرأسي.
+                    </p>
+                  </div>
+                )}
+
+                {/* 4. isometric-oblique CONTROLS */}
+                {selectedLessonId === "isometric-oblique" && (
+                  <div className="space-y-3">
+                    <label className="font-bold text-slate-700 block">نوع المنظور الهندسي:</label>
+                    <div className="grid grid-cols-2 gap-2 bg-slate-50 p-1 rounded-xl border border-slate-200">
+                      <button
+                        onClick={() => setIsometricStyle("iso")}
+                        className={`py-2 rounded-lg text-xs font-bold transition ${
+                          isometricStyle === "iso" ? "bg-emerald-600 text-white" : "text-slate-500"
+                        }`}
+                      >
+                        أيزومتري (30 درجة)
+                      </button>
+                      <button
+                        onClick={() => setIsometricStyle("oblique")}
+                        className={`py-2 rounded-lg text-xs font-bold transition ${
+                          isometricStyle === "oblique" ? "bg-emerald-600 text-white" : "text-slate-500"
+                        }`}
+                      >
+                        مائل كافاليير (45 درجة)
+                      </button>
+                    </div>
+                    <p className="text-[10px] text-slate-500 leading-relaxed">
+                      {isometricStyle === "iso"
+                        ? "الأيزومتري: تميل المحاور الجانبية بـ 30° عن الأفق، مع الحفاظ على المقاسات الحقيقية لجميع الاتجاهات."
+                        : "المائل (Oblique): يرسم الوجه الأمامي زوايا قائمة، والعمق يميل بـ 45° ويضرب مقاس العمق في النصف لتجنب التشويه البصري."}
+                    </p>
+                  </div>
+                )}
+
+                {/* 5. dim-1-1 CONTROLS */}
+                {selectedLessonId === "dim-1-1" && (
+                  <div className="space-y-3">
+                    <div className="flex justify-between font-bold text-slate-700">
+                      <span>مسافة خط البعد عن الرسم:</span>
+                      <span className="font-mono text-emerald-600 font-bold">{dimDistance} مم</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="2"
+                      max="15"
+                      step="1"
+                      value={dimDistance}
+                      onChange={(e) => setDimDistance(Number(e.target.value))}
+                      className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600"
+                    />
+                    <div className={`p-3 rounded-xl border text-[11px] font-bold ${
+                      dimDistance >= 8 && dimDistance <= 10
+                        ? "bg-emerald-50 border-emerald-200 text-emerald-700 animate-pulse"
+                        : dimDistance < 8
+                        ? "bg-rose-50 border-rose-200 text-rose-700"
+                        : "bg-amber-50 border-amber-200 text-amber-700"
+                    }`}>
+                      {dimDistance >= 8 && dimDistance <= 10
+                        ? "ممتاز! مطابقة للمواصفات الفنية المعتمدة (8-10 مم)."
+                        : dimDistance < 8
+                        ? "خطير جداً! خط البعد قريب جداً وقد يتداخل مع حواف الجسم المراد رسمه."
+                        : "المسافة بعيدة وقد تنفصل الأبعاد عن دلالتها ومكانها الصحيح."}
+                    </div>
+                  </div>
+                )}
+
+                {/* 6. sketch-1-2 CONTROLS */}
+                {selectedLessonId === "sketch-1-2" && (
+                  <div className="space-y-3">
+                    <button
+                      onClick={() => {
+                        setFreehandPoints([]);
+                        setSketchScore(null);
+                      }}
+                      className="w-full py-2.5 bg-slate-100 border border-slate-200 text-slate-700 font-bold rounded-xl text-xs hover:bg-slate-200 transition"
+                    >
+                      مسح شاشة الرسم البدائي
+                    </button>
+                    {sketchScore !== null && (
+                      <div className="bg-emerald-50 border border-emerald-200 p-3 rounded-xl text-center">
+                        <span className="text-[10px] text-slate-500 font-bold block">دقة التكريك باليد الحرة:</span>
+                        <span className="text-lg font-black text-emerald-700">{sketchScore}%</span>
+                        <p className="text-[10px] text-slate-600 mt-1">
+                          {sketchScore > 80 ? "رائع! تحكم ممتاز باليد والنسب." : "جيد! واصل التمرين لضبط الدقة الهندسية."}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* 7. metals-intro CONTROLS */}
+                {selectedLessonId === "metals-intro" && (
+                  <div className="space-y-3">
+                    <div>
+                      <label className="font-bold text-slate-700 block mb-1">اختر نوع الفلز:</label>
+                      <select
+                        value={metalSelected}
+                        onChange={(e) => setMetalSelected(e.target.value as any)}
+                        className="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs focus:ring-emerald-500 focus:outline-none"
+                      >
+                        <option value="steel">الصلب الكربوني (حديد)</option>
+                        <option value="cast-iron">حديد الزهر الرمادي (حديد)</option>
+                        <option value="copper">النحاس الأحمر النقي (لا حديدي)</option>
+                        <option value="aluminum">الألومنيوم الطري (لا حديدي)</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="font-bold text-slate-700 block mb-1.5">اختر الفحص المعملي الميكانيكي:</label>
+                      <div className="grid grid-cols-3 gap-1.5 text-center">
+                        {[
+                          { id: "magnet", name: "مغناطيس" },
+                          { id: "spark", name: "فحص شرر" },
+                          { id: "density", name: "كثافة ووزن" },
+                        ].map((btn) => (
+                          <button
+                            key={btn.id}
+                            onClick={() => setMetalTestType(btn.id as any)}
+                            className={`py-2 rounded-xl text-[10px] font-bold border transition ${
+                              metalTestType === btn.id ? "bg-emerald-600 text-white border-transparent" : "bg-slate-50 border-slate-200 hover:bg-slate-100"
+                            }`}
+                          >
+                            {btn.name}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* 8. iron-production CONTROLS */}
+                {selectedLessonId === "iron-production" && (
+                  <div className="space-y-3">
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-[11px]">
+                        <span>نسبة شحنة الكوك (موقد):</span>
+                        <span className="font-bold font-mono">{furnaceCoke}%</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="20"
+                        max="80"
+                        value={furnaceCoke}
+                        onChange={(e) => setFurnaceCoke(Number(e.target.value))}
+                        className="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-[11px]">
+                        <span>نسبة الحجر الجيري (صهر):</span>
+                        <span className="font-bold font-mono">{furnaceLimestone}%</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="10"
+                        max="50"
+                        value={furnaceLimestone}
+                        onChange={(e) => setFurnaceLimestone(Number(e.target.value))}
+                        className="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-[11px]">
+                        <span>درجة حرارة الفرن اللافح:</span>
+                        <span className="font-bold font-mono text-rose-600">{furnaceTemp}° مئوية</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="200"
+                        max="1600"
+                        step="100"
+                        value={furnaceTemp}
+                        onChange={(e) => setFurnaceTemp(Number(e.target.value))}
+                        className="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-rose-500"
+                      />
+                    </div>
+                    <div className="flex gap-2 pt-1">
+                      <button
+                        onClick={() => {
+                          setFurnaceRunning(true);
+                          setFurnaceTapped(false);
+                          setTimeout(() => setFurnaceRunning(false), 2000);
+                        }}
+                        disabled={furnaceTemp < 1300}
+                        className="flex-1 py-2 bg-rose-600 hover:bg-rose-700 disabled:opacity-50 text-white font-bold rounded-xl text-xs transition"
+                      >
+                        دفع الهواء الحار 🔥
+                      </button>
+                      <button
+                        onClick={() => setFurnaceTapped(true)}
+                        disabled={furnaceTemp < 1300}
+                        className="flex-1 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold rounded-xl text-xs transition"
+                      >
+                        بثق حديد التماسيح 🛢️
+                      </button>
+                    </div>
+                    {furnaceTemp < 1300 && (
+                      <div className="text-[10px] text-rose-500 font-bold">
+                        * درجة انصهار خام الحديد وخروج زهر التماسيح تتطلب 1300°م كحد أدنى.
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* 9. steel-rolling CONTROLS */}
+                {selectedLessonId === "steel-rolling" && (
+                  <div className="space-y-3">
+                    <label className="font-bold text-slate-700 block">درجة حرارة الدرفلة:</label>
+                    <div className="grid grid-cols-2 gap-2 bg-slate-50 p-1 rounded-xl border border-slate-200">
+                      <button
+                        onClick={() => setRollingTemp("hot")}
+                        className={`py-2 rounded-lg text-xs font-bold transition ${
+                          rollingTemp === "hot" ? "bg-orange-600 text-white" : "text-slate-500"
+                        }`}
+                      >
+                        درفلة على الساخن (1300°م)
+                      </button>
+                      <button
+                        onClick={() => setRollingTemp("cold")}
+                        className={`py-2 rounded-lg text-xs font-bold transition ${
+                          rollingTemp === "cold" ? "bg-sky-600 text-white" : "text-slate-500"
+                        }`}
+                      >
+                        درفلة على البارد (أقل من 700°م)
+                      </button>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-[11px]">
+                        <span>مسافة الفراغ بين الدرافيل:</span>
+                        <span className="font-bold font-mono text-emerald-600">{rollerGap} مم</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="2"
+                        max="18"
+                        step="2"
+                        value={rollerGap}
+                        onChange={(e) => setRollerGap(Number(e.target.value))}
+                        className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600"
+                      />
+                    </div>
+                    <p className="text-[10px] text-slate-500">
+                      {rollingTemp === "hot"
+                        ? "درفلة الساخن: تليين تام لإنتاج المقاطع الكبيرة وسكك الحديد بسهولة."
+                        : "درفلة البارد: مقاومة تشكيل أعلى، ولكن تنتج ألواح صاج ذات متانة فائقة ونعومة سطحية ممتازة بدقة 0.001 بوصة."}
+                    </p>
+                  </div>
+                )}
+
+                {/* 10. non-ferrous-alloys CONTROLS */}
+                {selectedLessonId === "non-ferrous-alloys" && (
+                  <div className="space-y-3">
+                    <div className="flex justify-between font-bold text-slate-700">
+                      <span>نسبة النحاس النقي:</span>
+                      <span className="font-mono text-emerald-600">{alloyMixCopper}%</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="40"
+                      max="90"
+                      step="5"
+                      value={alloyMixCopper}
+                      onChange={(e) => {
+                        setAlloyMixCopper(Number(e.target.value));
+                        setAlloyMixOther(100 - Number(e.target.value));
+                      }}
+                      className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600"
+                    />
+                    <div className="bg-slate-50 p-3 rounded-xl space-y-2">
+                      <span className="font-bold text-slate-700 block text-[11px]">الخلائط الناتجة المعتمدة:</span>
+                      <ul className="space-y-1 text-[10px] text-slate-600 list-disc list-inside">
+                        <li>نحاس + خارصين (30%) = <span className="text-amber-600 font-bold">النحاس الأصفر (للصنابير)</span></li>
+                        <li>نحاس + قصدير (10%) = <span className="text-amber-800 font-bold">البرنز (للأجراس ومعدات السفن)</span></li>
+                        <li>قصدير + نحاس + رصاص = <span className="text-slate-600 font-bold">السبيكة البيضاء (لكراسي التحميل)</span></li>
+                      </ul>
+                    </div>
+                  </div>
+                )}
+
+                {/* 11. engines-cycles CONTROLS */}
+                {selectedLessonId === "engines-cycles" && (
+                  <div className="space-y-3">
+                    <button
+                      onClick={() => setEnginePlaying(!enginePlaying)}
+                      className={`w-full py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 ${
+                        enginePlaying ? "bg-emerald-700 text-white" : "bg-emerald-600 text-white"
+                      }`}
+                    >
+                      {enginePlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4 fill-current" />}
+                      <span>{enginePlaying ? "إيقاف المحاكاة المستمرة" : "دوران مستمر للمحرك"}</span>
+                    </button>
+                    <div className="grid grid-cols-4 gap-1">
+                      {[
+                        { id: 0, n: "سحب" },
+                        { id: 1, n: "ضغط" },
+                        { id: 2, n: "قدرة" },
+                        { id: 3, n: "طرد" },
+                      ].map((st) => (
+                        <button
+                          key={st.id}
+                          onClick={() => {
+                            setEnginePlaying(false);
+                            setEngineStroke(st.id as any);
+                          }}
+                          className={`py-1.5 rounded-lg text-[10px] font-bold border ${
+                            engineStroke === st.id ? "bg-amber-500 text-white border-transparent" : "bg-slate-50 border-slate-200"
+                          }`}
+                        >
+                          {st.n}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* 12. car-engine-systems CONTROLS */}
+                {selectedLessonId === "car-engine-systems" && (
+                  <div className="space-y-3">
+                    <div className="flex flex-col gap-1.5">
+                      {[
+                        { id: "fuel", name: "نظام الوقود والمغذي (الكاربريتر)" },
+                        { id: "cooling", name: "نظام التبريد والرديتر والمشع" },
+                        { id: "lube", name: "نظام التزييت ومضخة الكرتير" },
+                        { id: "ignition", name: "نظام الاشتعال والشرارة الموزعة" },
+                      ].map((item) => (
+                        <button
+                          key={item.id}
+                          onClick={() => setActiveCarSystem(item.id as any)}
+                          className={`w-full text-right px-3 py-2 rounded-xl text-xs font-bold transition border ${
+                            activeCarSystem === item.id
+                              ? "bg-emerald-50 border-emerald-500 text-emerald-700"
+                              : "bg-slate-50 border-slate-200 text-slate-600"
+                          }`}
+                        >
+                          {item.name}
+                        </button>
+                      ))}
+                    </div>
+                    {activeCarSystem === "fuel" && (
+                      <div className="space-y-1.5 pt-1">
+                        <div className="flex justify-between text-[11px]">
+                          <span>نسبة خلط البنزين إلى الهواء:</span>
+                          <span className="font-bold text-emerald-600">1 : {carburetorRatio} بالوزن</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="8"
+                          max="22"
+                          value={carburetorRatio}
+                          onChange={(e) => setCarburetorRatio(Number(e.target.value))}
+                          className="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600"
+                        />
+                        <span className="text-[9px] text-slate-500 block">
+                          {carburetorRatio === 15 ? "✅ خلط مثالي جداً (1 : 15)" : "⚠️ الاحتراق غير اقتصادي ومختل"}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* 13. electrical-units CONTROLS */}
+                {selectedLessonId === "electrical-units" && (
+                  <div className="space-y-3">
+                    <div className="flex justify-between font-bold text-[11px]">
+                      <span>شحنة الجسم الأول (ش١):</span>
+                      <span className="font-mono text-emerald-600">{coulombQ1} ميكروكولوم</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="-10"
+                      max="10"
+                      step="2"
+                      value={coulombQ1}
+                      onChange={(e) => setCoulombQ1(Number(e.target.value))}
+                      className="w-full h-1 bg-slate-200 rounded-lg appearance-none accent-emerald-600"
+                    />
+                    <div className="flex justify-between font-bold text-[11px]">
+                      <span>شحنة الجسم الثاني (ش٢):</span>
+                      <span className="font-mono text-emerald-600">{coulombQ2} ميكروكولوم</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="-10"
+                      max="10"
+                      step="2"
+                      value={coulombQ2}
+                      onChange={(e) => setCoulombQ2(Number(e.target.value))}
+                      className="w-full h-1 bg-slate-200 rounded-lg appearance-none accent-emerald-600"
+                    />
+                    <div className="flex justify-between font-bold text-[11px]">
+                      <span>المسافة الفاصلة (ف):</span>
+                      <span className="font-mono text-emerald-600">{coulombDist} سم</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="1"
+                      max="6"
+                      value={coulombDist}
+                      onChange={(e) => setCoulombDist(Number(e.target.value))}
+                      className="w-full h-1 bg-slate-200 rounded-lg appearance-none accent-emerald-600"
+                    />
+                  </div>
+                )}
+
+                {/* 14. capacitors CONTROLS */}
+                {selectedLessonId === "capacitors" && (
+                  <div className="space-y-3 text-slate-800">
+                    <div>
+                      <label className="font-bold text-[11px] text-slate-700 block">نوع الوسط العازل:</label>
+                      <select
+                        value={dielectric}
+                        onChange={(e) => setDielectric(e.target.value as any)}
+                        className="w-full bg-white text-slate-800 border border-slate-200 rounded-xl p-2.5 text-xs focus:ring-emerald-500 focus:outline-none"
+                      >
+                        <option value="air">الهواء الجاف (ε_r = ١.٠)</option>
+                        <option value="paper">الورق المشبع بالشمع (ε_r = ٤.٥)</option>
+                        <option value="ceramic">السيراميك المكثف (ε_r = ٦.٠)</option>
+                      </select>
+                    </div>
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-[11px]">
+                        <span>المسافة بين اللوحين:</span>
+                        <span className="font-bold text-emerald-600 font-mono">{plateDist} مم</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="1"
+                        max="5"
+                        value={plateDist}
+                        onChange={(e) => setPlateDist(Number(e.target.value))}
+                        className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-[11px]">
+                        <span>جهد شحن البطارية:</span>
+                        <span className="font-bold text-emerald-600 font-mono">{voltage} فولت</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0"
+                        max="12"
+                        step="2"
+                        value={voltage}
+                        onChange={(e) => setVoltage(Number(e.target.value))}
+                        className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* 15. electromagnetism-induction CONTROLS */}
+                {selectedLessonId === "electromagnetism-induction" && (
+                  <div className="space-y-3">
+                    <div className="flex justify-between font-bold text-[11px] text-slate-700">
+                      <span>موضع قضيب المغناطيس:</span>
+                      <span className="font-mono text-emerald-600">{inductionMagnetX}%</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="10"
+                      max="90"
+                      value={inductionMagnetX}
+                      onChange={(e) => setInductionMagnetX(Number(e.target.value))}
+                      className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600"
+                    />
+                    <div className="bg-emerald-50/50 border border-emerald-100 p-3 rounded-xl">
+                      <span className="font-bold text-[11px] text-emerald-700 block mb-1">💡 قانون فارادي للحث:</span>
+                      <p className="text-[10px] text-slate-600 leading-relaxed">
+                        اسحب المغناطيس يميناً ويساراً بسرعة داخل الملف الدائري. تلاحظ انحراف مؤشر الجلفانومتر فقط أثناء حركة المغناطيس وتغير الفيض!
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* 16. self-inductance CONTROLS */}
+                {selectedLessonId === "self-inductance" && (
+                  <div className="space-y-3">
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-[11px]">
+                        <span>المحاثة الذاتية للملف (ل):</span>
+                        <span className="font-bold text-emerald-600 font-mono">{selfIndLValue} هنري</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="1"
+                        max="10"
+                        value={selfIndLValue}
+                        onChange={(e) => setSelfIndLValue(Number(e.target.value))}
+                        className="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600"
+                      />
+                    </div>
+                    <button
+                      onClick={() => setSelfIndSwitchOpen(!selfIndSwitchOpen)}
+                      className={`w-full py-2.5 rounded-xl text-xs font-bold transition border ${
+                        selfIndSwitchOpen ? "bg-emerald-600 text-white" : "bg-rose-600 text-white"
+                      }`}
+                    >
+                      {selfIndSwitchOpen ? "قفل مفتاح الدائرة" : "فتح مفتاح الدائرة"}
+                    </button>
+                  </div>
+                )}
+
+                {/* 17. semiconductors-doping CONTROLS */}
+                {selectedLessonId === "semiconductors-doping" && (
+                  <div className="space-y-3">
+                    <label className="font-bold text-slate-700 block mb-1">اختر نوع التشويب المضاف:</label>
+                    <div className="flex flex-col gap-1.5">
+                      {[
+                        { id: "pure", name: "بلورة سيليكون نقية (عازلة تماماً)" },
+                        { id: "n", name: "التشويب بمانح خماسي الزرنيخ (n-type)" },
+                        { id: "p", name: "التشويب بمتقبل ثلاثي البورون (p-type)" },
+                      ].map((item) => (
+                        <button
+                          key={item.id}
+                          onClick={() => setSemiconductorDopeType(item.id as any)}
+                          className={`w-full text-right px-3 py-2 rounded-xl text-[11px] font-bold transition border ${
+                            semiconductorDopeType === item.id
+                              ? "bg-emerald-50 border-emerald-500 text-emerald-700"
+                              : "bg-slate-50 border-slate-200 text-slate-600"
+                          }`}
+                        >
+                          {item.name}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* 18. structures-trusses CONTROLS */}
+                {selectedLessonId === "structures-trusses" && (
+                  <div className="space-y-3">
+                    <div className="flex justify-between font-bold text-[11px] text-slate-700">
+                      <span>الحمل العمودي عند قفل الجملون:</span>
+                      <span className="font-mono text-emerald-600">{trussLoad} كيلو نيوتن</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="2"
+                      max="30"
+                      step="2"
+                      value={trussLoad}
+                      onChange={(e) => setTrussLoad(Number(e.target.value))}
+                      className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600"
+                    />
+                    <div className="bg-slate-50 p-2.5 border rounded-xl text-[10px] text-slate-500">
+                      * اضغط وحمل الجملون المثلث لتوزيع إجهادات الضغط (اللون الأحمر) وإجهادات الشد السفلي (اللون الأزرق).
+                    </div>
+                  </div>
+                )}
+
+                {/* 19. arches-foundations CONTROLS */}
+                {selectedLessonId === "arches-foundations" && (
+                  <div className="space-y-3 text-slate-800">
+                    <div>
+                      <label className="font-bold text-[11px] block">نوع قاعدة التأسيس في التربة:</label>
+                      <div className="grid grid-cols-2 gap-2 bg-slate-50 p-1 rounded-xl border border-slate-200 mt-1">
+                        <button
+                          onClick={() => setFoundationType("shallow")}
+                          className={`py-2 rounded-lg text-xs font-bold transition ${
+                            foundationType === "shallow" ? "bg-rose-600 text-white" : "text-slate-500"
+                          }`}
+                        >
+                          قاعدة سطحية منفصلة
+                        </button>
+                        <button
+                          onClick={() => setFoundationType("deep")}
+                          className={`py-2 rounded-lg text-xs font-bold transition ${
+                            foundationType === "deep" ? "bg-emerald-600 text-white" : "text-slate-500"
+                          }`}
+                        >
+                          قاعدة عميقة (الخوازيق)
+                        </button>
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-[11px]">
+                        <span>عدد طوابق المبنى:</span>
+                        <span className="font-bold text-emerald-600 font-mono">{buildingWeight} طوابق</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="2"
+                        max="14"
+                        step="2"
+                        value={buildingWeight}
+                        onChange={(e) => setBuildingWeight(Number(e.target.value))}
+                        className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* 20. stress-strain-hooke CONTROLS */}
+                {selectedLessonId === "stress-strain-hooke" && (
+                  <div className="space-y-3">
+                    <div>
+                      <label className="font-bold text-slate-700 block mb-1">اختر مادة العمود المعدني:</label>
+                      <select
+                        value={elasticMaterial}
+                        onChange={(e) => setElasticMaterial(e.target.value as any)}
+                        className="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs focus:ring-emerald-500 focus:outline-none"
+                      >
+                        <option value="steel">الصلب الكربوني (ي = 200 GPa)</option>
+                        <option value="copper">النحاس النقي (ي = 110 GPa)</option>
+                        <option value="aluminum">الألومنيوم الطري (ي = 70 GPa)</option>
+                      </select>
+                    </div>
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-xs">
+                        <span className="font-bold text-slate-700">القوة المؤثرة (ق):</span>
+                        <span className="font-mono text-emerald-600 font-bold">{elasticForce.toLocaleString()} نيوتن</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="1000"
+                        max="50000"
+                        step="1000"
+                        value={elasticForce}
+                        onChange={(e) => setElasticForce(Number(e.target.value))}
+                        className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* 21. fluid-mechanics-viscosity CONTROLS */}
+                {selectedLessonId === "fluid-mechanics-viscosity" && (
+                  <div className="space-y-3">
+                    <div>
+                      <label className="font-bold text-[11px] block text-slate-700">اختر السائل المستخدم:</label>
+                      <select
+                        value={viscosityFluid}
+                        onChange={(e) => {
+                          setViscosityFluid(e.target.value as any);
+                          setFluidBallY(10);
+                          setFluidBallRolling(false);
+                        }}
+                        className="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs focus:ring-emerald-500 focus:outline-none"
+                      >
+                        <option value="water">الماء (لزوجة منخفضة جداً)</option>
+                        <option value="oil">زيت المحرك (لزوجة متوسطة)</option>
+                        <option value="honey">العسل الطبيعي الكثيف (لزوجة فائقة)</option>
+                      </select>
+                    </div>
+                    <button
+                      onClick={() => {
+                        setFluidBallY(10);
+                        setFluidBallRolling(true);
+                      }}
+                      className="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs transition"
+                    >
+                      إسقاط الكرة المعدنية 🏀
+                    </button>
+                  </div>
+                )}
+
+                {/* 22. environmental-pollution CONTROLS */}
+                {selectedLessonId === "environmental-pollution" && (
+                  <div className="space-y-3">
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-xs">
+                        <span className="font-bold text-slate-700">مستوى انبعاثات الكبريت SOx:</span>
+                        <span className="font-mono text-rose-600 font-bold">{pollutionSlider} جزء بالمليون</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="5"
+                        max="100"
+                        step="5"
+                        value={pollutionSlider}
+                        onChange={(e) => setPollutionSlider(Number(e.target.value))}
+                        className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-rose-500"
+                      />
+                    </div>
+                    <div className="bg-slate-50 p-2.5 border rounded-xl text-[10px] text-slate-600 space-y-2">
+                      <span className="font-bold text-slate-800 block">اختبار نواقل المياه السريع:</span>
+                      <p className="text-[9px]">ما هو تصنيف مرض البلهارسيا بحسب الإصحاح المائي؟</p>
+                      <div className="flex flex-col gap-1">
+                        {[
+                          { id: "borne", n: "أمراض منقولة بالشرب", correct: false },
+                          { id: "contact", n: "أمراض تلامسية بالجلد", correct: true },
+                        ].map((q) => (
+                          <button
+                            key={q.id}
+                            onClick={() => {
+                              setWaterQuizSelected(q.id);
+                              setWaterQuizCorrect(q.correct);
+                            }}
+                            className={`py-1 rounded text-right px-2 text-[10px] border transition ${
+                              waterQuizSelected === q.id
+                                ? q.correct
+                                  ? "bg-emerald-50 border-emerald-400 text-emerald-700"
+                                  : "bg-rose-50 border-rose-400 text-rose-700"
+                                : "bg-white border-slate-200 hover:bg-slate-50"
+                            }`}
+                          >
+                            {q.n}
+                            {waterQuizSelected === q.id && (q.correct ? " ✓ صح" : " ✗ خطأ")}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
               </div>
             </div>
           </div>
 
-          {/* Visualization Area */}
-          <div className="lg:col-span-8 bg-slate-950 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between min-h-[420px] relative overflow-hidden">
-            {/* Structural Zone alert */}
-            <div className={`p-3 border rounded-xl text-center text-xs font-bold ${zone.color}`} id="elasticity-zone-badge">
-              حالة المعدن الحالية: {zone.label}
+          {/* Pedagogy Formula Card Footer */}
+          <div className="bg-slate-900 text-white rounded-xl p-3.5 space-y-1">
+            <span className="text-[9px] font-black text-amber-400 tracking-wider block">معادلة القياس المعتمدة 🧮</span>
+            <div className="text-xs font-mono font-bold">
+              {selectedLessonId === "ortho-principles" && "L_projected = L_real * cos(θ)"}
+              {selectedLessonId === "three-planes" && "Angle 1: Top View in the Bottom"}
+              {selectedLessonId === "dim-1-1" && "Clearance = 8 to 10 mm"}
+              {selectedLessonId === "metals-intro" && "Density = Mass / Volume"}
+              {selectedLessonId === "iron-production" && "Pig Iron + Slag separation at 1300°C"}
+              {selectedLessonId === "engines-cycles" && "V_compression = V_total / 8"}
+              {selectedLessonId === "car-engine-systems" && "Fuel : Air Ratio = 1 : 15"}
+              {selectedLessonId === "electrical-units" && "F = (Q1 * Q2) / (4 * π * ε * d²)"}
+              {selectedLessonId === "capacitors" && "C = ε_r * ε_o * A / d"}
+              {selectedLessonId === "electromagnetism-induction" && "e = -N * (dΦ / dt)"}
+              {selectedLessonId === "self-inductance" && "V_induced = -L * (dI / dt)"}
+              {selectedLessonId === "structures-trusses" && "ΣF_x = 0 , ΣF_y = 0"}
+              {selectedLessonId === "stress-strain-hooke" && "σ = E * ε (Young's Modulus)"}
+              {selectedLessonId === "fluid-mechanics-viscosity" && "F_viscous = μ * A * (dv / dy)"}
+              {selectedLessonId === "environmental-pollution" && "Acid Rain: H2SO4 + HNO3"}
+              {!["ortho-principles", "three-planes", "dim-1-1", "metals-intro", "iron-production", "engines-cycles", "car-engine-systems", "electrical-units", "capacitors", "electromagnetism-induction", "self-inductance", "structures-trusses", "stress-strain-hooke", "fluid-mechanics-viscosity", "environmental-pollution"].includes(selectedLessonId) && "Virtual Simulator Engine v2.5"}
             </div>
+          </div>
+        </div>
 
-            {/* Live visual bar extension representation */}
-            <div className="flex justify-center items-center py-6" id="bar-stress-visual">
-              <div className="flex flex-col items-center bg-slate-900 border border-slate-800/80 rounded-xl p-6 w-full max-w-sm">
-                <span className="text-xs text-slate-400 mb-2 font-mono">الاستجابة لشد القوة الميكانيكية</span>
-                <div className="relative flex items-center justify-center w-full h-16 bg-slate-950 border border-slate-800 rounded-lg overflow-hidden">
-                  {/* Left fixed block */}
-                  <div className="absolute left-0 top-0 bottom-0 w-8 bg-slate-800 border-r border-slate-700 flex items-center justify-center">
-                    <span className="text-[10px] text-slate-500 font-bold rotate-90">تثبيت</span>
-                  </div>
-                  
-                  {/* Pull arrows */}
-                  {calculatedStress > currentProps.yieldPoint && (
-                    <div className="absolute right-12 w-6 h-6 border-t-2 border-r-2 border-rose-500 rotate-45 animate-ping" />
-                  )}
-
-                  {/* Stretching bar */}
-                  {/* Visual stretch length proportional to extension */}
-                  <div
-                    style={{ width: `${120 + Math.min(extension * 8000, 80)}px` }}
-                    className={`h-6 rounded-r bg-slate-500 border border-slate-300 shadow-lg transition-all duration-300 flex items-center justify-end px-2`}
-                  >
-                    <span className="text-[9px] font-mono text-slate-950 font-black">+{extension.toFixed(3)}ملم</span>
-                  </div>
-                </div>
-                {/* Arrow indicator */}
-                <div className="flex justify-between w-full mt-2.5 px-6 text-[10px] text-slate-500 font-mono">
-                  <span>الطول الأصلي ل = ٢٠٠ ملم</span>
-                  <span>قوة الشد (ق) ➜</span>
-                </div>
-              </div>
+        {/* Right Column: High-fidelity Vector Graphic Simulator Screen */}
+        <div className="lg:col-span-8 bg-slate-950 border border-slate-800 rounded-3xl p-6 min-h-[440px] flex flex-col justify-between relative overflow-hidden text-slate-300">
+          
+          {/* Visual Header */}
+          <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div className="flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+              <h4 className="text-xs font-bold text-slate-400">شاشة محاكاة المعمل الرقمية التفاعلية</h4>
             </div>
+            <div className="text-[10px] text-slate-500 font-mono">
+              MODE: {selectedLessonId.toUpperCase()}
+            </div>
+          </div>
 
-            {/* Curve plot stress vs strain */}
-            <div className="border-t border-slate-800 pt-4">
-              <span className="text-xs text-slate-400 block mb-2 font-mono">المنحني التوضيحي للجهد والانفعال (Stress-Strain Curve):</span>
-              <div className="relative h-24 bg-slate-950 rounded-xl p-2 border border-slate-800/60 overflow-hidden">
-                <svg className="w-full h-full" viewBox="0 0 320 80">
-                  {/* Axis */}
-                  <line x1="10" y1="70" x2="310" y2="70" stroke="rgba(255,255,255,0.2)" strokeWidth="1" />
-                  <line x1="10" y1="10" x2="10" y2="70" stroke="rgba(255,255,255,0.2)" strokeWidth="1" />
-                  
-                  {/* Custom Stress-Strain curve path */}
-                  <path d="M 10 70 Q 100 40 150 42 T 260 20 T 310 70" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" />
-                  
-                  {/* Highlight current stress dot on the path */}
+          {/* DYNAMIC SCREEN CORE */}
+          <div className="flex-1 flex flex-col items-center justify-center py-6">
+            
+            {/* 1. intro-projection SIMULATION */}
+            {selectedLessonId === "intro-projection" && (
+              <svg viewBox="0 0 300 200" className="w-72 h-auto text-slate-300">
+                {/* Screen plane */}
+                <rect x="40" y="30" width="10" height="140" fill="#1e293b" stroke="#38bdf8" strokeWidth="1.5" />
+                <text x="35" y="25" fill="#38bdf8" className="text-[8px] font-bold">مستوى الإسقاط</text>
+
+                {/* 3D Box on right */}
+                <rect x="180" y="60" width="60" height="80" fill="rgba(245, 158, 11, 0.2)" stroke="#f59e0b" strokeWidth="2" />
+                <circle cx="210" cy="100" r="15" fill="none" stroke="#f59e0b" strokeWidth="1.5" strokeDasharray="2" />
+
+                {/* Beams */}
+                {projBeamActive && (
+                  <g stroke="#10b981" strokeWidth="1" strokeDasharray="3" className="animate-pulse">
+                    <line x1="180" x2="50" y1="60" y2="60" />
+                    <line x1="180" x2="50" y1="140" y2="140" />
+                    <line x1="195" x2="50" y1="100" y2="100" />
+                  </g>
+                )}
+
+                {/* Projected view on left */}
+                <rect x="44" y="60" width="2" height="80" fill="#10b981" />
+                <circle cx="45" cy="100" r="1.5" fill="#10b981" />
+              </svg>
+            )}
+
+            {/* 2. ortho-principles SIMULATION */}
+            {selectedLessonId === "ortho-principles" && (
+              <div className="flex flex-col items-center space-y-4">
+                <svg viewBox="0 0 300 160" className="w-72 h-auto">
+                  {/* Plane */}
+                  <line x1="20" y1="130" x2="280" y2="130" stroke="#475569" strokeWidth="3" />
+                  <text x="20" y="145" fill="#475569" className="text-[9px] font-bold">مستوى الإسقاط</text>
+
+                  {/* Rotating beam */}
                   {(() => {
-                    const ratio = Math.min(calculatedStress / currentProps.ultimate, 1.1);
-                    const posX = 10 + ratio * 240;
-                    const posY = 70 - Math.min(ratio * 50, 60);
+                    const rad = (orthoAngle * Math.PI) / 180;
+                    const len = 80;
+                    const startX = 150;
+                    const startY = 130 - len * Math.sin(rad);
+                    const endX = startX + len * Math.cos(rad);
+                    const endY = 130;
+                    
+                    // Projected shadow segment
+                    const shadowStartX = startX;
+                    const shadowEndX = endX;
+                    
                     return (
                       <g>
-                        <circle cx={posX} cy={posY} r="5" fill="#f59e0b" className="animate-pulse" />
-                        <line x1={posX} y1="70" x2={posX} y2={posY} stroke="#f59e0b" strokeWidth="1" strokeDasharray="2" />
+                        {/* The solid rod */}
+                        <line x1={startX} y1={startY} x2={endX} y2={130 - len * Math.sin(rad)} stroke="#f59e0b" strokeWidth="4" strokeLinecap="round" />
+                        <circle cx={startX} cy={130 - len * Math.sin(rad)} r="4" fill="#ef4444" />
+                        
+                        {/* Projection vertical lines */}
+                        <line x1={startX} y1={130 - len * Math.sin(rad)} x2={startX} y2="130" stroke="rgba(255,255,255,0.15)" strokeDasharray="2" />
+                        <line x1={endX} y1={130 - len * Math.sin(rad)} x2={endX} y2="130" stroke="rgba(255,255,255,0.15)" strokeDasharray="2" />
+
+                        {/* Projected shadow on plane */}
+                        <line x1={shadowStartX} y1="130" x2={shadowEndX} y2="130" stroke="#10b981" strokeWidth="6" strokeLinecap="round" />
                       </g>
                     );
                   })()}
                 </svg>
-                {/* Labels on chart */}
-                <div className="absolute left-2 top-2 text-[8px] font-mono text-slate-500">الإجهاد (هـ)</div>
-                <div className="absolute right-2 bottom-2 text-[8px] font-mono text-slate-500">الانفعال (ع)</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* =========================================================================
-          LAB 4: Capacitor Charger Lab
-          ========================================================================= */}
-      {activeLab === "capacitor" && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8" id="capacitor-lab">
-          {/* Controls */}
-          <div className="lg:col-span-4 bg-white border border-slate-200 rounded-2xl p-5 space-y-6 shadow-sm text-slate-800">
-            <div>
-              <h3 className="text-base font-bold text-slate-800 mb-1">معمل شحن المكثفات والطاقة</h3>
-              <p className="text-xs text-slate-500 leading-relaxed">
-                اضبط مساحة اللوحات $A$ والمسافة $d$ ونوع المادة العازلة لمشاهدة تغير سعة المكثف $C = \epsilon A/d$ وتخزين شحنة الطاقة.
-              </p>
-            </div>
-
-            {/* Select Dielectric */}
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-700">مادة الوسط العازل (ε):</label>
-              <select
-                value={dielectric}
-                onChange={(e) => setDielectric(e.target.value as any)}
-                className="w-full bg-white text-slate-800 border border-slate-200 rounded-xl p-2.5 text-xs focus:ring-emerald-500 focus:border-emerald-500 focus:outline-none"
-              >
-                <option value="air">الهواء (فراغ) (ε_r = ١.٠)</option>
-                <option value="paper">الورق المشبع بالشمع (ε_r = ٤.٥)</option>
-                <option value="ceramic">السيراميك المستقر (ε_r = ٦.٠)</option>
-                <option value="mica">المايكا الدقيقة (ε_r = ٧.٠)</option>
-              </select>
-            </div>
-
-            {/* Area Slider */}
-            <div className="space-y-2">
-              <div className="flex justify-between text-xs">
-                <span className="text-slate-700 font-bold">مساحة اللوح (أ):</span>
-                <span className="text-emerald-600 font-bold">١٥ سم²</span>
-              </div>
-              <input
-                type="range"
-                min="5"
-                max="30"
-                disabled
-                value="15"
-                className="w-full accent-emerald-600 opacity-60"
-              />
-              <span className="text-[9px] text-slate-400 block">مثبتة للقياس في التمرين</span>
-            </div>
-
-            {/* Distance Slider */}
-            <div className="space-y-2">
-              <div className="flex justify-between text-xs">
-                <span className="text-slate-700 font-bold">المسافة بين اللوحين (ف):</span>
-                <span className="text-emerald-600 font-bold">{plateDistance.toFixed(1)} ملم</span>
-              </div>
-              <input
-                type="range"
-                min="1"
-                max="5"
-                step="1"
-                value={plateDistance}
-                onChange={(e) => setPlateDistance(Number(e.target.value))}
-                className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600"
-              />
-              <div className="flex justify-between text-[10px] text-slate-400 font-mono">
-                <span>١ ملم</span>
-                <span>٣ ملم</span>
-                <span>٥ ملم</span>
-              </div>
-            </div>
-
-            {/* Battery Voltage slider */}
-            <div className="space-y-2">
-              <div className="flex justify-between text-xs">
-                <span className="text-slate-700 font-bold">جهد شحن البطارية (جـ):</span>
-                <span className="text-emerald-600 font-bold">{voltage} فولت</span>
-              </div>
-              <input
-                type="range"
-                min="0"
-                max="12"
-                step="2"
-                value={voltage}
-                onChange={(e) => setVoltage(Number(e.target.value))}
-                className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600"
-              />
-            </div>
-          </div>
-
-          {/* Output Display Card */}
-          <div className="lg:col-span-8 bg-slate-950 border border-slate-800 rounded-2xl p-6 min-h-[420px] flex flex-col justify-between relative overflow-hidden">
-            {/* Visual plates with charge and electric field lines density */}
-            <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 flex flex-col items-center justify-center">
-              <span className="text-xs text-slate-400 mb-3 font-mono">النموذج الفيزيائي للمكثف ثنائي اللوحين</span>
-              
-              <div className="relative w-full max-w-xs h-[160px] flex flex-col justify-between items-center py-4 border border-slate-800 rounded-lg bg-slate-950">
-                {/* Top plate (+) */}
-                <div className="w-48 h-3.5 bg-red-500 border border-red-400 rounded flex items-center justify-around px-2 text-[9px] font-bold text-white">
-                  {voltage > 0 ? (
-                    <>
-                      <span>+</span>
-                      <span>+</span>
-                      <span>+</span>
-                      <span>+</span>
-                      <span>+</span>
-                    </>
-                  ) : (
-                    <span className="text-slate-400 text-[10px]">اللوح العلوي (موجب)</span>
-                  )}
+                <div className="text-center">
+                  <span className="text-xs text-slate-400">طول الظل المسقط: </span>
+                  <span className="text-xs font-black text-emerald-400 font-mono">{(80 * Math.cos((orthoAngle * Math.PI) / 180)).toFixed(1)} مم</span>
                 </div>
+              </div>
+            )}
 
-                {/* Electric field lines */}
-                {voltage > 0 && (
-                  <div className="absolute inset-x-0 top-12 bottom-12 flex justify-around px-8">
-                    {Array.from({ length: Math.min(Math.floor(capacitance / 4) + 1, 8) }).map((_, i) => (
-                      <div key={i} className="w-0.5 h-full bg-amber-500/40 animate-pulse border-r border-dashed border-amber-400/40" />
+            {/* 3. three-planes SIMULATION */}
+            {selectedLessonId === "three-planes" && (
+              <div className="w-full max-w-sm grid grid-cols-3 gap-2.5 text-center text-[10px] font-bold">
+                {projectionAngle === "first" ? (
+                  <>
+                    <div className="border border-slate-800 p-4 rounded-xl bg-slate-900/40">الجانبي الأيمن</div>
+                    <div className="border-2 border-amber-500 p-4 rounded-xl bg-slate-900 text-white flex flex-col items-center justify-center">
+                      <span>الرأسي</span>
+                      <span className="text-[8px] text-slate-500 mt-1">Front View</span>
+                    </div>
+                    <div className="border border-slate-800 p-4 rounded-xl bg-slate-900/40">الجانبي الأيسر</div>
+                    <div></div>
+                    <div className="border-2 border-sky-500 p-4 rounded-xl bg-slate-900 text-white flex flex-col items-center justify-center">
+                      <span>الأفقي</span>
+                      <span className="text-[8px] text-slate-500 mt-1">Top View</span>
+                    </div>
+                    <div></div>
+                  </>
+                ) : (
+                  <>
+                    <div></div>
+                    <div className="border-2 border-sky-500 p-4 rounded-xl bg-slate-900 text-white flex flex-col items-center justify-center">
+                      <span>الأفقي</span>
+                      <span className="text-[8px] text-slate-500 mt-1">Top View</span>
+                    </div>
+                    <div></div>
+                    <div className="border border-slate-800 p-4 rounded-xl bg-slate-900/40">الجانبي الأيسر</div>
+                    <div className="border-2 border-amber-500 p-4 rounded-xl bg-slate-900 text-white flex flex-col items-center justify-center">
+                      <span>الرأسي</span>
+                      <span className="text-[8px] text-slate-500 mt-1">Front View</span>
+                    </div>
+                    <div className="border border-slate-800 p-4 rounded-xl bg-slate-900/40">الجانبي الأيمن</div>
+                  </>
+                )}
+              </div>
+            )}
+
+            {/* 4. isometric-oblique SIMULATION */}
+            {selectedLessonId === "isometric-oblique" && (
+              <svg viewBox="0 0 240 180" className="w-60 h-auto">
+                {isometricStyle === "iso" ? (
+                  <g stroke="#f59e0b" strokeWidth="2" fill="none">
+                    {/* Isometric block representation (30 degrees axes) */}
+                    <polygon points="120,40 160,60 120,80 80,60" fill="rgba(255,255,255,0.05)" />
+                    <polygon points="80,60 120,80 120,130 80,110" fill="rgba(255,255,255,0.08)" />
+                    <polygon points="120,80 160,60 160,110 120,130" fill="rgba(255,255,255,0.12)" />
+                    <line x1="120" y1="80" x2="120" y2="130" />
+                    {/* 30 degree helper dashed lines */}
+                    <line x1="80" y1="60" x2="40" y2="80" stroke="#475569" strokeDasharray="2" />
+                    <line x1="160" y1="60" x2="200" y2="80" stroke="#475569" strokeDasharray="2" />
+                    <text x="50" y="75" fill="#475569" className="text-[8px] font-mono">°٣٠</text>
+                    <text x="175" y="75" fill="#475569" className="text-[8px] font-mono">°٣٠</text>
+                  </g>
+                ) : (
+                  <g stroke="#38bdf8" strokeWidth="2" fill="none">
+                    {/* Oblique block (front facing plane normal, depth mitered at 45) */}
+                    <rect x="60" y="70" width="80" height="60" fill="rgba(255,255,255,0.08)" />
+                    <polygon points="60,70 100,35 180,35 140,70" />
+                    <polygon points="140,70 180,35 180,95 140,130" fill="rgba(255,255,255,0.12)" />
+                    {/* 45 degree angle */}
+                    <line x1="140" y1="70" x2="180" y2="35" stroke="#ef4444" />
+                    <text x="160" y="60" fill="#ef4444" className="text-[8px] font-mono">°٤٥ (نصف العمق)</text>
+                  </g>
+                )}
+              </svg>
+            )}
+
+            {/* 5. dim-1-1 SIMULATION */}
+            {selectedLessonId === "dim-1-1" && (
+              <svg viewBox="0 0 240 180" className="w-60 h-auto">
+                {/* Object box */}
+                <rect x="50" y="80" width="140" height="60" fill="rgba(255,255,255,0.05)" stroke="#64748b" strokeWidth="2.5" />
+                
+                {/* Extensions lines */}
+                <line x1="50" y1="80" x2="50" y2={80 - dimDistance * 5} stroke="#94a3b8" strokeWidth="1" />
+                <line x1="190" y1="80" x2="190" y2={80 - dimDistance * 5} stroke="#94a3b8" strokeWidth="1" />
+
+                {/* Dimension line with arrows */}
+                <g stroke={dimDistance >= 8 && dimDistance <= 10 ? "#10b981" : "#ef4444"} strokeWidth="1.5">
+                  <line x1="50" y1={85 - dimDistance * 5} x2="190" y2={85 - dimDistance * 5} />
+                  <polygon points={`50,${85 - dimDistance * 5} 58,${82 - dimDistance * 5} 58,${88 - dimDistance * 5}`} fill="currentColor" />
+                  <polygon points={`190,${85 - dimDistance * 5} 182,${82 - dimDistance * 5} 182,${88 - dimDistance * 5}`} fill="currentColor" />
+                </g>
+                <text x="100" y={78 - dimDistance * 5} fill={dimDistance >= 8 && dimDistance <= 10 ? "#10b981" : "#ef4444"} className="text-[10px] font-bold font-mono text-center">١٤٠ مم</text>
+              </svg>
+            )}
+
+            {/* 6. sketch-1-2 SIMULATION */}
+            {selectedLessonId === "sketch-1-2" && (
+              <div className="flex flex-col items-center space-y-3 w-full">
+                <span className="text-[10px] text-slate-400">حاول تتبع خطوط الدائرة التوجيهية باليد الحرة:</span>
+                <div
+                  className="w-60 h-40 bg-slate-900 border-2 border-dashed border-slate-700 rounded-2xl relative cursor-crosshair overflow-hidden"
+                  onMouseDown={() => setFreehandDrawing(true)}
+                  onMouseUp={() => {
+                    setFreehandDrawing(false);
+                    // Generate random score simulating drawing accuracy
+                    if (freehandPoints.length > 5) {
+                      setSketchScore(Math.floor(70 + Math.random() * 25));
+                    }
+                  }}
+                  onMouseMove={(e) => {
+                    if (!freehandDrawing) return;
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    setFreehandPoints((prev) => [...prev, { x, y }]);
+                  }}
+                >
+                  {/* Circle Trace guidelines */}
+                  <circle cx="120" cy="80" r="45" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
+                  <line x1="120" y1="20" x2="120" y2="140" stroke="rgba(255,255,255,0.05)" />
+                  <line x1="40" y1="80" x2="200" y2="80" stroke="rgba(255,255,255,0.05)" />
+
+                  {/* Freehand rendering */}
+                  <svg className="absolute inset-0 w-full h-full pointer-events-none">
+                    {freehandPoints.map((pt, i) => (
+                      <circle key={i} cx={pt.x} cy={pt.y} r="1.5" fill="#f59e0b" />
                     ))}
+                  </svg>
+                </div>
+              </div>
+            )}
+
+            {/* 7. metals-intro SIMULATION */}
+            {selectedLessonId === "metals-intro" && (
+              <div className="flex flex-col items-center space-y-4">
+                <span className="text-xs font-bold text-slate-300">
+                  فحص: {metalTestType === "magnet" ? "الاستجابة المغناطيسية" : metalTestType === "spark" ? "شرر حجر الجلخ للصلب" : "الوزن والكثافة النوعية"}
+                </span>
+                
+                {metalTestType === "magnet" && (
+                  <svg viewBox="0 0 200 120" className="w-52 h-auto">
+                    {/* Magnet */}
+                    <path d="M40,30 Q20,30 20,50 L20,70 Q20,90 40,90" fill="none" stroke="#ef4444" strokeWidth="15" strokeLinecap="round" />
+                    <path d="M100,30 Q120,30 120,50 L120,70 Q120,90 100,90" fill="none" stroke="#38bdf8" strokeWidth="15" strokeLinecap="round" />
+                    
+                    {/* Metal sample block */}
+                    <rect x="150" y="45" width="30" height="30" fill={metalSelected === "copper" ? "#b45309" : metalSelected === "aluminum" ? "#94a3b8" : "#475569"} rx="3" className={metalSelected === "steel" || metalSelected === "cast-iron" ? "translate-x-[-40px] transition-all duration-700" : "transition-all duration-700"} />
+                    <text x="145" y="105" fill="#94a3b8" className="text-[9px] font-bold">
+                      {metalSelected === "steel" || metalSelected === "cast-iron" ? "➜ ينجذب بقوة" : "✗ لا يستجيب للمغنطة"}
+                    </text>
+                  </svg>
+                )}
+
+                {metalTestType === "spark" && (
+                  <div className="flex flex-col items-center space-y-2">
+                    <div className="w-32 h-20 bg-slate-900 border border-slate-800 rounded-lg flex items-center justify-center relative overflow-hidden">
+                      {/* Grindstone */}
+                      <circle cx="40" cy="40" r="25" fill="#334155" className="animate-spin" />
+                      
+                      {/* Metal Rod pressed */}
+                      <rect x="75" y="35" width="30" height="10" fill="silver" />
+                      
+                      {/* Sparks generation */}
+                      {(metalSelected === "steel" || metalSelected === "cast-iron") && (
+                        <div className="absolute left-[50px] top-[35px] w-14 h-14 border-b-2 border-r-2 border-dashed border-amber-400 rounded-full animate-ping" />
+                      )}
+                    </div>
+                    <span className="text-[10px] text-slate-400">
+                      {metalSelected === "steel" ? "شرر كثيف وطويل ومتشعب (صلب كربوني)" :
+                       metalSelected === "cast-iron" ? "شرر قصير أحمر مائل للبرتقالي" : "لا ينتج أي شرر عند حك الفلزات اللاحديدية"}
+                    </span>
                   </div>
                 )}
 
-                {/* Bottom plate (-) */}
-                <div className="w-48 h-3.5 bg-blue-500 border border-blue-400 rounded flex items-center justify-around px-2 text-[9px] font-bold text-white">
-                  {voltage > 0 ? (
-                    <>
-                      <span>-</span>
-                      <span>-</span>
-                      <span>-</span>
-                      <span>-</span>
-                      <span>-</span>
-                    </>
-                  ) : (
-                    <span className="text-slate-400 text-[10px]">اللوح السفلي (سالب)</span>
-                  )}
+                {metalTestType === "density" && (
+                  <div className="flex items-center gap-6">
+                    <div className="text-center font-mono space-y-1">
+                      <span className="text-[9px] text-slate-400 block">الوزن النوعي (الكثافة):</span>
+                      <span className="text-sm font-black text-emerald-400">
+                        {metalSelected === "steel" ? "7.8" : metalSelected === "cast-iron" ? "7.2" : metalSelected === "copper" ? "8.9" : "2.7"} g/cm³
+                      </span>
+                    </div>
+                    <div className="w-16 h-28 bg-blue-950 border border-blue-800 rounded-xl relative overflow-hidden">
+                      {/* Water */}
+                      <rect x="0" y="30" width="64" height="80" fill="rgba(56,189,248,0.2)" />
+                      {/* Sinking ball representing density speed */}
+                      <circle cx="32" cy={metalSelected === "aluminum" ? "45" : "80"} r="8" fill={metalSelected === "copper" ? "#b45309" : "gray"} className="transition-all duration-1000" />
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* 8. iron-production SIMULATION */}
+            {selectedLessonId === "iron-production" && (
+              <svg viewBox="0 0 200 180" className="w-52 h-auto text-slate-300">
+                {/* Furnace silhouette */}
+                <polygon points="60,20 140,20 160,130 130,160 70,160 40,130" fill="rgba(255,255,255,0.05)" stroke="#ef4444" strokeWidth="2" />
+                
+                {/* Fire / Molten metal level inside */}
+                {furnaceTemp >= 1300 && (
+                  <polygon points="65,90 135,90 140,130 130,158 70,158 60,130" fill="url(#molten-iron-grad)" className="animate-pulse" />
+                )}
+
+                {/* Slag outlet */}
+                <rect x="15" y="115" width="30" height="8" fill="#475569" />
+                {furnaceTapped && <line x1="45" y1="119" x2="10" y2="119" stroke="#94a3b8" strokeWidth="4" />}
+
+                {/* Molten iron outlet */}
+                <rect x="155" y="140" width="30" height="8" fill="#ef4444" />
+                {furnaceTapped && <line x1="155" y1="144" x2="190" y2="144" stroke="#f59e0b" strokeWidth="5" />}
+
+                <defs>
+                  <linearGradient id="molten-iron-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stopColor="#f59e0b" />
+                    <stop offset="100%" stopColor="#ef4444" />
+                  </linearGradient>
+                </defs>
+              </svg>
+            )}
+
+            {/* 9. steel-rolling SIMULATION */}
+            {selectedLessonId === "steel-rolling" && (
+              <svg viewBox="0 0 240 140" className="w-60 h-auto">
+                {/* Roller 1 (Top) */}
+                <circle cx="120" cy="35" r="22" fill="#334155" stroke="currentColor" strokeWidth="2" className="animate-spin-slow" />
+                {/* Roller 2 (Bottom) */}
+                <circle cx="120" cy="105" r="22" fill="#334155" stroke="currentColor" strokeWidth="2" className="animate-spin-slow" />
+
+                {/* Incoming Slab */}
+                <rect x="10" y="55" width="80" height="30" fill={rollingTemp === "hot" ? "#ef4444" : "#94a3b8"} />
+                
+                {/* Outgoing Sheet */}
+                <rect x="130" y="62" width="100" height="16" fill={rollingTemp === "hot" ? "#f59e0b" : "#cbd5e1"} />
+              </svg>
+            )}
+
+            {/* 10. non-ferrous-alloys SIMULATION */}
+            {selectedLessonId === "non-ferrous-alloys" && (
+              <div className="flex flex-col items-center space-y-3">
+                <svg viewBox="0 0 160 120" className="w-40 h-auto">
+                  {/* Crucible */}
+                  <path d="M40,20 L120,20 L110,90 Q80,110 50,90 Z" fill="#1e293b" stroke="#f59e0b" strokeWidth="2" />
+                  
+                  {/* Fluid mix color */}
+                  <path d="M45,40 L115,40 L108,85 Q80,102 52,85 Z" fill={alloyMixCopper > 65 ? "#b45309" : "#eab308"} className="animate-pulse" />
+                </svg>
+                <div className="text-center">
+                  <span className="text-xs text-slate-400">السبيكة الناتجة: </span>
+                  <span className="text-sm font-black text-amber-500">
+                    {alloyMixCopper >= 65 && alloyMixCopper <= 75 ? "النحاس الأصفر (صناعة المحابس والصنابير)" :
+                     alloyMixCopper > 75 ? "برنز المدافع والقطع البحرية" : "خلائط برونز طرية"}
+                  </span>
                 </div>
               </div>
-            </div>
+            )}
 
-            {/* Calculations and formulas output */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 border-t border-slate-800 pt-5">
-              <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl text-center">
-                <span className="text-[10px] text-slate-400 font-bold block">السعة الكلية للمكثف (س)</span>
-                <div className="text-lg font-mono font-bold text-amber-400 mt-1">{capacitance.toFixed(2)} pF</div>
-                <span className="text-[9px] text-slate-500 font-mono">بيكو فاراد</span>
+            {/* 11. engines-cycles SIMULATION */}
+            {selectedLessonId === "engines-cycles" && (
+              <svg viewBox="0 0 200 240" className="w-48 h-auto">
+                {/* Cylinder walls */}
+                <line x1="50" y1="40" x2="50" y2="200" stroke="currentColor" strokeWidth="4" />
+                <line x1="150" y1="40" x2="150" y2="200" stroke="currentColor" strokeWidth="4" />
+                <line x1="50" y1="40" x2="150" y2="40" stroke="currentColor" strokeWidth="4" />
+
+                {/* Spark Plug spark */}
+                {engineStroke === 2 && (
+                  <circle cx="100" cy="48" r="15" fill="rgba(239, 68, 68, 0.4)" className="animate-ping" />
+                )}
+
+                {/* Valves */}
+                <line x1="70" y1="25" x2="70" y2={engineStroke === 0 ? "48" : "38"} stroke={engineStroke === 0 ? "#10b981" : "currentColor"} strokeWidth="3" />
+                <line x1="130" y1="25" x2="130" y2={engineStroke === 3 ? "48" : "38"} stroke={engineStroke === 3 ? "#ef4444" : "currentColor"} strokeWidth="3" />
+
+                {/* Piston block */}
+                <rect x="52" y={engineStroke === 0 || engineStroke === 2 ? "110" : "55"} width="96" height="40" rx="3" fill="#1e293b" stroke="currentColor" strokeWidth="2" />
+                <circle cx="100" cy={engineStroke === 0 || engineStroke === 2 ? "130" : "75"} r="6" fill="#475569" />
+              </svg>
+            )}
+
+            {/* 12. car-engine-systems SIMULATION */}
+            {selectedLessonId === "car-engine-systems" && (
+              <div className="w-full max-w-sm bg-slate-900 border border-slate-800 p-4 rounded-2xl flex flex-col items-center justify-between min-h-[160px]">
+                {activeCarSystem === "fuel" && (
+                  <>
+                    <span className="text-xs font-bold text-amber-400">الكاربريتر (خلط الوقود والهواء)</span>
+                    <div className="w-full flex items-center justify-around gap-2 my-2">
+                      <div className="text-center text-[10px] bg-red-950/40 p-2.5 rounded-lg border border-red-500/20">
+                        <span>بنزين ⛽</span>
+                        <div className="font-bold text-red-400 mt-1">١ وحدة</div>
+                      </div>
+                      <span className="text-slate-500">➜ خلط ➜</span>
+                      <div className="text-center text-[10px] bg-sky-950/40 p-2.5 rounded-lg border border-sky-500/20">
+                        <span>هواء 💨</span>
+                        <div className="font-bold text-sky-400 mt-1">{carburetorRatio} وحدة</div>
+                      </div>
+                    </div>
+                  </>
+                )}
+                {activeCarSystem === "cooling" && (
+                  <>
+                    <span className="text-xs font-bold text-sky-400">دورة مياه التبريد والرديتر</span>
+                    <div className="flex items-center gap-3 my-2">
+                      <div className="w-8 h-8 rounded-full border border-sky-400 animate-spin flex items-center justify-center text-[9px]">مضخة</div>
+                      <div className="w-16 h-10 bg-blue-950 border border-blue-500 rounded flex items-center justify-center text-[8px]">المشع (الرديتر)</div>
+                    </div>
+                  </>
+                )}
+                {activeCarSystem === "lube" && (
+                  <>
+                    <span className="text-xs font-bold text-emerald-400">التزييت والكرتير السفلي</span>
+                    <p className="text-[10px] text-slate-400 text-center leading-relaxed">
+                      يتم تدوير زيت المحرك عالي اللزوجة لتقليل معامل الاحتكاك وتجنب قشط أسطوانات حديد الزهر.
+                    </p>
+                  </>
+                )}
+                {activeCarSystem === "ignition" && (
+                  <>
+                    <span className="text-xs font-bold text-indigo-400">مجموعة الاشتعال (ملف رفع الجهد)</span>
+                    <div className="text-center font-mono my-1 space-y-1">
+                      <div className="text-[11px] text-indigo-400">الجهد المنخفض (البطارية) = ١٢ فولت</div>
+                      <div className="text-[12px] text-emerald-400 font-bold">جهد الشرارة (البوبينة) = ١٥,٠٠٠ فولت!</div>
+                    </div>
+                  </>
+                )}
               </div>
-              <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl text-center">
-                <span className="text-[10px] text-slate-400 font-bold block">الشحنة المخزنة (ش = س × جـ)</span>
-                <div className="text-lg font-mono font-bold text-sky-400 mt-1">{storedCharge.toFixed(2)} pC</div>
-                <span className="text-[9px] text-slate-500 font-mono">بيكو كولوم</span>
+            )}
+
+            {/* 13. electrical-units SIMULATION */}
+            {selectedLessonId === "electrical-units" && (
+              <svg viewBox="0 0 240 140" className="w-60 h-auto">
+                {/* Charge 1 */}
+                <circle cx="60" cy="70" r="16" fill={coulombQ1 > 0 ? "#ef4444" : "#3b82f6"} />
+                <text x="60" y="74" fill="white" className="text-[10px] font-bold text-center">{coulombQ1 > 0 ? `+${coulombQ1}` : coulombQ1}</text>
+
+                {/* Charge 2 */}
+                <circle cx={60 + coulombDist * 25} cy="70" r="16" fill={coulombQ2 > 0 ? "#ef4444" : "#3b82f6"} />
+                <text x={60 + coulombDist * 25} y="74" fill="white" className="text-[10px] font-bold text-center">{coulombQ2 > 0 ? `+${coulombQ2}` : coulombQ2}</text>
+
+                {/* Force vectors */}
+                {(() => {
+                  const sameSign = (coulombQ1 > 0 && coulombQ2 > 0) || (coulombQ1 < 0 && coulombQ2 < 0);
+                  const forceX1 = sameSign ? 30 : 90;
+                  const forceX2 = sameSign ? 60 + coulombDist * 25 + 30 : 60 + coulombDist * 25 - 30;
+                  return (
+                    <g stroke="#f59e0b" strokeWidth="2">
+                      {/* Vector Arrow 1 */}
+                      <line x1="60" y1="70" x2={forceX1} y2="70" />
+                      {/* Vector Arrow 2 */}
+                      <line x1={60 + coulombDist * 25} y1="70" x2={forceX2} y2="70" />
+                    </g>
+                  );
+                })()}
+              </svg>
+            )}
+
+            {/* 14. capacitors SIMULATION */}
+            {selectedLessonId === "capacitors" && (
+              <div className="flex flex-col items-center space-y-4">
+                <svg viewBox="0 0 240 120" className="w-56 h-auto">
+                  {/* Top plate */}
+                  <rect x="40" y="30" width="160" height="8" fill="#ef4444" />
+                  {/* Bottom plate */}
+                  <rect x="40" y={30 + plateDist * 12} width="160" height="8" fill="#3b82f6" />
+
+                  {/* Flux lines */}
+                  {voltage > 0 && (
+                    <g stroke="#f59e0b" strokeWidth="1" strokeDasharray="3" className="animate-pulse">
+                      <line x1="60" y1="38" x2="60" y2={30 + plateDist * 12} />
+                      <line x1="100" y1="38" x2="100" y2={30 + plateDist * 12} />
+                      <line x1="140" y1="38" x2="140" y2={30 + plateDist * 12} />
+                      <line x1="180" y1="38" x2="180" y2={30 + plateDist * 12} />
+                    </g>
+                  )}
+                </svg>
+                <div className="text-center font-mono text-[11px] text-emerald-400 font-bold">
+                  سعة المكثف (س) = {((dielectric === "ceramic" ? 6.0 : dielectric === "paper" ? 4.5 : 1.0) * 8.85 * plateArea * 0.1 / plateDist).toFixed(1)} بيكوفاراد
+                </div>
               </div>
-              <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl text-center">
-                <span className="text-[10px] text-slate-400 font-bold block">الطاقة المخزنة (ط = ١/٢ × س × جـ²)</span>
-                <div className="text-lg font-mono font-bold text-emerald-400 mt-1">{storedEnergy.toFixed(2)} pJ</div>
-                <span className="text-[9px] text-slate-500 font-mono">بيكو جول</span>
+            )}
+
+            {/* 15. electromagnetism-induction SIMULATION */}
+            {selectedLessonId === "electromagnetism-induction" && (
+              <svg viewBox="0 0 240 140" className="w-60 h-auto">
+                {/* Copper coil on right */}
+                <ellipse cx="170" cy="70" rx="15" ry="30" fill="none" stroke="#b45309" strokeWidth="4" />
+                <ellipse cx="180" cy="70" rx="15" ry="30" fill="none" stroke="#b45309" strokeWidth="4" />
+
+                {/* Moving Magnet bar */}
+                <g transform={`translate(${inductionMagnetX * 1.5}, 50)`}>
+                  <rect x="0" y="0" width="35" height="25" fill="#ef4444" />
+                  <text x="10" y="16" fill="white" className="text-[10px] font-bold">N</text>
+                  <rect x="35" y="0" width="35" height="25" fill="#3b82f6" />
+                  <text x="45" y="16" fill="white" className="text-[10px] font-bold">S</text>
+                </g>
+
+                {/* Galvanometer needle in bottom */}
+                <g transform="translate(100, 115)">
+                  <circle cx="0" cy="0" r="15" fill="#1e293b" stroke="currentColor" />
+                  <line x1="0" y1="0" x2={galvanometerReading * 0.15} y2="-12" stroke="#ef4444" strokeWidth="2.5" />
+                </g>
+              </svg>
+            )}
+
+            {/* 16. self-inductance SIMULATION */}
+            {selectedLessonId === "self-inductance" && (
+              <div className="flex flex-col items-center space-y-3">
+                <svg viewBox="0 0 220 120" className="w-56 h-auto">
+                  {/* Coiled inductor */}
+                  <path d="M40,60 Q50,40 60,60 Q70,40 80,60 Q90,40 100,60 Q110,40 120,60" fill="none" stroke="#f59e0b" strokeWidth="3" />
+                  
+                  {/* Light bulb */}
+                  <circle cx="170" cy="60" r="14" fill={selfIndLampGlow > 0 ? `rgba(234,179,8,${selfIndLampGlow / 100})` : "none"} stroke="currentColor" strokeWidth="2" />
+                  
+                  {/* Switch contact */}
+                  <line x1="10" y1="90" x2="30" y2={selfIndSwitchOpen ? "70" : "90"} stroke="#ef4444" strokeWidth="3.5" />
+                  <circle cx="10" cy="90" r="3" fill="#ef4444" />
+                  <circle cx="30" cy="90" r="3" fill="#ef4444" />
+
+                  {/* Spark effect */}
+                  {sparkArcFlash && (
+                    <circle cx="30" cy="90" r="12" fill="rgba(56,189,248,0.5)" className="animate-ping" />
+                  )}
+                </svg>
+                <div className="text-[10px] text-slate-400">
+                  {selfIndSwitchOpen ? "قوة دافعة كهربائية عكسية تؤدي لشرارة الفتح" : "تأخر وهج المصباح بسبب ق.د.ك العكسية للملف"}
+                </div>
               </div>
+            )}
+
+            {/* 17. semiconductors-doping SIMULATION */}
+            {selectedLessonId === "semiconductors-doping" && (
+              <svg viewBox="0 0 220 140" className="w-56 h-auto">
+                {/* 2D silicon crystal matrix grid */}
+                <rect x="20" y="10" width="180" height="120" fill="none" stroke="rgba(255,255,255,0.05)" />
+                {/* Silicon atoms */}
+                <circle cx="50" cy="40" r="10" fill="#334155" /> <text x="45" y="43" fill="white" className="text-[8px] font-bold">Si</text>
+                <circle cx="110" cy="40" r="10" fill="#334155" /> <text x="105" y="43" fill="white" className="text-[8px] font-bold">Si</text>
+                <circle cx="170" cy="40" r="10" fill="#334155" /> <text x="165" y="43" fill="white" className="text-[8px] font-bold">Si</text>
+
+                {/* Doped center atom */}
+                <circle cx="110" cy="90" r="12" fill={semiconductorDopeType === "n" ? "#b91c1c" : semiconductorDopeType === "p" ? "#0369a1" : "#334155"} />
+                <text x="104" y="93" fill="white" className="text-[8px] font-bold">
+                  {semiconductorDopeType === "n" ? "As" : semiconductorDopeType === "p" ? "B" : "Si"}
+                </text>
+
+                {/* Electron and Hole display */}
+                {semiconductorDopeType === "n" && (
+                  <g>
+                    <circle cx="140" cy="100" r="4" fill="#fbbf24" className="animate-bounce" />
+                    <text x="146" y="103" fill="#fbbf24" className="text-[8px]">إلكترون حر زائد</text>
+                  </g>
+                )}
+                {semiconductorDopeType === "p" && (
+                  <g>
+                    <circle cx="140" cy="100" r="4" fill="none" stroke="#38bdf8" strokeWidth="1.5" strokeDasharray="1" />
+                    <text x="148" y="103" fill="#38bdf8" className="text-[8px]">فجوة موجبة (ثقب)</text>
+                  </g>
+                )}
+              </svg>
+            )}
+
+            {/* 18. structures-trusses SIMULATION */}
+            {selectedLessonId === "structures-trusses" && (
+              <svg viewBox="0 0 240 140" className="w-60 h-auto">
+                {/* Simple triangular truss members */}
+                <polygon points="40,110 120,50 200,110" fill="none" stroke="#ef4444" strokeWidth="4" /> {/* Compression top */}
+                <line x1="40" y1="110" x2="200" y2="110" stroke="#3b82f6" strokeWidth="4" /> {/* Tension bottom */}
+
+                {/* Load arrow */}
+                <g stroke="#f59e0b" strokeWidth="2.5">
+                  <line x1="120" y1="15" x2="120" y2="48" />
+                  <polygon points="120,50 115,42 125,42" fill="#f59e0b" />
+                </g>
+                <text x="130" y="30" fill="#f59e0b" className="text-[10px] font-bold font-mono">{trussLoad} kN</text>
+              </svg>
+            )}
+
+            {/* 19. arches-foundations SIMULATION */}
+            {selectedLessonId === "arches-foundations" && (
+              <div className="flex flex-col items-center space-y-3">
+                <svg viewBox="0 0 220 140" className="w-56 h-auto">
+                  {/* Ground clay line */}
+                  <rect x="10" y="110" width="200" height="25" fill="#78350f" />
+
+                  {/* Foundations */}
+                  {foundationType === "shallow" ? (
+                    <g>
+                      {/* Shallow pad foundation tilting under excessive load */}
+                      <rect x="80" y="100" width="60" height="10" fill="#cbd5e1" className={buildingWeight > 8 ? "rotate-6 translate-y-3 transition" : ""} />
+                      {/* Building */}
+                      <rect x="90" y={100 - buildingWeight * 7} width="40" height={buildingWeight * 7} fill="rgba(255,255,255,0.08)" stroke="#cbd5e1" strokeWidth="2" className={buildingWeight > 8 ? "rotate-6 translate-y-3 transition" : ""} />
+                    </g>
+                  ) : (
+                    <g>
+                      {/* Deep Pile foundations (Khawaziq) reaching stable rock layers */}
+                      <line x1="95" y1="110" x2="95" y2="135" stroke="#10b981" strokeWidth="5" />
+                      <line x1="125" y1="110" x2="125" y2="135" stroke="#10b981" strokeWidth="5" />
+                      <rect x="80" y="100" width="60" height="10" fill="#cbd5e1" />
+                      {/* Building stable */}
+                      <rect x="90" y={100 - buildingWeight * 7} width="40" height={buildingWeight * 7} fill="rgba(255,255,255,0.08)" stroke="#cbd5e1" strokeWidth="2" />
+                    </g>
+                  )}
+                </svg>
+                <span className="text-[10px] text-slate-400">
+                  {foundationType === "shallow" && buildingWeight > 8 ? "⚠️ انهيار انضغاط التربة (القواعد السطحية لا تتحمل!)" : "✅ أساسات متزنة بالخوازيق الإسمنتية"}
+                </span>
+              </div>
+            )}
+
+            {/* 20. stress-strain-hooke SIMULATION */}
+            {selectedLessonId === "stress-strain-hooke" && (
+              <div className="flex flex-col items-center space-y-3">
+                <svg viewBox="0 0 240 80" className="w-56 h-auto">
+                  <rect x="10" y="25" width="40" height="30" fill="#334155" /> {/* Anchoring */}
+                  
+                  {/* Stretching specimen */}
+                  {(() => {
+                    const E_mod = elasticMaterial === "steel" ? 200 : elasticMaterial === "copper" ? 110 : 70;
+                    const stress = elasticForce / 100; // Force / Area
+                    const strain = stress / (E_mod * 1000);
+                    const ext = strain * 200; // delta L
+                    
+                    return (
+                      <g>
+                        <rect x="50" y="32" width={100 + ext * 6000} height="16" fill="url(#metal-bar-grad)" stroke="silver" />
+                        <text x="160" y="45" fill="#10b981" className="text-[10px] font-mono">+{ext.toFixed(3)}ملم</text>
+                      </g>
+                    );
+                  })()}
+                  <defs>
+                    <linearGradient id="metal-bar-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+                      <stop offset="0%" stopColor="#64748b" />
+                      <stop offset="100%" stopColor="#1e293b" />
+                    </linearGradient>
+                  </defs>
+                </svg>
+                <div className="text-[10px] text-slate-400">
+                  إجهاد الشد هـ = {(elasticForce / 100).toFixed(1)} نيوتن/ملم² | معامل مرونة ي = {elasticMaterial === "steel" ? "200" : elasticMaterial === "copper" ? "110" : "70"} GPa
+                </div>
+              </div>
+            )}
+
+            {/* 21. fluid-mechanics-viscosity SIMULATION */}
+            {selectedLessonId === "fluid-mechanics-viscosity" && (
+              <svg viewBox="0 0 200 140" className="w-48 h-auto">
+                {/* Measuring cylinder */}
+                <rect x="70" y="10" width="60" height="110" fill="none" stroke="currentColor" strokeWidth="2.5" />
+                {/* Fluid filling */}
+                <rect x="72" y="25" width="56" height="94" fill={viscosityFluid === "water" ? "rgba(56,189,248,0.15)" : viscosityFluid === "oil" ? "rgba(234,179,8,0.25)" : "rgba(180,83,9,0.35)"} />
+
+                {/* Ball */}
+                <circle cx="100" cy={fluidBallY} r="8" fill="#cbd5e1" stroke="currentColor" />
+              </svg>
+            )}
+
+            {/* 22. environmental-pollution SIMULATION */}
+            {selectedLessonId === "environmental-pollution" && (
+              <svg viewBox="0 0 240 140" className="w-60 h-auto">
+                {/* Factory with smokestack */}
+                <rect x="20" y="80" width="50" height="40" fill="#334155" />
+                <rect x="30" y="40" width="12" height="40" fill="#475569" />
+                
+                {/* Smoke emissions */}
+                <circle cx="36" cy="25" r={pollutionSlider * 0.2 + 5} fill="rgba(244,63,94,0.3)" className="animate-pulse" />
+
+                {/* Forest trees withering if SOx is high */}
+                <g transform="translate(140, 75)">
+                  <polygon points="20,10 5,45 35,45" fill={pollutionSlider > 50 ? "#a16207" : "#16a34a"} />
+                  <rect x="17" y="45" width="6" height="15" fill="#78350f" />
+                </g>
+                <text x="140" y="130" fill={pollutionSlider > 50 ? "#ef4444" : "#10b981"} className="text-[9px] font-bold">
+                  {pollutionSlider > 50 ? "أمطار حمضية سامة! 🌧️" : "بيئة مائية وهوائية متزنة"}
+                </text>
+              </svg>
+            )}
+
+          </div>
+
+          {/* Visual Footer details */}
+          <div className="border-t border-slate-800 pt-3 flex items-center justify-between text-[11px] text-slate-400">
+            <span>المنهج السوداني - معتمد للامتحانات الوزارية الشهادة الثانوية 🇸🇩</span>
+            <div className="flex items-center gap-1.5 bg-emerald-500/10 text-emerald-400 px-2.5 py-1 border border-emerald-500/20 rounded-full animate-pulse">
+              <Sparkles className="h-3.5 w-3.5" />
+              <span>محاكاة مادية دقيقة</span>
             </div>
           </div>
+
         </div>
-      )}
+      </div>
     </div>
   );
 }
