@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { BookOpen, HelpCircle, Activity, Sparkles, Printer, Award, FileText } from "lucide-react";
+import { BookOpen, HelpCircle, Activity, Sparkles, Printer, Award, FileText, Book, Eye, EyeOff, Minimize2 } from "lucide-react";
 
 interface HeaderProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
   openAiTutor: () => void;
+  isHeaderCollapsed: boolean;
+  setIsHeaderCollapsed: (collapsed: boolean) => void;
 }
 
-export default function Header({ activeTab, setActiveTab, openAiTutor }: HeaderProps) {
+export default function Header({ activeTab, setActiveTab, openAiTutor, isHeaderCollapsed, setIsHeaderCollapsed }: HeaderProps) {
   const [time, setTime] = useState("");
 
   useEffect(() => {
@@ -22,13 +24,14 @@ export default function Header({ activeTab, setActiveTab, openAiTutor }: HeaderP
 
   const navItems = [
     { id: "curriculum", name: "المنهج الدراسي", icon: BookOpen },
-    { id: "lab", name: "المعمل الهندسي التفاعلي", icon: Activity },
-    { id: "worksheets", name: "أوراق العمل والتقييم", icon: FileText },
+    { id: "lab", name: "المعمل الهندسي", icon: Activity },
+    { id: "worksheets", name: "أوراق العمل", icon: FileText },
+    { id: "terms", name: "قاموس المصطلحات", icon: Book },
   ];
 
   return (
     <header className="bg-blue-600 text-white sticky top-0 z-40 shadow-lg">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ${isHeaderCollapsed ? "hidden md:block" : "block"}`}>
         <div className="flex items-center justify-between h-20">
           {/* Logo & School Vibe */}
           <div className="flex items-center space-x-4 space-x-reverse">
@@ -36,12 +39,24 @@ export default function Header({ activeTab, setActiveTab, openAiTutor }: HeaderP
               <Award className="h-6 w-6" id="header-logo-icon" />
             </div>
             <div>
-              <h1 className="text-xl font-bold tracking-tight text-white flex items-center gap-2">
-                <span>العلوم الهندسية</span>
-                <span className="text-xs bg-white/20 text-white border border-white/30 px-2.5 py-0.5 rounded-full font-bold">
-                  الصف الثاني ثانوي
-                </span>
-              </h1>
+              <div className="flex items-center gap-2">
+                <h1 className="text-lg md:text-xl font-bold tracking-tight text-white flex items-center gap-1.5">
+                  <span>العلوم الهندسية</span>
+                  <span className="text-[10px] bg-white/20 text-white border border-white/30 px-2.5 py-0.5 rounded-full font-bold whitespace-nowrap">
+                    الصف الثاني ثانوي
+                  </span>
+                </h1>
+                
+                {/* Collapse button for mobile/tablet */}
+                <button
+                  onClick={() => setIsHeaderCollapsed(true)}
+                  className="px-2 py-1 bg-white/15 hover:bg-white/25 rounded-lg text-white md:hidden transition active:scale-95 flex items-center gap-1 text-[9px] font-bold border border-white/20 shadow-sm whitespace-nowrap mr-1"
+                  title="إخفاء شريط العنوان لزيادة المساحة"
+                >
+                  <EyeOff className="h-3 w-3" />
+                  <span>تصغير ✕</span>
+                </button>
+              </div>
               <p className="text-xs text-blue-100 uppercase tracking-wider">جمهورية السودان | المنهج التفاعلي</p>
             </div>
           </div>
@@ -76,16 +91,6 @@ export default function Header({ activeTab, setActiveTab, openAiTutor }: HeaderP
               <span className="text-[10px] text-blue-200 font-mono">توقيت الخرطوم</span>
               <span className="text-xs font-bold font-mono text-white">{time || "١٢:٠٠ م"}</span>
             </div>
-
-            {/* Smart AI Tutor button */}
-            <button
-              id="ai-tutor-trigger"
-              onClick={openAiTutor}
-              className="relative group overflow-hidden flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500 hover:bg-emerald-400 text-white text-xs sm:text-sm font-bold shadow-md shadow-emerald-700/20 transition-all duration-300 active:scale-95"
-            >
-              <Sparkles className="h-4 w-4 animate-pulse text-yellow-200" />
-              <span>المعلم الهندسي الذكي</span>
-            </button>
           </div>
         </div>
       </div>

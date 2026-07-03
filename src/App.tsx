@@ -3,14 +3,16 @@ import Header from "./components/Header";
 import CurriculumExplorer from "./components/CurriculumExplorer";
 import LabSection from "./components/LabSection";
 import WorksheetSection from "./components/WorksheetSection";
+import TermsSection from "./components/TermsSection";
 import AiTutor from "./components/AiTutor";
-import { Award, Compass, Zap, BookOpen, Activity, FileText, ArrowLeft, ArrowRight, ShieldCheck } from "lucide-react";
+import { Award, Compass, Zap, BookOpen, Activity, FileText, ArrowLeft, ArrowRight, ShieldCheck, Eye, Sparkles, Bot } from "lucide-react";
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<string>("curriculum");
   const [aiTutorOpen, setAiTutorOpen] = useState(false);
   const [presetTopic, setPresetTopic] = useState<string | undefined>(undefined);
   const [activeLab, setActiveLab] = useState<"projection" | "engine" | "elasticity" | "capacitor">("projection");
+  const [isHeaderCollapsed, setIsHeaderCollapsed] = useState(false);
 
   const handleAskAi = (topic: string) => {
     setPresetTopic(topic);
@@ -26,6 +28,18 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col font-sans antialiased selection:bg-blue-600 selection:text-white" dir="rtl">
+      {/* Floating Restore Navigation Pill for Mobile/Tablet */}
+      {isHeaderCollapsed && (
+        <button
+          onClick={() => setIsHeaderCollapsed(false)}
+          className="fixed top-3 right-3 z-50 md:hidden flex items-center gap-1.5 px-3 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-full text-xs font-bold shadow-lg border border-blue-400 active:scale-95 transition-all duration-300"
+          title="عرض شريط العنوان"
+        >
+          <Eye className="h-4 w-4" />
+          <span>إظهار شريط التنقل ▽</span>
+        </button>
+      )}
+
       {/* Top Header Navigation */}
       <Header
         activeTab={activeTab}
@@ -34,44 +48,13 @@ export default function App() {
           setPresetTopic(undefined);
           setAiTutorOpen(true);
         }}
+        isHeaderCollapsed={isHeaderCollapsed}
+        setIsHeaderCollapsed={setIsHeaderCollapsed}
       />
 
       {/* Main Container */}
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         
-        {/* Home Welcome Banner - Dynamic based on view */}
-        <div className="relative bg-gradient-to-r from-blue-600 via-indigo-600 to-indigo-700 text-white rounded-3xl p-6 md:p-8 overflow-hidden shadow-lg" id="welcome-banner">
-          {/* Subtle glowing accents */}
-          <div className="absolute top-0 right-1/4 w-48 h-48 bg-white/10 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute bottom-0 left-1/4 w-48 h-48 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
-
-          <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-            <div className="space-y-2">
-              <span className="text-xs font-bold text-yellow-300 font-mono tracking-wide bg-white/15 px-3 py-1 rounded-full">المنهج القومي لجمهورية السودان</span>
-              <h2 className="text-xl md:text-3xl font-black text-white">منصة العلوم الهندسية التفاعلية المباشرة</h2>
-              <p className="text-xs md:text-sm text-blue-100 max-w-2xl leading-relaxed">
-                مرحباً بك في بوابتك التفاعلية لدراسة العلوم الهندسية للصف الثاني ثانوي. استكشف فصول المنهج الأربعة، تفاعل مع المعامل والرسومات الهندسية الحية، تدرب على أوراق العمل، واسأل المعلم الذكي في أي وقت!
-              </p>
-            </div>
-
-            {/* Micro bento highlights */}
-            <div className="grid grid-cols-3 gap-3 w-full md:w-auto">
-              <div className="bg-white/10 backdrop-blur-sm p-3 rounded-2xl text-center border border-white/20">
-                <span className="text-sm md:text-base font-extrabold text-yellow-300 block font-mono">٤ أبواب</span>
-                <span className="text-[10px] text-blue-100 block mt-0.5">كامل المنهج</span>
-              </div>
-              <div className="bg-white/10 backdrop-blur-sm p-3 rounded-2xl text-center border border-white/20">
-                <span className="text-sm md:text-base font-extrabold text-cyan-200 block font-mono">٤ معامل</span>
-                <span className="text-[10px] text-blue-100 block mt-0.5">تفاعلية حية</span>
-              </div>
-              <div className="bg-white/10 backdrop-blur-sm p-3 rounded-2xl text-center border border-white/20">
-                <span className="text-sm md:text-base font-extrabold text-emerald-300 block font-mono">أوراق</span>
-                <span className="text-[10px] text-blue-100 block mt-0.5">عمل مجهزة</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
         {/* Core Sections Switcher Display */}
         {activeTab === "curriculum" && (
           <div className="space-y-4">
@@ -108,7 +91,34 @@ export default function App() {
             <WorksheetSection />
           </div>
         )}
+
+        {activeTab === "terms" && (
+          <div className="space-y-4 animate-fadeIn">
+            <TermsSection onAskAi={handleAskAi} />
+          </div>
+        )}
       </main>
+
+      {/* Floating Smart AI Tutor & Search Button (Bottom-Left) */}
+      <div className="fixed bottom-6 left-6 z-50 print:hidden">
+        <button
+          onClick={() => {
+            setPresetTopic(undefined);
+            setAiTutorOpen(true);
+          }}
+          className="group flex items-center justify-center w-14 h-14 bg-gradient-to-tr from-indigo-600 via-blue-600 to-emerald-600 hover:from-indigo-500 hover:to-emerald-500 text-white rounded-full shadow-2xl shadow-indigo-500/40 border border-white/20 hover:scale-110 active:scale-95 transition-all duration-300 relative"
+          title="البحث والمساعد الهندسي 💬"
+          id="floating-search-tutor-btn"
+        >
+          <div className="relative">
+            <Bot className="h-6 w-6 text-white group-hover:rotate-12 transition duration-300" />
+            <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+            </span>
+          </div>
+        </button>
+      </div>
 
       {/* Floating Smart AI Tutor Sidebar Panel */}
       <AiTutor

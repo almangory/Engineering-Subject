@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { curriculumData } from "../data/curriculumData";
 import { Chapter, Lesson } from "../types";
-import { Search, ChevronLeft, ChevronDown, BookOpen, Compass, Award, Cpu, Star, HelpCircle, ArrowLeft, RefreshCw, Zap, Activity, Heart } from "lucide-react";
+import { Search, ChevronLeft, ChevronDown, BookOpen, Compass, Award, Cpu, Star, HelpCircle, ArrowLeft, RefreshCw, Zap, Activity, Heart, Maximize2, X, Type, Check, Lightbulb } from "lucide-react";
 
 interface CurriculumExplorerProps {
   onAskAi: (topic: string) => void;
@@ -133,6 +133,166 @@ const lessonLabMapping: Record<
     labName: "معمل إجهاد المواد وقانون هوك",
     description: "تتسبب الأمطار الحمضية في تآكل وهلاك حديد التسليح والمعادن في المنشآت المدنية. تفاعل مع المعمل لترى تأثير إجهاد المواد وتلفها المبكر.",
   },
+};
+
+export interface LessonSummary {
+  takeaways: string[];
+  examTip: string;
+}
+
+export const lessonSummaries: Record<string, LessonSummary> = {
+  "intro-projection": {
+    takeaways: [
+      "الإسقاط هو وقوع حواف الجسم ونزولها في شكل خطوط مستقيمة لتلتقي مع مستو معين لتكوين شكل ثنائي الأبعاد.",
+      "تختلف الطرق وفقاً لاتجاه تسليط النظر؛ فإذا كان مائلاً سمي إسقاطاً مائلاً، وإذا كان من نقطة مركزية سمي إسقاطاً تصويرياً.",
+      "الشكل المتكون من توصيل نقاط التقاطع يسمى (مسقط) الجسم، والمستقيمات الساقطة تسمى (مستقيمات الإسقاط)."
+    ],
+    examTip: "انتبه لتعريف الإسقاط العام والإسقاط المائل، والفرق بين الإسقاط المتعامد والتصويري، حيث يتكرر هذا التعريف في أسئلة 'اكتب المصطلح العلمي'."
+  },
+  "ortho-principles": {
+    takeaways: [
+      "الإسقاط المتعامد يصف الشكل الحقيقي للجسم بإسقاط أشعة عمودية تماماً على مستويات متعامدة متبادلة.",
+      "الأضلاع والسطوح الموازية لمستوى الإسقاط تظهر ببعدها وشكلها الحقيقي الكامل.",
+      "الأضلاع المتعامدة مع مستوى الإسقاط تظهر كنقطة واحدة، والسطوح المتعامدة تظهر كخط مستقيم واحد يمثل حافتها."
+    ],
+    examTip: "تذكر دائماً القاعدة الذهبية: مسقط أي ضلع مستقيم عمودي على مستوى الإسقاط يظهر كـ 'نقطة واحدة فقط'، بينما السطح العمودي يظهر كـ 'خط مستقيم'."
+  },
+  "three-planes": {
+    takeaways: [
+      "تستخدم ثلاثة مساقط متعامدة (الرأسي والأفقي والجانبي) لتوضيح تفاصيل وأبعاد الأجسام الهندسية المعقدة.",
+      "في نظام الزاوية الأولى المعتمد بالسودان، يرسم المسقط الأفقي دائماً أسفل المسقط الرأسي، والجانبي الأيسر على يمين الرأسي.",
+      "في نظام الزاوية الثالثة، يرسم المسقط الأفقي أعلى المسقط الرأسي، والجانبي الأيسر على يسار الرأسي."
+    ],
+    examTip: "احفظ جيداً موضع المسقط الأفقي في نظام الزاوية الأولى؛ فهو يقع تحت المسقط الرأسي مباشرة في اللوحات الهندسية، وهو السؤال الأكثر تكراراً في امتحانات الشهادة."
+  },
+  "isometric-oblique": {
+    takeaways: [
+      "المنظور الأيزومتري يميل فيه المحوران الجانبيان بـ 30 درجة على الأفقي، وتكون الزاوية بينهما 120 درجة والخطوط الرأسية قائمة.",
+      "المنظور المائل (الأوبليك) يرسم فيه الوجه الأمامي بأبعاده الحقيقية وزوايا قائمة، وتميل خطوط العمق بـ 45 درجة.",
+      "يتم ضرب أبعاد خطوط العمق في المنظور المائل في نصف مقاسها الحقيقي (0.5) لتقليل التشويه والخلل البصري."
+    ],
+    examTip: "احفظ الزوايا المعتمدة للمنظورين: الأيزومتري يميل بزاوية 30 درجة، بينما المائل يميل بزاوية 45 درجة مع تقليص عمقه للنصف."
+  },
+  "dim-1-1": {
+    takeaways: [
+      "تكتب الأبعاد بأرقام تدل على المقاس الفعلي بالمليمتر، وتوضع الأرقام دائماً أعلى منتصف خط البعد الرفيع.",
+      "تترك مسافة كافية (من 8 إلى 10 ملم) بين خط البعد وحواف الجسم لتجنب التشويه والخلط البصري.",
+      "يرمز للقطر الكامل للدوائر بالرمز (ق) أو (ϕ)، ويرمز لنصف قطر الأقواس والمنحنيات بالرمز (نق) أو (R)."
+    ],
+    examTip: "انتبه لرموز القياس؛ (ق) تعني القطر الكامل وتوضع للدوائر، أما (نق) فتعني نصف القطر وتوضع للأقواس المفتوحة والمنحنيات."
+  },
+  "sketch-1-2": {
+    takeaways: [
+      "الرسم الكروكي (التكريك) هو الرسم باليد الحرة دون استخدام أدوات هندسية كالمساطر والفرجار مع مراعاة النسب التقريبية.",
+      "عند التكريك، ترسم الخطوط الأفقية دائماً من اليسار إلى اليمين، والخطوط العمودية من أعلى إلى أسفل.",
+      "لرسم الدوائر يدوياً، نبدأ برسم محورين متعامدين ثم نضع علامات مسافات تقريبية لتسهيل رسم القوس الدائري المتناسق."
+    ],
+    examTip: "الرسم الكروكي يهدف لنقل الأفكار والتصاميم بسرعة باليد الحرة، وتذكر قواعد واتجاه حركة اليد أثناء رسم الخطوط الأفقية والعمودية."
+  },
+  "metals-intro": {
+    takeaways: [
+      "تنقسم الفلزات الهندسية لفلزات حديدية (تشتمل على الحديد وتتميز بالصلادة والمغنطة) ولاحديدية (كالنحاس والألومنيوم).",
+      "الخواص الميكانيكية تشمل المرونة، الصلادة (مقاومة الخدش والقطع)، المطيلية (السحب لأسلاك)، والمتانة (تحمل الصدمات).",
+      "الخواص الكيميائية تعني مقاومة التآكل والصدأ والتفاعل مع الأحماض والعوامل الجوية المختلفة."
+    ],
+    examTip: "امتحانات الشهادة تركز بشدة على المصطلحات الميكانيكية؛ تذكر أن 'الصلادة' هي مقاومة الخدش والتغلغل، بينما 'المطيلية' هي قابلية السحب لأسلاك رفيعة."
+  },
+  "iron-production": {
+    takeaways: [
+      "يتم استخلاص حديد زهر التماسيح من خام الهيماتيت داخل الفرن اللافح (العالي) باستخدام فحم الكوك والحجر الجيري كمساعد صهر.",
+      "الحجر الجيري يتحد مع الشوائب الرملية بالفرن اللافح ليكوّن الخبث الخفيف الذي يطفو فوق مصهور الحديد.",
+      "فرن الكيوبولا (دست الصهر) يستخدم لإعادة صهر حديد التماسيح لإنتاج حديد الزهر الرمادي (المقاوم للاهتزاز والضغط) والأبيض واللدن."
+    ],
+    examTip: "احفظ مكونات شحنة الفرن اللافح ووظيفة كل منها؛ خصوصاً دور فحم الكوك (موقد ومصدر كربون واختزال) والحجر الجيري (مساعد صهر ومزيل للشوائب)."
+  },
+  "steel-rolling": {
+    takeaways: [
+      "الصلب الكربوني هو سبيكة حديد وكربون (نسبة الكربون أقل من 1.8%)، ويقسم إلى منخفض ومتوسط وعالي الكربون حسب صلابته.",
+      "يستخدم الصلب منخفض الكربون في المنشآت والسيارات، بينما يستخدم الصلب عالي الكربون (صلب العدة) لشفرات ومقصات ومبارد القطع الشديدة.",
+      "الدرفلة هي عملية تشكيل الصلب بالضغط بين درافيل دوارة بالضغط والحرارة، وتجرى على الساخن للأشكال الكبيرة وعلى البارد للرقائق الدقيقة والملساء."
+    ],
+    examTip: "الصلب عالي الكربون تتراوح نسبته بين (0.7% - 1.8%) وهو صلب قوي جداً يقبل التقسية الحرارية وتصنع منه 'أدوات القطع والمبارد'."
+  },
+  "non-ferrous-alloys": {
+    takeaways: [
+      "النحاس الأحمر يمتاز بكثافة 8.92 وانصهار عند 1083م، وهو ممتاز التوصيل ومقاوم للصدأ.",
+      "سبيكة النحاس الأصفر (البرنج Brass) تتكون من نحاس وخارصين، وسبيكة البرنز تتكون من نحاس وقصدير.",
+      "السبائك البيضاء (البابيت Babbitt) تتكون من قصدير وأنتيمون ونحاس، وتتميز بنعومتها الفائقة وتستخدم لتبطين كراسي المحاور ميكانيكياً."
+    ],
+    examTip: "سؤال مكرر جداً: ما هي مكونات النحاس الأصفر؟ الإجابة: (نحاس + خارصين). وما هي مكونات البرنز؟ الإجابة: (نحاس + قصدير)."
+  },
+  "capacitors": {
+    takeaways: [
+      "المكثف الهندسي يخزن الشحنات والطاقة الكهربائية في مجال عازل، وتقاس سعته بالفاراد (F).",
+      "تعتمد السعة طردياً على مساحة اللوحين ونوع المادة العازلة (سماحيتها)، وعكسياً على المسافة بين اللوحين.",
+      "المكثفات الإلكتروليتية ثابتة ومستقطبة كيميائياً، وتمتاز بسعات هائلة وتستخدم لتنعيم التيار المستمر وتثبيت الجهد."
+    ],
+    examTip: "احفظ قانون سعة اللوحين: س = (ح × ε) / ف. تذكر أن زيادة المسافة 'ف' تقلل السعة، وزيادة مساحة الألواح 'ح' تزيد السعة."
+  },
+  "electromagnetism-induction": {
+    takeaways: [
+      "خطوط الفيض المغناطيسي مسارات وهمية مغلقة تتجه خارج المغناطيس من القطب الشمالي N إلى الجنوبي S.",
+      "الحث الكهرومغناطيسي (فارادي) يولد قوة دافعة كهربائية حثية نتيجة لتغير الفيض المغناطيسي المار بملف السلك.",
+      "الممانعة المغناطيسية تشبه المقاومة الكهربائية وهي ممانعة المسار لمرور الفيض وتعتمد على طول المسار ومساحته ونفاذيته."
+    ],
+    examTip: "احفظ قانون الممانعة المغناطيسية: م_م = ف / (μ × ح)، وقانون الفيض: الفيض = ق.د.م / م_م."
+  },
+  "self-inductance": {
+    takeaways: [
+      "الحث الذاتي هو تولد قوة دافعة كهربائية حثية في نفس الملف نتيجة لتغير شدة التيار الكهربائي المار فيه نفسه.",
+      "قانون لينز ينص على أن القوة الحثية المتولدة تعارض دائماً التغير في التيار المسبب لها (ويرمز لذلك بالإشارة السالبة في القانون).",
+      "تقاس المحاثة الذاتية بالهنري (H)، وتزيد طردياً بزيادة مربع عدد اللفات ونفاذية الوسط العازل ومساحة المقطع."
+    ],
+    examTip: "تذكر دائماً أن وحدة قياس المحاثة (ل) هي 'الهنري'، وقانون الجهد الحثي الذاتي هو: ق.د.ك = - ل × (ت٢ - ت١) / ن."
+  },
+  "semiconductors-doping": {
+    takeaways: [
+      "السيليكون والجرمانيوم أشباه موصلات رباعية التكافؤ تترابط بروابط تساهمية قوية وتكون عازلة تماماً عند الصفر المطلق.",
+      "التشويب هو إضافة شوائب لزيادة الموصلية؛ الشوائب خماسية التكافؤ (كالزرنيخ) تعطي بلورة سالبة (n-type) حاملاتها الإلكترونات.",
+      "الشوائب ثلاثية التكافؤ (كالالبورون) تعطي بلورة موجبة (p-type) حاملاتها الأكثرية الفجوات الثقيلة (Holes)."
+    ],
+    examTip: "احفظ نوع الشائبة وعلاقتها بالبلورة: ذرة خماسية (مانحة) تعطي n-type، وذرة ثلاثية (مستقبلة) تعطي p-type."
+  },
+  "structures-trusses": {
+    takeaways: [
+      "المنشآت الهندسية مصممة لمقاومة الأحمال الخارجية ونقل القوى بأمان للأرض دون تشوهات كبيرة تخل بسلامتها.",
+      "الجملونات هياكل مثلثية خفيفة ممتازة لحمل الأسقف وبحور الجسور الطويلة وتنقل القوى في أضلاعها كقوى شد أو ضغط محوري فقط.",
+      "الركائز ثلاثة أنواع: ركيزة دحروج (رد فعل واحد رأسي)، ركيزة مفصلة (ردان رأسي وأفقي)، ركيزة تثبيت تام كالكابولي (٣ ردود تشمل العزم)."
+    ],
+    examTip: "احفظ عدد ردود الأفعال لكل ركيزة: الدحروج = ١، المفصلة = ٢، التثبيت التام (الكابولي) = ٣ (أفقي، رأسي، وعزم انحناء)."
+  },
+  "arches-foundations": {
+    takeaways: [
+      "الأقواس تنقل الأحمال كقوى انضغاط محورية كبيرة نحو الركائز الجانبية المتينة ومكوناتها التاج والظهر والضلع.",
+      "الأساسات هي الوسيط الذي ينقل أحمال المنشأة بأمان للتربة، وتنقسم لسطحية (قواعد ولبشة) وعميقة (دعائم وخوازيق).",
+      "الأساسات العميقة تستخدم لتفادي تربة السطح الضعيفة ونقل الأحمال إلى طبقة صخرية صلبة بعيدة عن السطح."
+    ],
+    examTip: "انتبه إلى متى تستخدم الأساسات العميقة (الخوازيق والدعائم)؛ وهي عندما تكون طبقات التربة القريبة من السطح ضعيفة جداً لا تتحمل الأحمال."
+  },
+  "stress-strain-hooke": {
+    takeaways: [
+      "الإجهاد هو القوة الداخلية المقاومة لكل وحدة مساحة (هـ = ق / م) ويقاس بالنيوتن/متر مربع أو باسكال.",
+      "الانفعال هو التغير النسبي في الطول نتيجة للإجهاد (ع = Δل / ل) وهو قيمة نسبية ليس لها وحدة قياس أبداً.",
+      "قانون هوك ينص على تناسب الإجهاد طردياً مع الانفعال ضمن حدود المرونة، وثابت التناسب هو معامل المرونة (ي = هـ / ع)."
+    ],
+    examTip: "سؤال مكرر جداً في الامتحان: علل: الانفعال ليس له وحدة تمييز قياسية؟ الإجابة: لأنه نسبة بين طولين متجانسين (تغير الطول إلى الطول الأصلي)."
+  },
+  "fluid-mechanics-viscosity": {
+    takeaways: [
+      "الموائع تشتمل على السوائل والغازات، وهي تمتاز بقابليتها للانسياب والجريان وعدم اتخاذ شكل محدد ثابت.",
+      "اللزوجة هي مقاومة المائع للجريان والقص وتنشأ من قوى التماسك الجزيئي الداخلي.",
+      "بارتفاع درجة الحرارة: تقل لزوجة السوائل (لتفكك الروابط)، وتزداد لزوجة الغازات (لزيادة معدل تصادم جزيئاتها)."
+    ],
+    examTip: "احفظ تأثير الحرارة على اللزوجة؛ فالحرارة تزيد لزوجة الغازات وتقلل لزوجة السوائل، وقانون نيوتن للزوجة: ق = لز × م × (ع / ص)."
+  },
+  "environmental-pollution": {
+    takeaways: [
+      "تتكون الأمطار الحمضية من ذوبان غازات أكاسيد الكبريت SOx والنيتروجين NOx الناتجة عن عوادم السيارات والمصانع في الرطوبة الجوية.",
+      "الأمطار الحمضية تؤدي لتآكل التربة وتلف المحاصيل والمنشآت وتسمم الأحياء المائية بمجاري المياه العذبة.",
+      "تقسم الأمراض المتعلقة بالمياه لـ ٤ أقسام: منقولة بالماء (كالكوليرا)، بسبب غياب النظافة (كالجرب)، تلامسية (كالبلهارسيا)، وعبر نواقل مائية (كالملاريا)."
+    ],
+    examTip: "احفظ تصنيف أمراض المياه الأربعة والأمثلة عليها؛ البلهارسيا مثال للأمراض 'التلامسية'، وحمى الملاريا مثال للأمراض المنقولة عبر 'نواقل الجراثيم'."
+  }
 };
 
 function renderLessonDiagram(lessonId: string) {
@@ -766,6 +926,27 @@ export default function CurriculumExplorer({ onAskAi, onGoToLab }: CurriculumExp
     return saved ? JSON.parse(saved) : [];
   });
 
+  // State to control collapsible chapter lists (accordions)
+  const [expandedChapters, setExpandedChapters] = useState<Record<string, boolean>>(() => {
+    return { [curriculumData[0].id]: true };
+  });
+
+  // State to control mobile dropdown explorer visibility
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isDiagramZoomed, setIsDiagramZoomed] = useState(false);
+
+  // Comfortable Reading Mode states
+  const [readingTheme, setReadingTheme] = useState<"default" | "sepia" | "dark" | "warm">("default");
+  const [readingSize, setReadingSize] = useState<"normal" | "large" | "xlarge">("normal");
+  const [readingSpacing, setReadingSpacing] = useState<"normal" | "relaxed">("normal");
+
+  const toggleChapter = (chapterId: string) => {
+    setExpandedChapters((prev) => ({
+      ...prev,
+      [chapterId]: !prev[chapterId],
+    }));
+  };
+
   const toggleFavorite = (lessonId: string) => {
     setFavorites((prev) => {
       const updated = prev.includes(lessonId)
@@ -792,89 +973,302 @@ export default function CurriculumExplorer({ onAskAi, onGoToLab }: CurriculumExp
   const handleLessonSelect = (chapter: Chapter, lessonId: string) => {
     setSelectedChapter(chapter);
     setSelectedLessonId(lessonId);
+    // Expand this chapter when selected
+    setExpandedChapters((prev) => ({
+      ...prev,
+      [chapter.id]: true,
+    }));
+  };
+
+  const renderLessonContent = (paragraphs: string[]) => {
+    return paragraphs.map((para, idx) => {
+      const trimmed = para.trim();
+      
+      // Check if it's a structural heading (ends with : or starts with أولاً/ثانياً/etc. or contains قواعد/خطوات)
+      const isHeading = trimmed.endsWith(":") || 
+                        trimmed.startsWith("قواعد") || 
+                        trimmed.startsWith("شروط") ||
+                        (trimmed.length < 100 && (trimmed.startsWith("أولاً") || trimmed.startsWith("ثانياً") || trimmed.startsWith("ثالثاً") || trimmed.startsWith("رابعاً")));
+                        
+      // Check if it's a list item (starts with digit + dot, or letter + dot, or number in circles)
+      const isListItem = /^[0-9١٢٣٤٥٦٧٨٩]+\./.test(trimmed) || 
+                         trimmed.startsWith("•") || 
+                         trimmed.startsWith("-") ||
+                         trimmed.startsWith("أ.") || 
+                         trimmed.startsWith("ب.") || 
+                         trimmed.startsWith("ت.") || 
+                         trimmed.startsWith("ث.");
+
+      if (isHeading) {
+        return (
+          <h4 
+            key={idx} 
+            className={`font-black tracking-tight border-r-4 pr-3 mt-6 mb-3 transition-all duration-300 ${
+              readingSize === "normal" ? "text-base md:text-lg" : readingSize === "large" ? "text-lg md:text-xl" : "text-xl md:text-2xl"
+            } ${
+              readingTheme === "default" ? "text-slate-800 border-blue-600" :
+              readingTheme === "sepia" ? "text-[#5a2e16] border-[#8a4a21]" :
+              readingTheme === "warm" ? "text-[#5c3c26] border-[#9a5d35]" :
+              "text-indigo-400 border-indigo-500"
+            }`}
+          >
+            {para}
+          </h4>
+        );
+      }
+
+      if (isListItem) {
+        // Extract bullet/number if possible
+        const numberMatch = trimmed.match(/^([0-9١٢٣٤٥٦٧٨٩]+|[أبتث])\s*[\.\-:]\s*/);
+        const bulletChar = numberMatch ? numberMatch[1] : "•";
+        const cleanText = numberMatch ? trimmed.slice(numberMatch[0].length) : trimmed.replace(/^[•-]\s*/, "");
+
+        return (
+          <div key={idx} className="flex items-start gap-3 my-3.5 pr-2 transition-all duration-300">
+            <span className={`flex-shrink-0 flex items-center justify-center w-6 h-6 font-bold text-xs rounded-full mt-0.5 shadow-xs transition-all duration-300 ${
+              readingTheme === "default" ? "bg-blue-50 text-blue-600" :
+              readingTheme === "sepia" ? "bg-[#eae0c6] text-[#80421d]" :
+              readingTheme === "warm" ? "bg-[#eedcb4] text-[#8b4f23]" :
+              "bg-indigo-950/80 text-indigo-300 border border-indigo-900/50"
+            }`}>
+              {bulletChar}
+            </span>
+            <p className={`text-right flex-1 transition-all duration-300 ${
+              readingSpacing === "normal" ? "leading-relaxed" : "leading-loose"
+            }`}>
+              {cleanText}
+            </p>
+          </div>
+        );
+      }
+
+      // Standard paragraph
+      return (
+        <p 
+          key={idx} 
+          className={`text-right text-justify transition-all duration-300 ${
+            readingSpacing === "normal" ? "leading-relaxed" : "leading-loose"
+          }`}
+          style={{ textIndent: "1rem" }}
+        >
+          {para}
+        </p>
+      );
+    });
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8" id="curriculum-explorer">
-      {/* Sidebar - Search and List of Lessons */}
-      <div className="lg:col-span-4 bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
-        <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2 border-b border-slate-200 pb-3">
-          <BookOpen className="h-5 w-5 text-blue-600" />
-          <span>أبواب المنهج الدراسي</span>
-        </h3>
-
-        {/* Search */}
-        <div className="relative mb-5" id="search-container">
-          <span className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
-            <Search className="h-4 w-4" />
-          </span>
-          <input
-            type="text"
-            placeholder="ابحث عن درس أو موضوع..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full text-right pr-9 pl-4 py-2.5 bg-slate-50 text-slate-800 placeholder-slate-400 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 focus:bg-white transition"
-          />
+    <div className="space-y-6 w-full" id="curriculum-explorer-root">
+      {/* Mobile / Tablet Dropdown Selector (قوائم منسدلة للجوال والتابلت) */}
+      <div className="block lg:hidden bg-slate-50 border border-slate-200 rounded-2xl p-4 shadow-sm" id="mobile-curriculum-selector">
+        <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
+          <div className="text-right w-full sm:w-auto">
+            <span className="text-[10px] font-black text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full inline-block">
+              {selectedChapter.arabicTitle ? selectedChapter.arabicTitle.split(":")[0] : "المنهج الدراسي"}
+            </span>
+            <h3 className="text-sm font-bold text-slate-800 mt-1 flex items-center gap-1.5 justify-start">
+              <BookOpen className="h-4 w-4 text-blue-500 shrink-0" />
+              <span>الدرس الحالي: {currentLesson.title}</span>
+            </h3>
+          </div>
+          
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 active:scale-95 text-white font-bold rounded-xl text-xs transition shadow-sm"
+          >
+            <span>{isMobileMenuOpen ? "إغلاق قائمة المنهج" : "تصفح أبواب المنهج ▾"}</span>
+          </button>
         </div>
 
-        {/* Chapters and Lessons */}
-        <div className="space-y-4 max-h-[600px] overflow-y-auto pr-1">
-          {filteredChapters.map((chapter) => (
-            <div key={chapter.id} className="border border-slate-200 rounded-xl overflow-hidden bg-slate-50/50">
-              <div className="bg-slate-100 p-3.5 border-b border-slate-200">
-                <span className="text-xs font-bold text-blue-600 font-mono tracking-wider">
-                  {chapter.arabicTitle.split(":")[0]}
-                </span>
-                <h4 className="text-sm font-bold text-slate-800 mt-1">
-                  {chapter.arabicTitle.split(":")[1] || chapter.arabicTitle}
-                </h4>
-              </div>
-
-              <div className="p-1.5 space-y-1">
-                {chapter.lessons && chapter.lessons.length > 0 ? (
-                  chapter.lessons.map((lesson) => {
-                    const isSelected = lesson.id === selectedLessonId;
-                    return (
-                      <button
-                        key={lesson.id}
-                        onClick={() => handleLessonSelect(chapter as any, lesson.id)}
-                        className={`w-full text-right flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-semibold transition ${
-                          isSelected
-                            ? "bg-blue-600 text-white shadow-sm"
-                            : "text-slate-600 hover:bg-slate-200/60 hover:text-slate-900"
-                        }`}
-                      >
-                        <span className="truncate">{lesson.title}</span>
-                        <ChevronLeft className={`h-3.5 w-3.5 flex-shrink-0 mr-2 ${isSelected ? "text-white" : "text-slate-400"}`} />
-                      </button>
-                    );
-                  })
-                ) : (
-                  <p className="text-slate-400 text-xs p-3 text-center">لا توجد دروس مطابقة للبحث</p>
-                )}
-              </div>
+        {isMobileMenuOpen && (
+          <div className="mt-4 pt-4 border-t border-slate-200 space-y-4 animate-fadeIn">
+            {/* Search field on mobile */}
+            <div className="relative">
+              <span className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
+                <Search className="h-4 w-4" />
+              </span>
+              <input
+                type="text"
+                placeholder="ابحث عن درس أو موضوع..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full text-right pr-9 pl-4 py-2 bg-white text-slate-800 placeholder-slate-400 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+              />
             </div>
-          ))}
-        </div>
+
+            {/* Collapsible Chapters (Accordions) in Mobile Dropdown */}
+            <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1">
+              {filteredChapters.map((chapter) => {
+                const isChapExpanded = expandedChapters[chapter.id] ?? false;
+                return (
+                  <div key={chapter.id} className="border border-slate-200 rounded-xl bg-white overflow-hidden shadow-sm">
+                    <button
+                      onClick={() => toggleChapter(chapter.id)}
+                      className="w-full text-right bg-slate-50 hover:bg-slate-100/80 p-3 border-b border-slate-200 flex items-center justify-between transition focus:outline-none"
+                    >
+                      <div>
+                        <span className="text-[10px] font-bold text-blue-600 font-mono">
+                          {chapter.arabicTitle.split(":")[0]}
+                        </span>
+                        <h4 className="text-xs font-bold text-slate-800 mt-0.5">
+                          {chapter.arabicTitle.split(":")[1] || chapter.arabicTitle}
+                        </h4>
+                      </div>
+                      <ChevronDown className={`h-4 w-4 text-slate-500 transition-transform duration-300 ${isChapExpanded ? "rotate-180" : ""}`} />
+                    </button>
+
+                    {isChapExpanded && (
+                      <div className="p-1 space-y-1 bg-slate-50/50">
+                        {chapter.lessons && chapter.lessons.length > 0 ? (
+                          chapter.lessons.map((lesson) => {
+                            const isSelected = lesson.id === selectedLessonId;
+                            return (
+                              <button
+                                key={lesson.id}
+                                onClick={() => {
+                                  handleLessonSelect(chapter as any, lesson.id);
+                                  setIsMobileMenuOpen(false); // auto-close
+                                }}
+                                className={`w-full text-right flex items-center justify-between px-3 py-2 rounded-lg text-xs font-bold transition ${
+                                  isSelected
+                                    ? "bg-blue-600 text-white shadow-sm"
+                                    : "text-slate-600 hover:bg-slate-200/60"
+                                }`}
+                              >
+                                <span className="truncate">{lesson.title}</span>
+                                <ChevronLeft className={`h-3.5 w-3.5 flex-shrink-0 mr-2 ${isSelected ? "text-white" : "text-slate-400"}`} />
+                              </button>
+                            );
+                          })
+                        ) : (
+                          <p className="text-slate-400 text-xs p-2 text-center">لا توجد دروس مطابقة</p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* Main Content Area - Selected Lesson */}
-      <div className="lg:col-span-8 space-y-6" id="lesson-content-panel">
-        <div className="bg-white border border-slate-200 rounded-2xl p-6 md:p-8 shadow-sm relative overflow-hidden">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8" id="curriculum-explorer">
+        {/* Sidebar - Search and List of Lessons (Hidden on mobile/tablet) */}
+        <div className="hidden lg:block lg:col-span-4 bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+          <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2 border-b border-slate-200 pb-3">
+            <BookOpen className="h-5 w-5 text-blue-600" />
+            <span>أبواب المنهج الدراسي</span>
+          </h3>
+
+          {/* Search */}
+          <div className="relative mb-5" id="search-container">
+            <span className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
+              <Search className="h-4 w-4" />
+            </span>
+            <input
+              type="text"
+              placeholder="ابحث عن درس أو موضوع..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full text-right pr-9 pl-4 py-2.5 bg-slate-50 text-slate-800 placeholder-slate-400 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 focus:bg-white transition"
+            />
+          </div>
+
+          {/* Chapters and Lessons (Collapsible Accordions for Desktop) */}
+          <div className="space-y-4 max-h-[600px] overflow-y-auto pr-1">
+            {filteredChapters.map((chapter) => {
+              const isChapExpanded = expandedChapters[chapter.id] ?? false;
+              return (
+                <div key={chapter.id} className="border border-slate-200 rounded-xl overflow-hidden bg-slate-50/50 transition duration-300">
+                  <button
+                    onClick={() => toggleChapter(chapter.id)}
+                    className="w-full text-right bg-slate-100 hover:bg-slate-200/80 p-3.5 border-b border-slate-200 flex items-center justify-between transition focus:outline-none"
+                  >
+                    <div>
+                      <span className="text-xs font-bold text-blue-600 font-mono tracking-wider">
+                        {chapter.arabicTitle.split(":")[0]}
+                      </span>
+                      <h4 className="text-sm font-bold text-slate-800 mt-1">
+                        {chapter.arabicTitle.split(":")[1] || chapter.arabicTitle}
+                      </h4>
+                    </div>
+                    <ChevronDown className={`h-4 w-4 text-slate-500 transition-transform duration-300 ${isChapExpanded ? "rotate-180" : ""}`} />
+                  </button>
+
+                  {isChapExpanded && (
+                    <div className="p-1.5 space-y-1 animate-fadeIn">
+                      {chapter.lessons && chapter.lessons.length > 0 ? (
+                        chapter.lessons.map((lesson) => {
+                          const isSelected = lesson.id === selectedLessonId;
+                          return (
+                            <button
+                              key={lesson.id}
+                              onClick={() => handleLessonSelect(chapter as any, lesson.id)}
+                              className={`w-full text-right flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-semibold transition ${
+                                isSelected
+                                  ? "bg-blue-600 text-white shadow-sm"
+                                  : "text-slate-600 hover:bg-slate-200/60 hover:text-slate-900"
+                              }`}
+                            >
+                              <span className="truncate">{lesson.title}</span>
+                              <ChevronLeft className={`h-3.5 w-3.5 flex-shrink-0 mr-2 ${isSelected ? "text-white" : "text-slate-400"}`} />
+                            </button>
+                          );
+                        })
+                      ) : (
+                        <p className="text-slate-400 text-xs p-3 text-center">لا توجد دروس مطابقة للبحث</p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Main Content Area - Selected Lesson */}
+        <div className="lg:col-span-8 space-y-6" id="lesson-content-panel">
+        <div className={`rounded-2xl p-6 md:p-8 border transition-all duration-300 relative overflow-hidden ${
+          readingTheme === "default" ? "bg-white border-slate-200 text-slate-700 shadow-sm" :
+          readingTheme === "sepia" ? "bg-[#fbf7eb] border-[#e6d8b6] text-[#423223] shadow-md" :
+          readingTheme === "warm" ? "bg-[#fcfaf2] border-[#ecdcb9] text-[#46392f] shadow-md" :
+          "bg-slate-900 border-slate-800 text-slate-200 shadow-md"
+        }`}>
           {/* Subtle background decoration */}
           <div className="absolute top-0 left-0 w-32 h-32 bg-blue-500/5 rounded-full blur-2xl pointer-events-none" />
 
           {/* Chapter header */}
-          <div className="flex items-center justify-between mb-4 border-b border-slate-200 pb-5">
+          <div className={`flex items-center justify-between mb-4 border-b pb-5 transition-all duration-300 ${
+            readingTheme === "default" ? "border-slate-200" :
+            readingTheme === "sepia" ? "border-[#e0d2ae]" :
+            readingTheme === "warm" ? "border-[#e4d3aa]" :
+            "border-slate-800"
+          }`}>
             <div>
-              <span className="text-xs text-blue-600 font-bold bg-blue-50 px-2.5 py-1 rounded-full">
+              <span className={`text-xs font-bold px-2.5 py-1 rounded-full transition-all duration-300 ${
+                readingTheme === "default" ? "text-blue-600 bg-blue-50" :
+                readingTheme === "sepia" ? "text-[#80421d] bg-[#f0e4c6]" :
+                readingTheme === "warm" ? "text-[#8b4f23] bg-[#f2e7cc]" :
+                "text-indigo-400 bg-indigo-950/80"
+              }`}>
                 {selectedChapter.arabicTitle ? selectedChapter.arabicTitle.split(":")[0] : "المنهج الدراسي"}
               </span>
-              <h2 className="text-xl md:text-2xl font-black text-slate-800 mt-2">
+              <h2 className={`text-xl md:text-2xl font-black mt-2 transition-all duration-300 ${
+                readingTheme === "default" ? "text-slate-800" :
+                readingTheme === "sepia" ? "text-[#5a2e16]" :
+                readingTheme === "warm" ? "text-[#5c3c26]" :
+                "text-white"
+              }`}>
                 {currentLesson.title}
               </h2>
               {currentLesson.subtitle && (
-                <p className="text-sm text-slate-500 mt-1">{currentLesson.subtitle}</p>
+                <p className={`text-sm mt-1 transition-all duration-300 ${
+                  readingTheme === "default" ? "text-slate-500" :
+                  readingTheme === "sepia" ? "text-[#7b6752]" :
+                  readingTheme === "warm" ? "text-[#7f6f60]" :
+                  "text-slate-400"
+                }`}>{currentLesson.subtitle}</p>
               )}
             </div>
 
@@ -905,14 +1299,139 @@ export default function CurriculumExplorer({ onAskAi, onGoToLab }: CurriculumExp
             </div>
           </div>
 
+          {/* Comfort Reading Toolbar */}
+          <div className={`mb-6 p-3 rounded-xl border flex flex-wrap items-center justify-between gap-4 transition-all duration-300 ${
+            readingTheme === "default" ? "bg-slate-50 border-slate-200" :
+            readingTheme === "sepia" ? "bg-[#f5ebd2] border-[#dac9a1]" :
+            readingTheme === "warm" ? "bg-[#f7f2e5] border-[#ebd9bd]" :
+            "bg-slate-950 border-slate-800"
+          }`} id="reading-mode-toolbar">
+            <div className="flex items-center gap-1.5">
+              <Type className={`h-4 w-4 ${readingTheme === "dark" ? "text-indigo-400" : "text-blue-600"}`} />
+              <span className={`text-xs font-black ${readingTheme === "dark" ? "text-slate-300" : "text-slate-700"}`}>تحكّم القراءة المريحة:</span>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3">
+              {/* Color Theme Selector */}
+              <div className="flex items-center gap-1 bg-white/40 dark:bg-black/10 p-1 rounded-lg border border-slate-200/50">
+                <button
+                  onClick={() => setReadingTheme("default")}
+                  className={`px-2 py-1 text-[10px] font-bold rounded-md transition ${
+                    readingTheme === "default"
+                      ? "bg-blue-600 text-white shadow-xs"
+                      : "text-slate-600 hover:bg-slate-100"
+                  }`}
+                >
+                  الافتراضي
+                </button>
+                <button
+                  onClick={() => setReadingTheme("sepia")}
+                  className={`px-2 py-1 text-[10px] font-bold rounded-md transition ${
+                    readingTheme === "sepia"
+                      ? "bg-[#80421d] text-white shadow-xs"
+                      : "text-[#6b5847] hover:bg-[#e4d4b2]"
+                  }`}
+                  title="وضع سيبيا المريح للعين"
+                >
+                  سيبيا 📖
+                </button>
+                <button
+                  onClick={() => setReadingTheme("warm")}
+                  className={`px-2 py-1 text-[10px] font-bold rounded-md transition ${
+                    readingTheme === "warm"
+                      ? "bg-[#8b4f23] text-white shadow-xs"
+                      : "text-[#705e52] hover:bg-[#ebd9bd]"
+                  }`}
+                  title="وضع دافئ خفيف"
+                >
+                  دافئ 💡
+                </button>
+                <button
+                  onClick={() => setReadingTheme("dark")}
+                  className={`px-2 py-1 text-[10px] font-bold rounded-md transition ${
+                    readingTheme === "dark"
+                      ? "bg-indigo-600 text-white shadow-xs"
+                      : "text-slate-400 hover:bg-slate-800"
+                  }`}
+                  title="الوضع الليلي"
+                >
+                  ليلي 🌙
+                </button>
+              </div>
+
+              {/* Font Size Selector */}
+              <div className="flex items-center gap-1 bg-white/40 dark:bg-black/10 p-1 rounded-lg border border-slate-200/50">
+                <span className={`text-[9px] px-1 font-black ${readingTheme === "dark" ? "text-slate-400" : "text-slate-500"}`}>الحجم:</span>
+                <button
+                  onClick={() => setReadingSize("normal")}
+                  className={`px-1.5 py-0.5 text-[10px] font-bold rounded-md transition ${
+                    readingSize === "normal"
+                      ? (readingTheme === "dark" ? "bg-indigo-600 text-white" : "bg-blue-600 text-white")
+                      : (readingTheme === "dark" ? "text-slate-400 hover:bg-slate-800" : "text-slate-600 hover:bg-slate-100")
+                  }`}
+                >
+                  A
+                </button>
+                <button
+                  onClick={() => setReadingSize("large")}
+                  className={`px-1.5 py-0.5 text-[10px] font-bold rounded-md transition ${
+                    readingSize === "large"
+                      ? (readingTheme === "dark" ? "bg-indigo-600 text-white" : "bg-blue-600 text-white")
+                      : (readingTheme === "dark" ? "text-slate-400 hover:bg-slate-800" : "text-slate-600 hover:bg-slate-100")
+                  }`}
+                >
+                  A+
+                </button>
+                <button
+                  onClick={() => setReadingSize("xlarge")}
+                  className={`px-1.5 py-0.5 text-[10px] font-bold rounded-md transition ${
+                    readingSize === "xlarge"
+                      ? (readingTheme === "dark" ? "bg-indigo-600 text-white" : "bg-blue-600 text-white")
+                      : (readingTheme === "dark" ? "text-slate-400 hover:bg-slate-800" : "text-slate-600 hover:bg-slate-100")
+                  }`}
+                >
+                  A++
+                </button>
+              </div>
+
+              {/* Line Spacing Selector */}
+              <div className="flex items-center gap-1 bg-white/40 dark:bg-black/10 p-1 rounded-lg border border-slate-200/50">
+                <span className={`text-[9px] px-1 font-black ${readingTheme === "dark" ? "text-slate-400" : "text-slate-500"}`}>التباعد:</span>
+                <button
+                  onClick={() => setReadingSpacing("normal")}
+                  className={`px-1.5 py-0.5 text-[10px] font-bold rounded-md transition ${
+                    readingSpacing === "normal"
+                      ? (readingTheme === "dark" ? "bg-indigo-600 text-white" : "bg-blue-600 text-white")
+                      : (readingTheme === "dark" ? "text-slate-400 hover:bg-slate-800" : "text-slate-600 hover:bg-slate-100")
+                  }`}
+                >
+                  عادي
+                </button>
+                <button
+                  onClick={() => setReadingSpacing("relaxed")}
+                  className={`px-1.5 py-0.5 text-[10px] font-bold rounded-md transition ${
+                    readingSpacing === "relaxed"
+                      ? (readingTheme === "dark" ? "bg-indigo-600 text-white" : "bg-blue-600 text-white")
+                      : (readingTheme === "dark" ? "text-slate-400 hover:bg-slate-800" : "text-slate-600 hover:bg-slate-100")
+                  }`}
+                >
+                  متباعد
+                </button>
+              </div>
+            </div>
+          </div>
+
           {/* Lesson Body paragraphs */}
-          <div className="space-y-4 text-slate-600 leading-relaxed text-sm md:text-base">
+          <div className={`space-y-4 text-justify transition-all duration-300 ${
+            readingSize === "normal" ? "text-sm md:text-base" : readingSize === "large" ? "text-base md:text-lg" : "text-lg md:text-xl"
+          } ${
+            readingTheme === "default" ? "text-slate-700" :
+            readingTheme === "sepia" ? "text-[#423223]" :
+            readingTheme === "warm" ? "text-[#46392f]" :
+            "text-slate-300"
+          }`}>
             {currentLesson.content ? (
-              currentLesson.content.map((para, idx) => (
-                <p key={idx} className="whitespace-pre-line text-right">
-                  {para}
-                </p>
-              ))
+              renderLessonContent(currentLesson.content)
             ) : (
               <p className="text-slate-400 italic">محتوى الدرس قيد التحميل والتجهيز...</p>
             )}
@@ -943,10 +1462,20 @@ export default function CurriculumExplorer({ onAskAi, onGoToLab }: CurriculumExp
 
           {/* Core Visual Guide / Reference Image according to PDF styles */}
           <div className="mt-8 bg-slate-50 border border-slate-200 rounded-xl p-5" id="lesson-diagram-card">
-            <h4 className="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2 border-b border-slate-200 pb-2">
-              <Award className="h-4 w-4 text-blue-600" />
-              <span>التوضيح والرسومات الهندسية المساندة</span>
-            </h4>
+            <div className="flex justify-between items-center mb-3 border-b border-slate-200 pb-2">
+              <h4 className="text-sm font-bold text-slate-800 flex items-center gap-2">
+                <Award className="h-4 w-4 text-blue-600" />
+                <span>التوضيح والرسومات الهندسية المساندة</span>
+              </h4>
+              <button
+                onClick={() => setIsDiagramZoomed(true)}
+                className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold text-indigo-600 hover:text-white hover:bg-indigo-600 bg-white border border-slate-200 rounded-lg transition shadow-sm active:scale-95"
+                title="تكبير الرسم ملء الشاشة"
+              >
+                <Maximize2 className="h-3.5 w-3.5" />
+                <span>تكبير ملء الشاشة</span>
+              </button>
+            </div>
             
             {/* Custom SVG Diagrams based on active lesson */}
             <div className="bg-white rounded-lg p-6 flex flex-col items-center justify-center border border-slate-200 min-h-[220px] shadow-sm">
@@ -987,8 +1516,147 @@ export default function CurriculumExplorer({ onAskAi, onGoToLab }: CurriculumExp
               </div>
             );
           })()}
+
+          {/* Lesson Summary Card (تلخيص الدرس) */}
+          {(() => {
+            const summary = lessonSummaries[currentLesson.id];
+            if (!summary) return null;
+            return (
+              <div className={`mt-8 border rounded-2xl p-6 relative overflow-hidden transition-all duration-300 ${
+                readingTheme === "default" ? "bg-gradient-to-br from-indigo-50/70 to-blue-50/70 border-blue-150 shadow-sm" :
+                readingTheme === "sepia" ? "bg-[#f5ead0] border-[#d3c29b] text-[#423223]" :
+                readingTheme === "warm" ? "bg-[#f6efe0] border-[#decba3] text-[#46392f]" :
+                "bg-slate-950 border-slate-800 text-slate-300"
+              }`} id="lesson-summary-card">
+                <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-500/5 rounded-full blur-xl pointer-events-none" />
+                <div className={`flex items-center gap-2.5 mb-4 pb-3 border-b transition-all duration-300 ${
+                  readingTheme === "default" ? "border-blue-200/60" :
+                  readingTheme === "sepia" ? "border-[#d3c29b]/60" :
+                  readingTheme === "warm" ? "border-[#decba3]/60" :
+                  "border-slate-800"
+                }`}>
+                  <div className="bg-indigo-600 text-white p-2 rounded-xl shadow-sm">
+                    <Lightbulb className="h-5 w-5 animate-pulse" />
+                  </div>
+                  <div>
+                    <h4 className={`text-base font-black transition-all duration-300 ${
+                      readingTheme === "default" ? "text-slate-800" :
+                      readingTheme === "sepia" ? "text-[#5a2e16]" :
+                      readingTheme === "warm" ? "text-[#5c3c26]" :
+                      "text-white"
+                    }`}>بطاقة التلخيص والمذاكرة الذكية 📋</h4>
+                    <p className={`text-[10px] font-bold transition-all duration-300 ${
+                      readingTheme === "default" ? "text-slate-500" :
+                      readingTheme === "sepia" ? "text-[#7b6752]" :
+                      readingTheme === "warm" ? "text-[#7f6f60]" :
+                      "text-slate-400"
+                    }`}>الخلاصة المركّزة للدرس لسرعة الحفظ والمراجعة العاجلة قبل الامتحان</p>
+                  </div>
+                </div>
+
+                <div className="space-y-3.5 mb-5">
+                  <h5 className={`text-xs font-black transition-all duration-300 ${
+                    readingTheme === "default" ? "text-indigo-700" :
+                    readingTheme === "sepia" ? "text-[#8a4a21]" :
+                    readingTheme === "warm" ? "text-[#9a5d35]" :
+                    "text-indigo-400"
+                  }`}>النقاط الذهبية المستخلصة:</h5>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {summary.takeaways.map((point, index) => (
+                      <div key={index} className={`border p-3.5 rounded-xl text-xs md:text-sm leading-relaxed flex gap-2.5 shadow-xs transition duration-300 hover:translate-y-[-1px] ${
+                        readingTheme === "default" ? "bg-white border-blue-100 text-slate-700" :
+                        readingTheme === "sepia" ? "bg-[#faf6e8] border-[#e2d4b2] text-[#4d3c2c]" :
+                        readingTheme === "warm" ? "bg-[#faf7f0] border-[#ebdcb9] text-[#4f4237]" :
+                        "bg-slate-900 border-slate-800 text-slate-300"
+                      }`}>
+                        <span className={`flex-shrink-0 flex items-center justify-center w-5 h-5 font-bold text-[10px] rounded-full mt-0.5 transition-all duration-300 ${
+                          readingTheme === "default" ? "bg-indigo-100 text-indigo-700" :
+                          readingTheme === "sepia" ? "bg-[#eae0c6] text-[#80421d]" :
+                          readingTheme === "warm" ? "bg-[#eedcb4] text-[#8b4f23]" :
+                          "bg-indigo-950 text-indigo-300 border border-indigo-900/50"
+                        }`}>
+                          {index + 1}
+                        </span>
+                        <span className="text-right">{point}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="bg-indigo-600 text-white p-4 rounded-xl border border-indigo-700 shadow-sm flex flex-col md:flex-row items-start md:items-center gap-3">
+                  <div className="bg-white/20 px-3 py-1.5 rounded-lg text-xs font-black shrink-0 tracking-wider flex items-center gap-1">
+                    <Award className="h-3.5 w-3.5" />
+                    <span>تلميحة امتحانية ✍️</span>
+                  </div>
+                  <p className="text-xs md:text-sm font-semibold leading-relaxed text-right">
+                    {summary.examTip}
+                  </p>
+                </div>
+              </div>
+            );
+          })()}
         </div>
       </div>
+
+      {/* Zoomed Diagram Modal */}
+      {isDiagramZoomed && (
+        <div className="fixed inset-0 z-[100] bg-slate-900/90 backdrop-blur-md flex flex-col items-center justify-center p-4 md:p-8 animate-fadeIn" dir="rtl">
+          <div className="bg-white rounded-3xl p-6 md:p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto flex flex-col justify-between shadow-2xl relative border border-slate-200">
+            {/* Close Button */}
+            <button
+              onClick={() => setIsDiagramZoomed(false)}
+              className="absolute top-4 left-4 p-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-full transition active:scale-95 border border-slate-200"
+              title="إغلاق التكبير"
+            >
+              <X className="h-5 w-5" />
+            </button>
+
+            {/* Header info */}
+            <div className="mb-6 text-right pr-2 border-r-4 border-indigo-600">
+              <span className="text-xs text-indigo-600 font-bold bg-indigo-50 px-2.5 py-1 rounded-full">
+                {selectedChapter.arabicTitle ? selectedChapter.arabicTitle.split(":")[0] : "المنهج الدراسي"}
+              </span>
+              <h3 className="text-xl font-black text-slate-800 mt-2">
+                مخطط توضيحي: {currentLesson.title}
+              </h3>
+              <p className="text-xs text-slate-500 mt-1">عرض مكبر عالي الدقة لفهم وتأمل تفاصيل الرسم الهندسي</p>
+            </div>
+
+            {/* Zoomed Diagram Content */}
+            <div className="bg-slate-50/50 border border-slate-100 rounded-2xl p-6 md:p-12 flex flex-col items-center justify-center w-full min-h-[300px] mb-6">
+              <div className="w-full max-w-2xl transform scale-105 md:scale-110 transition duration-300">
+                {renderLessonDiagram(currentLesson.id)}
+              </div>
+            </div>
+
+            {/* Action buttons / asking AI about it */}
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-slate-100 pt-4 w-full">
+              <p className="text-xs text-slate-500 text-center sm:text-right max-w-md leading-relaxed">
+                تفحّص الرموز، المساقط، والتعليقات المكتوبة لمساعدتك على الإجابة الدقيقة في امتحان الشهادة السودانية.
+              </p>
+              <div className="flex gap-2 w-full sm:w-auto">
+                <button
+                  onClick={() => {
+                    setIsDiagramZoomed(false);
+                    onAskAi(`اشرح لي الرسم الهندسي والمخطط بالتفصيل لدرس: ${currentLesson.title}`);
+                  }}
+                  className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition duration-300 active:scale-95 shadow-md"
+                >
+                  <Cpu className="h-4 w-4 animate-pulse" />
+                  <span>اسأل المعلم عن هذا المخطط ✦</span>
+                </button>
+                <button
+                  onClick={() => setIsDiagramZoomed(false)}
+                  className="flex-1 sm:flex-initial px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition duration-300 active:scale-95"
+                >
+                  إغلاق النافذة
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
+  </div>
   );
 }

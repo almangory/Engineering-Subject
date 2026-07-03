@@ -18,6 +18,9 @@ export default function WorksheetSection() {
   const [preferredType, setPreferredType] = useState<string>("all"); // "all" | "multiple-choice" | ...
   const [targetCount, setTargetCount] = useState<number>(5); // slider from 1 to 20
 
+  // Control panel visibility toggle (hidden by default to improve mobile/tablet viewing experience)
+  const [isPanelExpanded, setIsPanelExpanded] = useState<boolean>(false);
+
   // Favorites state
   const [favoriteLessonIds, setFavoriteLessonIds] = useState<string[]>(() => {
     const saved = localStorage.getItem("favorite_lessons");
@@ -319,17 +322,28 @@ export default function WorksheetSection() {
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8" id="worksheets-section">
       
       {/* Dynamic Worksheet Generator & Configuration Panel */}
-      <div className="lg:col-span-4 bg-white border border-slate-200 rounded-2xl p-5 space-y-5 print:hidden shadow-sm">
+      <div className={`transition-all duration-300 print:hidden ${
+        isPanelExpanded 
+          ? "lg:col-span-4 bg-white border border-slate-200 rounded-2xl p-5 space-y-5 shadow-sm block animate-fadeIn" 
+          : "hidden"
+      }`}>
         
-        <div className="border-b border-slate-100 pb-3">
-          <h3 className="text-lg font-black text-slate-800 flex items-center gap-2">
+        <div className="border-b border-slate-100 pb-3 flex justify-between items-center">
+          <h3 className="text-base font-black text-slate-800 flex items-center gap-2">
             <Filter className="h-5 w-5 text-orange-500 animate-pulse" />
             <span>لوحة التحكم وتخصيص الاختبار</span>
           </h3>
-          <p className="text-xs text-slate-400 mt-1 leading-relaxed">
-            خصص مادة ومنهج ورقة العمل، واختر نوع الأسئلة وعددها لتوليد اختبار تفاعلي فوري بمواصفات حقيقية دون تكرار.
-          </p>
+          <button
+            onClick={() => setIsPanelExpanded(false)}
+            className="p-1 text-slate-400 hover:text-rose-500 rounded-lg hover:bg-rose-50 transition"
+            title="إخفاء لوحة التحكم"
+          >
+            <XCircle className="h-5 w-5" />
+          </button>
         </div>
+        <p className="text-xs text-slate-400 leading-relaxed border-b border-slate-100 pb-2">
+          خصص مادة ومنهج ورقة العمل، واختر نوع الأسئلة وعددها لتوليد اختبار تفاعلي فوري بمواصفات حقيقية دون تكرار.
+        </p>
 
         {/* 1. Scope Selector */}
         <div className="space-y-2">
@@ -474,7 +488,7 @@ export default function WorksheetSection() {
       </div>
 
       {/* Main Interactive Worksheet Canvas */}
-      <div className="lg:col-span-8 space-y-6 print:col-span-12 relative">
+      <div className={`${isPanelExpanded ? "lg:col-span-8" : "lg:col-span-12"} space-y-6 print:col-span-12 transition-all duration-300 relative`}>
         
         {/* The Printable Container styled like A4 Sheet */}
         <div 
@@ -517,7 +531,20 @@ export default function WorksheetSection() {
               <p className="text-xs text-slate-500 mt-1">{currentWs.description}</p>
             </div>
             
-            <div className="mt-3 sm:mt-0 flex gap-2 w-full sm:w-auto">
+            <div className="mt-3 sm:mt-0 flex flex-wrap gap-2 w-full sm:w-auto">
+              {/* Toggle Panel Button */}
+              <button
+                onClick={() => setIsPanelExpanded(!isPanelExpanded)}
+                className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition active:scale-95 shadow-sm border ${
+                  isPanelExpanded
+                    ? "bg-orange-50 border-orange-200 text-orange-600 hover:bg-orange-100"
+                    : "bg-gradient-to-r from-orange-500 to-amber-500 border-transparent text-white hover:opacity-90 animate-pulse hover:animate-none"
+                }`}
+              >
+                <Settings className={`h-4 w-4 ${isPanelExpanded ? "animate-spin" : ""}`} />
+                <span>{isPanelExpanded ? "إخفاء لوحة التحكم" : "تخصيص وتوليد الأسئلة"}</span>
+              </button>
+
               <button
                 onClick={handlePrint}
                 className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3.5 py-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-xs font-bold text-slate-600 transition active:scale-95 shadow-sm"
