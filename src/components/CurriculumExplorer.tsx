@@ -1,7 +1,14 @@
 import React, { useState } from "react";
 import { curriculumData } from "../data/curriculumData";
 import { Chapter, Lesson } from "../types";
-import { Search, ChevronLeft, ChevronDown, BookOpen, Compass, Award, Cpu, Star, HelpCircle, ArrowLeft, RefreshCw, Zap, Activity, Heart, Maximize2, X, Type, Check, Lightbulb } from "lucide-react";
+import { Search, ChevronLeft, ChevronDown, BookOpen, Compass, Award, Cpu, Star, HelpCircle, ArrowLeft, RefreshCw, Zap, Activity, Heart, Maximize2, X, Type, Check, Lightbulb, Video } from "lucide-react";
+
+const CHAPTER_VIDEOS: Record<string, string> = {
+  "chapter-1": "https://drive.google.com/file/d/1zJFZNcScTSp_Vt0ykfHYBG43uqsDrzsI/preview",
+  "chapter-2": "https://drive.google.com/file/d/1OP-xcYtE90oC43jCRV_aMy07D43oFJjO/preview",
+  "chapter-3": "https://drive.google.com/file/d/17_g6bEPc9jw9t0Juwzx9pBhFRfrLueCP/preview",
+  "chapter-4": "https://drive.google.com/file/d/1cM1mEUZdiuVc7ltQoYnpDxbqHWAcQmD7/preview",
+};
 
 interface CurriculumExplorerProps {
   onAskAi: (topic: string) => void;
@@ -1229,7 +1236,39 @@ export default function CurriculumExplorer({ onAskAi, onGoToLab }: CurriculumExp
 
         {/* Main Content Area - Selected Lesson */}
         <div className="lg:col-span-8 space-y-6" id="lesson-content-panel">
-        <div className={`rounded-2xl p-6 md:p-8 border transition-all duration-300 relative overflow-hidden ${
+          {/* Chapter Explanation Video Card */}
+          {CHAPTER_VIDEOS[selectedChapter.id] && (
+            <div className="bg-white border border-slate-200 rounded-2xl p-4 md:p-5 shadow-sm space-y-3 relative overflow-hidden" id="chapter-video-card">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="bg-rose-50 text-rose-600 p-2.5 rounded-xl">
+                    <Video className="h-5 w-5 animate-pulse" />
+                  </div>
+                  <div>
+                    <h4 className="text-xs sm:text-sm font-black text-slate-800">
+                      🎥 الشرح المرئي الكامل: {selectedChapter.arabicTitle ? selectedChapter.arabicTitle.split(":")[1] || selectedChapter.arabicTitle : selectedChapter.title}
+                    </h4>
+                    <p className="text-[10px] text-slate-500">حصة مصورة للمنهج السوداني المعتمد للشهادة الثانوية</p>
+                  </div>
+                </div>
+                <div className="text-[10px] text-rose-600 font-bold bg-rose-50 px-2 py-1 rounded-full animate-pulse">
+                  جاري التشغيل التلقائي ⚡
+                </div>
+              </div>
+              <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-slate-950 border border-slate-200 shadow-inner">
+                <iframe
+                  key={selectedChapter.id}
+                  src={`${CHAPTER_VIDEOS[selectedChapter.id]}?autoplay=1`}
+                  className="absolute inset-0 w-full h-full"
+                  allow="autoplay; encrypted-media"
+                  allowFullScreen
+                  title={`شرح الباب المرئي`}
+                />
+              </div>
+            </div>
+          )}
+
+          <div className={`rounded-2xl p-6 md:p-8 border transition-all duration-300 relative overflow-hidden ${
           readingTheme === "default" ? "bg-white border-slate-200 text-slate-700 shadow-sm" :
           readingTheme === "sepia" ? "bg-[#fbf7eb] border-[#e6d8b6] text-[#423223] shadow-md" :
           readingTheme === "warm" ? "bg-[#fcfaf2] border-[#ecdcb9] text-[#46392f] shadow-md" :
