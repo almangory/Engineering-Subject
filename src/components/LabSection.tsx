@@ -4,6 +4,7 @@ import { Activity, Compass, Zap, HelpCircle, RefreshCw, Play, Pause, ChevronLeft
 interface LabSectionProps {
   activeLab?: string; // Can be a lab ID or lesson ID
   setActiveLab?: (lab: any) => void;
+  lang?: "ar" | "en";
 }
 
 // Lesson data inside Lab for standalone navigation
@@ -1326,13 +1327,12 @@ export default function LabSection({ activeLab: propActiveLab, setActiveLab: pro
                     setFreehandPoints((prev) => [...prev, { x, y }]);
                   }}
                 >
-                  {/* Circle Trace guidelines */}
-                  <circle cx="120" cy="80" r="45" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
-                  <line x1="120" y1="20" x2="120" y2="140" stroke="rgba(255,255,255,0.05)" />
-                  <line x1="40" y1="80" x2="200" y2="80" stroke="rgba(255,255,255,0.05)" />
-
-                  {/* Freehand rendering */}
+                  {/* Circle Trace guidelines & Freehand rendering wrapped in a single SVG container */}
                   <svg className="absolute inset-0 w-full h-full pointer-events-none">
+                    <circle cx="120" cy="80" r="45" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
+                    <line x1="120" y1="20" x2="120" y2="140" stroke="rgba(255,255,255,0.05)" />
+                    <line x1="40" y1="80" x2="200" y2="80" stroke="rgba(255,255,255,0.05)" />
+
                     {freehandPoints.map((pt, i) => (
                       <circle key={i} cx={pt.x} cy={pt.y} r="1.5" fill="#f59e0b" />
                     ))}

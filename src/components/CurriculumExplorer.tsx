@@ -1,7 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { curriculumData } from "../data/curriculumData";
+import ReviewSummaryExporter from "./ReviewSummaryExporter";
 import { Chapter, Lesson } from "../types";
 import { Search, ChevronLeft, ChevronDown, BookOpen, Compass, Award, Cpu, Star, HelpCircle, ArrowLeft, RefreshCw, Zap, Activity, Heart, Maximize2, X, Type, Check, Lightbulb, Video } from "lucide-react";
+import { UI_TRANSLATIONS, LESSON_TRANSLATIONS } from "../utils/translations";
 
 const CHAPTER_VIDEOS: Record<string, string> = {
   "chapter-1": "https://drive.google.com/file/d/1zJFZNcScTSp_Vt0ykfHYBG43uqsDrzsI/preview",
@@ -13,6 +15,7 @@ const CHAPTER_VIDEOS: Record<string, string> = {
 interface CurriculumExplorerProps {
   onAskAi: (topic: string) => void;
   onGoToLab?: (labId: string) => void;
+  lang?: "ar" | "en";
 }
 
 const lessonLabMapping: Record<
@@ -299,6 +302,137 @@ export const lessonSummaries: Record<string, LessonSummary> = {
       "تقسم الأمراض المتعلقة بالمياه لـ ٤ أقسام: منقولة بالماء (كالكوليرا)، بسبب غياب النظافة (كالجرب)، تلامسية (كالبلهارسيا)، وعبر نواقل مائية (كالملاريا)."
     ],
     examTip: "احفظ تصنيف أمراض المياه الأربعة والأمثلة عليها؛ البلهارسيا مثال للأمراض 'التلامسية'، وحمى الملاريا مثال للأمراض المنقولة عبر 'نواقل الجراثيم'."
+  }
+};
+
+export const englishSummaries: Record<string, LessonSummary> = {
+  "intro-projection": {
+    takeaways: [
+      "Projection is when the edges of an object project as straight lines onto a plane to form a 2D representation.",
+      "Methods differ by sight-line direction: oblique projection is slanted, perspective projection uses a central point.",
+      "The resulting drawing is called the 'view' or 'projection', and the rays are 'projection lines'."
+    ],
+    examTip: "Learn the formal definitions of projection and oblique projection. They frequently appear in 'Write the scientific term' questions."
+  },
+  "ortho-principles": {
+    takeaways: [
+      "Orthographic projection describes true shapes by projecting lines perpendicular to mutually orthogonal planes.",
+      "Edges and surfaces parallel to the projection plane appear in their true shape and dimensions.",
+      "Lines perpendicular to a plane project as a single point; perpendicular surfaces project as a single line."
+    ],
+    examTip: "Remember the gold rule: a line perpendicular to a plane projects as a point, and a perpendicular surface projects as a line."
+  },
+  "three-planes": {
+    takeaways: [
+      "Three perpendicular planes (vertical, horizontal, side) are used to clarify details of complex 3D objects.",
+      "In First-Angle projection (used in Sudan), the plan is below the elevation, and the LHS view is on the right of the elevation.",
+      "In Third-Angle projection, the plan is above the elevation, and the LHS view is on the left of the elevation."
+    ],
+    examTip: "Always memorize the location of the horizontal plane (Plan) in First-Angle system: it is drawn directly underneath the Vertical plane."
+  },
+  "isometric-oblique": {
+    takeaways: [
+      "In isometric projection, side axes are angled at 30 degrees to the horizontal, creating 120-degree angles between axes.",
+      "Oblique projection draws the front face flat (true shape) with side depth drawn at 30, 45, or 60 degrees (usually 45).",
+      "Isometric views show 3D details equally, whereas oblique views focus details on the frontal plane."
+    ],
+    examTip: "Identify the receding axis angles: 30° for Isometric, and 45° (or 30°/60°) for Oblique projection."
+  },
+  "engine-intro": {
+    takeaways: [
+      "Internal combustion engines convert thermal energy from fuel combustion inside the cylinder into mechanical work.",
+      "Engines are categorized by fuel (petrol/spark ignition vs. diesel/compression ignition) and cycle strokes.",
+      "The piston moves linearly between Top Dead Center (TDC) and Bottom Dead Center (BDC)."
+    ],
+    examTip: "Understand the conversion of fuel's chemical energy into heat, then into mechanical motion via pistons and crankshafts."
+  },
+  "four-stroke": {
+    takeaways: [
+      "A four-stroke cycle completes 4 piston strokes (Suction, Compression, Power, Exhaust) during two crankshaft rotations.",
+      "Valves open and close at precise points: intake valve opens during suction, and both valves are closed during compression and power.",
+      "The power stroke is the only stroke that produces mechanical work; others are driven by flywheel momentum."
+    ],
+    examTip: "Be prepared to draw or list the sequence of the 4 strokes in order: Suction -> Compression -> Power -> Exhaust."
+  },
+  "two-stroke": {
+    takeaways: [
+      "Two-stroke engines complete the cycle in 2 piston strokes (one revolution), replacing valves with cylinder ports.",
+      "Fuel mixture is pre-compressed in the crankcase before entering the combustion chamber via transfer ports.",
+      "They offer higher power density but suffer from fuel loss (scavenging losses) and higher emissions."
+    ],
+    examTip: "Compare two-stroke vs four-stroke: two-stroke has no valves (uses ports), fires every revolution, and lacks a separate oil sump."
+  },
+  "engine-calc": {
+    takeaways: [
+      "Swept volume (Vs) is the cylinder volume displaced by the piston between TDC and BDC: Vs = (π/4) * d² * L.",
+      "Compression ratio (r) is total cylinder volume divided by clearance volume: r = (Vs + Vc) / Vc.",
+      "Indicated Power (IP) calculates internal cylinder power, while Brake Power (BP) is the usable shaft power."
+    ],
+    examTip: "Make sure your units match when calculating power: convert cylinder diameter (bore) and stroke length to meters!"
+  },
+  "tensile-test": {
+    takeaways: [
+      "Tensile testing applies uniaxial stretching force to a specimen to study strength, elasticity, and deformation.",
+      "A standard dog-bone specimen is gripped in a Universal Testing Machine (UTM) to record load-deformation curves.",
+      "Ductile materials show significant narrowing (necking) before fracture, while brittle materials snap cleanly."
+    ],
+    examTip: "Study the shape of a tensile test specimen. The enlarged ends prevent slipping and ensure failure occurs in the middle gauge section."
+  },
+  "stress-strain": {
+    takeaways: [
+      "Hooke's law states that stress is directly proportional to strain within the elastic limit: Stress = E * Strain.",
+      "The curve details key zones: Proportional limit, Elastic limit, Yield point, Ultimate Tensile Strength, and Fracture.",
+      "Modulus of elasticity (Young's Modulus) represents material stiffness, measured in Pascals (N/m²)."
+    ],
+    examTip: "Understand the difference between elastic deformation (reversible) and plastic deformation (permanent) after the yield point."
+  },
+  "stress-calc": {
+    takeaways: [
+      "Normal stress (σ) is load divided by original cross-sectional area: σ = P / A.",
+      "Strain (ε) is change in length divided by original gauge length: ε = ΔL / L.",
+      "Factor of Safety (FoS) is the ultimate stress divided by allowable working stress: FoS = σ_ultimate / σ_allowable."
+    ],
+    examTip: "Always remember that strain is a dimensionless ratio, whereas stress shares the exact same unit as pressure (Pascal or N/m²)."
+  },
+  "structures-trusses": {
+    takeaways: [
+      "Structures are designed to withstand external loads and transmit forces safely to the ground without excessive deformation.",
+      "Trusses are light triangular frames ideal for roofs and bridges, transmitting load axial forces (tension or compression) only.",
+      "Supports are categorized: roller support (1 reaction), pinned/hinged (2 reactions), fixed support like a cantilever (3 reactions)."
+    ],
+    examTip: "Remember the reactions for each support: Roller = 1, Pinned = 2, Fixed (Cantilever) = 3 (horizontal, vertical, and bending moment)."
+  },
+  "arches-foundations": {
+    takeaways: [
+      "Arches transfer loads down to solid abutments primarily through thrust/axial compression forces.",
+      "Foundations act as the medium transferring structural loads safely to the soil; split into shallow and deep categories.",
+      "Deep foundations (piles and caissons) are utilized to bypass weak surface soil layers to solid load-bearing rocks."
+    ],
+    examTip: "Be sure to explain when deep foundations (piles) are required: specifically, when top soil strata are too weak to support load."
+  },
+  "stress-strain-hooke": {
+    takeaways: [
+      "Stress is the internal resisting force per unit area (σ = P / A) measured in Pascals or N/m².",
+      "Strain is the relative deformation change in length (ε = dL / L) and has no units.",
+      "Hooke's Law states stress is proportional to strain in elastic limits, where Young's Modulus (E = σ / ε) is the constant."
+    ],
+    examTip: "Common exam question: Explain why strain is dimensionless. Answer: It is the ratio of two homogenous lengths (change in length over original length)."
+  },
+  "fluid-mechanics-viscosity": {
+    takeaways: [
+      "Fluids comprise both liquids and gases, characterized by their ability to flow and conform to container shapes.",
+      "Viscosity is a fluid's internal resistance to flow and shear, stemming from cohesive molecular attractions.",
+      "With temperature rise: liquid viscosity decreases (weakening bonds) whereas gaseous viscosity increases (increasing molecular collisions)."
+    ],
+    examTip: "Memorize temperature effects: heat increases gas viscosity but decreases liquid viscosity. Newton's law: F = μ * A * (dv / dy)."
+  },
+  "environmental-pollution": {
+    takeaways: [
+      "Acid rain is formed when sulfur oxides (SOx) and nitrogen oxides (NOx) gases from industrial emissions dissolve in air moisture.",
+      "Acid rain corrodes buildings, degrades soil fertility, damages agricultural crops, and pollutes freshwater ecosystems.",
+      "Water-related diseases are grouped into 4 categories: water-borne (e.g. cholera), water-washed (e.g. scabies), water-based (e.g. schistosomiasis), and insect-vectors (e.g. malaria)."
+    ],
+    examTip: "Remember water disease examples: Schistosomiasis (bilharzia) is 'water-based / contact' while Malaria is 'water-insect-vector'."
   }
 };
 
@@ -924,7 +1058,8 @@ function renderLessonDiagram(lessonId: string) {
   }
 }
 
-export default function CurriculumExplorer({ onAskAi, onGoToLab }: CurriculumExplorerProps) {
+export default function CurriculumExplorer({ onAskAi, onGoToLab, lang = "ar" }: CurriculumExplorerProps) {
+  const t = UI_TRANSLATIONS[lang];
   const [selectedChapter, setSelectedChapter] = useState<Chapter>(curriculumData[0]);
   const [selectedLessonId, setSelectedLessonId] = useState<string>("intro-projection");
   const [searchQuery, setSearchQuery] = useState("");
@@ -932,6 +1067,22 @@ export default function CurriculumExplorer({ onAskAi, onGoToLab }: CurriculumExp
     const saved = localStorage.getItem("favorite_lessons");
     return saved ? JSON.parse(saved) : [];
   });
+
+  const [reviewedLessons, setReviewedLessons] = useState<string[]>(() => {
+    const saved = localStorage.getItem("reviewed_lessons");
+    return saved ? JSON.parse(saved) : ["intro-projection"];
+  });
+
+  useEffect(() => {
+    setReviewedLessons((prev) => {
+      if (!prev.includes(selectedLessonId)) {
+        const updated = [...prev, selectedLessonId];
+        localStorage.setItem("reviewed_lessons", JSON.stringify(updated));
+        return updated;
+      }
+      return prev;
+    });
+  }, [selectedLessonId]);
 
   // State to control collapsible chapter lists (accordions)
   const [expandedChapters, setExpandedChapters] = useState<Record<string, boolean>>(() => {
@@ -970,12 +1121,23 @@ export default function CurriculumExplorer({ onAskAi, onGoToLab }: CurriculumExp
   // Simple search filter across all chapters and lessons
   const filteredChapters = curriculumData.map((chap) => {
     const matchingLessons = chap.lessons.filter(
-      (les) =>
-        les.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        les.content.some((p) => p.toLowerCase().includes(searchQuery.toLowerCase()))
+      (les) => {
+        const trans = LESSON_TRANSLATIONS[les.id];
+        const searchTarget = searchQuery.toLowerCase();
+        const matchesArTitle = les.title.toLowerCase().includes(searchTarget);
+        const matchesEnTitle = trans ? trans.title.toLowerCase().includes(searchTarget) : false;
+        const matchesArContent = les.content.some((p) => p.toLowerCase().includes(searchTarget));
+        const matchesEnContent = trans ? trans.concept.toLowerCase().includes(searchTarget) : false;
+        return matchesArTitle || matchesEnTitle || matchesArContent || matchesEnContent;
+      }
     );
     return { ...chap, lessons: matchingLessons };
-  }).filter((chap) => chap.lessons.length > 0 || chap.arabicTitle.toLowerCase().includes(searchQuery.toLowerCase()));
+  }).filter((chap) => {
+    const searchTarget = searchQuery.toLowerCase();
+    const matchesArChapTitle = chap.arabicTitle.toLowerCase().includes(searchTarget);
+    const matchesEnChapTitle = chap.title.toLowerCase().includes(searchTarget);
+    return chap.lessons.length > 0 || matchesArChapTitle || matchesEnChapTitle;
+  });
 
   const handleLessonSelect = (chapter: Chapter, lessonId: string) => {
     setSelectedChapter(chapter);
@@ -1065,17 +1227,17 @@ export default function CurriculumExplorer({ onAskAi, onGoToLab }: CurriculumExp
   };
 
   return (
-    <div className="space-y-6 w-full" id="curriculum-explorer-root">
+    <div className="space-y-6 w-full animate-fadeIn" id="curriculum-explorer-root" dir={lang === "ar" ? "rtl" : "ltr"}>
       {/* Mobile / Tablet Dropdown Selector (قوائم منسدلة للجوال والتابلت) */}
       <div className="block lg:hidden bg-slate-50 border border-slate-200 rounded-2xl p-4 shadow-sm" id="mobile-curriculum-selector">
         <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
           <div className="text-right w-full sm:w-auto">
             <span className="text-[10px] font-black text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full inline-block">
-              {selectedChapter.arabicTitle ? selectedChapter.arabicTitle.split(":")[0] : "المنهج الدراسي"}
+              {lang === "en" ? selectedChapter.title.split(":")[0] : (selectedChapter.arabicTitle ? selectedChapter.arabicTitle.split(":")[0] : "المنهج الدراسي")}
             </span>
             <h3 className="text-sm font-bold text-slate-800 mt-1 flex items-center gap-1.5 justify-start">
               <BookOpen className="h-4 w-4 text-blue-500 shrink-0" />
-              <span>الدرس الحالي: {currentLesson.title}</span>
+              <span>{lang === "en" ? "Current Lesson: " : "الدرس الحالي: "}{(lang === "en" && LESSON_TRANSLATIONS[currentLesson.id]) ? LESSON_TRANSLATIONS[currentLesson.id].title : currentLesson.title}</span>
             </h3>
           </div>
           
@@ -1083,7 +1245,7 @@ export default function CurriculumExplorer({ onAskAi, onGoToLab }: CurriculumExp
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 active:scale-95 text-white font-bold rounded-xl text-xs transition shadow-sm"
           >
-            <span>{isMobileMenuOpen ? "إغلاق قائمة المنهج" : "تصفح أبواب المنهج ▾"}</span>
+            <span>{isMobileMenuOpen ? (lang === "en" ? "Close Menu" : "إغلاق قائمة المنهج") : (lang === "en" ? "Browse Syllabus ▾" : "تصفح أبواب المنهج ▾")}</span>
           </button>
         </div>
 
@@ -1091,15 +1253,15 @@ export default function CurriculumExplorer({ onAskAi, onGoToLab }: CurriculumExp
           <div className="mt-4 pt-4 border-t border-slate-200 space-y-4 animate-fadeIn">
             {/* Search field on mobile */}
             <div className="relative">
-              <span className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
+              <span className={`absolute inset-y-0 flex items-center pointer-events-none text-slate-400 ${lang === "en" ? "left-0 pl-3" : "right-0 pr-3"}`}>
                 <Search className="h-4 w-4" />
               </span>
               <input
                 type="text"
-                placeholder="ابحث عن درس أو موضوع..."
+                placeholder={t.searchPlaceholder}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full text-right pr-9 pl-4 py-2 bg-white text-slate-800 placeholder-slate-400 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                className={`w-full py-2 bg-white text-slate-800 placeholder-slate-400 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 ${lang === "en" ? "pl-9 pr-4 text-left" : "pr-9 pl-4 text-right"}`}
               />
             </div>
 
@@ -1107,18 +1269,22 @@ export default function CurriculumExplorer({ onAskAi, onGoToLab }: CurriculumExp
             <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1">
               {filteredChapters.map((chapter) => {
                 const isChapExpanded = expandedChapters[chapter.id] ?? false;
+                const activeChapTitle = lang === "en" ? chapter.title : chapter.arabicTitle;
+                const chapLabel = activeChapTitle.split(":")[0];
+                const chapName = activeChapTitle.split(":")[1] || activeChapTitle;
+
                 return (
                   <div key={chapter.id} className="border border-slate-200 rounded-xl bg-white overflow-hidden shadow-sm">
                     <button
                       onClick={() => toggleChapter(chapter.id)}
-                      className="w-full text-right bg-slate-50 hover:bg-slate-100/80 p-3 border-b border-slate-200 flex items-center justify-between transition focus:outline-none"
+                      className={`w-full bg-slate-50 hover:bg-slate-100/80 p-3 border-b border-slate-200 flex items-center justify-between transition focus:outline-none ${lang === "en" ? "text-left" : "text-right"}`}
                     >
                       <div>
                         <span className="text-[10px] font-bold text-blue-600 font-mono">
-                          {chapter.arabicTitle.split(":")[0]}
+                          {chapLabel}
                         </span>
                         <h4 className="text-xs font-bold text-slate-800 mt-0.5">
-                          {chapter.arabicTitle.split(":")[1] || chapter.arabicTitle}
+                          {chapName}
                         </h4>
                       </div>
                       <ChevronDown className={`h-4 w-4 text-slate-500 transition-transform duration-300 ${isChapExpanded ? "rotate-180" : ""}`} />
@@ -1129,6 +1295,9 @@ export default function CurriculumExplorer({ onAskAi, onGoToLab }: CurriculumExp
                         {chapter.lessons && chapter.lessons.length > 0 ? (
                           chapter.lessons.map((lesson) => {
                             const isSelected = lesson.id === selectedLessonId;
+                            const activeLessonTrans = LESSON_TRANSLATIONS[lesson.id];
+                            const lessonTitle = (lang === "en" && activeLessonTrans) ? activeLessonTrans.title : lesson.title;
+
                             return (
                               <button
                                 key={lesson.id}
@@ -1136,19 +1305,19 @@ export default function CurriculumExplorer({ onAskAi, onGoToLab }: CurriculumExp
                                   handleLessonSelect(chapter as any, lesson.id);
                                   setIsMobileMenuOpen(false); // auto-close
                                 }}
-                                className={`w-full text-right flex items-center justify-between px-3 py-2 rounded-lg text-xs font-bold transition ${
+                                className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-bold transition ${
                                   isSelected
                                     ? "bg-blue-600 text-white shadow-sm"
                                     : "text-slate-600 hover:bg-slate-200/60"
-                                }`}
+                                } ${lang === "en" ? "text-left" : "text-right"}`}
                               >
-                                <span className="truncate">{lesson.title}</span>
-                                <ChevronLeft className={`h-3.5 w-3.5 flex-shrink-0 mr-2 ${isSelected ? "text-white" : "text-slate-400"}`} />
+                                <span className="truncate">{lessonTitle}</span>
+                                <ChevronLeft className={`h-3.5 w-3.5 flex-shrink-0 ${lang === "en" ? "ml-2 rotate-180" : "mr-2"} ${isSelected ? "text-white" : "text-slate-400"}`} />
                               </button>
                             );
                           })
                         ) : (
-                          <p className="text-slate-400 text-xs p-2 text-center">لا توجد دروس مطابقة</p>
+                          <p className="text-slate-400 text-xs p-2 text-center">{t.noResults}</p>
                         )}
                       </div>
                     )}
@@ -1160,78 +1329,114 @@ export default function CurriculumExplorer({ onAskAi, onGoToLab }: CurriculumExp
         )}
       </div>
 
+      {/* Mobile progress tracker & PDF exporter */}
+      <div className="block lg:hidden">
+        <ReviewSummaryExporter
+          reviewedLessons={reviewedLessons}
+          favorites={favorites}
+          onSelectLesson={(chapterId, lessonId) => {
+            const chap = curriculumData.find((c) => c.id === chapterId);
+            if (chap) {
+              handleLessonSelect(chap as any, lessonId);
+            }
+          }}
+          lang={lang}
+        />
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8" id="curriculum-explorer">
         {/* Sidebar - Search and List of Lessons (Hidden on mobile/tablet) */}
-        <div className="hidden lg:block lg:col-span-4 bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
-          <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2 border-b border-slate-200 pb-3">
-            <BookOpen className="h-5 w-5 text-blue-600" />
-            <span>أبواب المنهج الدراسي</span>
-          </h3>
+        <div className="hidden lg:block lg:col-span-4 space-y-6">
+          <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+            <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2 border-b border-slate-200 pb-3">
+              <BookOpen className="h-5 w-5 text-blue-600" />
+              <span>{t.searchTitle}</span>
+            </h3>
 
-          {/* Search */}
-          <div className="relative mb-5" id="search-container">
-            <span className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
-              <Search className="h-4 w-4" />
-            </span>
-            <input
-              type="text"
-              placeholder="ابحث عن درس أو موضوع..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full text-right pr-9 pl-4 py-2.5 bg-slate-50 text-slate-800 placeholder-slate-400 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 focus:bg-white transition"
-            />
+            {/* Search */}
+            <div className="relative mb-5" id="search-container">
+              <span className={`absolute inset-y-0 flex items-center pointer-events-none text-slate-400 ${lang === "en" ? "left-0 pl-3" : "right-0 pr-3"}`}>
+                <Search className="h-4 w-4" />
+              </span>
+              <input
+                type="text"
+                placeholder={t.searchPlaceholder}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className={`w-full py-2.5 bg-slate-50 text-slate-800 placeholder-slate-400 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 focus:bg-white transition ${lang === "en" ? "pl-9 pr-4 text-left" : "pr-9 pl-4 text-right"}`}
+              />
+            </div>
+
+            {/* Chapters and Lessons (Collapsible Accordions for Desktop) */}
+            <div className="space-y-4 max-h-[600px] overflow-y-auto pr-1">
+              {filteredChapters.map((chapter) => {
+                const isChapExpanded = expandedChapters[chapter.id] ?? false;
+                const activeChapTitle = lang === "en" ? chapter.title : chapter.arabicTitle;
+                const chapLabel = activeChapTitle.split(":")[0];
+                const chapName = activeChapTitle.split(":")[1] || activeChapTitle;
+
+                return (
+                  <div key={chapter.id} className="border border-slate-200 rounded-xl overflow-hidden bg-slate-50/50 transition duration-300">
+                    <button
+                      onClick={() => toggleChapter(chapter.id)}
+                      className={`w-full bg-slate-100 hover:bg-slate-200/80 p-3.5 border-b border-slate-200 flex items-center justify-between transition focus:outline-none ${lang === "en" ? "text-left" : "text-right"}`}
+                    >
+                      <div>
+                        <span className="text-xs font-bold text-blue-600 font-mono tracking-wider">
+                          {chapLabel}
+                        </span>
+                        <h4 className="text-sm font-bold text-slate-800 mt-1">
+                          {chapName}
+                        </h4>
+                      </div>
+                      <ChevronDown className={`h-4 w-4 text-slate-500 transition-transform duration-300 ${isChapExpanded ? "rotate-180" : ""}`} />
+                    </button>
+
+                    {isChapExpanded && (
+                      <div className="p-1.5 space-y-1 animate-fadeIn">
+                        {chapter.lessons && chapter.lessons.length > 0 ? (
+                          chapter.lessons.map((lesson) => {
+                            const isSelected = lesson.id === selectedLessonId;
+                            const activeLessonTrans = LESSON_TRANSLATIONS[lesson.id];
+                            const lessonTitle = (lang === "en" && activeLessonTrans) ? activeLessonTrans.title : lesson.title;
+
+                            return (
+                              <button
+                                key={lesson.id}
+                                onClick={() => handleLessonSelect(chapter as any, lesson.id)}
+                                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-semibold transition ${
+                                  isSelected
+                                    ? "bg-blue-600 text-white shadow-sm"
+                                    : "text-slate-600 hover:bg-slate-200/60 hover:text-slate-900"
+                                } ${lang === "en" ? "text-left" : "text-right"}`}
+                              >
+                                <span className="truncate">{lessonTitle}</span>
+                                <ChevronLeft className={`h-3.5 w-3.5 flex-shrink-0 ${lang === "en" ? "ml-2 rotate-180" : "mr-2"} ${isSelected ? "text-white" : "text-slate-400"}`} />
+                              </button>
+                            );
+                          })
+                        ) : (
+                          <p className="text-slate-400 text-xs p-3 text-center">{t.noResults}</p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           </div>
 
-          {/* Chapters and Lessons (Collapsible Accordions for Desktop) */}
-          <div className="space-y-4 max-h-[600px] overflow-y-auto pr-1">
-            {filteredChapters.map((chapter) => {
-              const isChapExpanded = expandedChapters[chapter.id] ?? false;
-              return (
-                <div key={chapter.id} className="border border-slate-200 rounded-xl overflow-hidden bg-slate-50/50 transition duration-300">
-                  <button
-                    onClick={() => toggleChapter(chapter.id)}
-                    className="w-full text-right bg-slate-100 hover:bg-slate-200/80 p-3.5 border-b border-slate-200 flex items-center justify-between transition focus:outline-none"
-                  >
-                    <div>
-                      <span className="text-xs font-bold text-blue-600 font-mono tracking-wider">
-                        {chapter.arabicTitle.split(":")[0]}
-                      </span>
-                      <h4 className="text-sm font-bold text-slate-800 mt-1">
-                        {chapter.arabicTitle.split(":")[1] || chapter.arabicTitle}
-                      </h4>
-                    </div>
-                    <ChevronDown className={`h-4 w-4 text-slate-500 transition-transform duration-300 ${isChapExpanded ? "rotate-180" : ""}`} />
-                  </button>
-
-                  {isChapExpanded && (
-                    <div className="p-1.5 space-y-1 animate-fadeIn">
-                      {chapter.lessons && chapter.lessons.length > 0 ? (
-                        chapter.lessons.map((lesson) => {
-                          const isSelected = lesson.id === selectedLessonId;
-                          return (
-                            <button
-                              key={lesson.id}
-                              onClick={() => handleLessonSelect(chapter as any, lesson.id)}
-                              className={`w-full text-right flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-semibold transition ${
-                                isSelected
-                                  ? "bg-blue-600 text-white shadow-sm"
-                                  : "text-slate-600 hover:bg-slate-200/60 hover:text-slate-900"
-                              }`}
-                            >
-                              <span className="truncate">{lesson.title}</span>
-                              <ChevronLeft className={`h-3.5 w-3.5 flex-shrink-0 mr-2 ${isSelected ? "text-white" : "text-slate-400"}`} />
-                            </button>
-                          );
-                        })
-                      ) : (
-                        <p className="text-slate-400 text-xs p-3 text-center">لا توجد دروس مطابقة للبحث</p>
-                      )}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
+          <ReviewSummaryExporter
+            reviewedLessons={reviewedLessons}
+            favorites={favorites}
+            onSelectLesson={(chapterId, lessonId) => {
+              const chap = curriculumData.find((c) => c.id === chapterId);
+              if (chap) {
+                handleLessonSelect(chap as any, lessonId);
+              }
+            }}
+            lang={lang}
+          />
         </div>
 
         {/* Main Content Area - Selected Lesson */}
@@ -1246,13 +1451,16 @@ export default function CurriculumExplorer({ onAskAi, onGoToLab }: CurriculumExp
                   </div>
                   <div>
                     <h4 className="text-xs sm:text-sm font-black text-slate-800">
-                      🎥 الشرح المرئي الكامل: {selectedChapter.arabicTitle ? selectedChapter.arabicTitle.split(":")[1] || selectedChapter.arabicTitle : selectedChapter.title}
+                      {lang === "en" ? "🎥 Chapter Video Lesson: " : "🎥 الشرح المرئي الكامل: "}
+                      {lang === "en" ? (selectedChapter.title.split(":")[1] || selectedChapter.title) : (selectedChapter.arabicTitle ? selectedChapter.arabicTitle.split(":")[1] || selectedChapter.arabicTitle : selectedChapter.title)}
                     </h4>
-                    <p className="text-[10px] text-slate-500">حصة مصورة للمنهج السوداني المعتمد للشهادة الثانوية</p>
+                    <p className="text-[10px] text-slate-500">
+                      {lang === "en" ? "Official videotaped class for the Sudan National Secondary Certificate syllabus" : "حصة مصورة للمنهج السوداني المعتمد للشهادة الثانوية"}
+                    </p>
                   </div>
                 </div>
                 <div className="text-[10px] text-rose-600 font-bold bg-rose-50 px-2 py-1 rounded-full animate-pulse">
-                  جاري التشغيل التلقائي ⚡
+                  {lang === "en" ? "Autoplay Active ⚡" : "جاري التشغيل التلقائي ⚡"}
                 </div>
               </div>
               <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-slate-950 border border-slate-200 shadow-inner">
@@ -1262,7 +1470,7 @@ export default function CurriculumExplorer({ onAskAi, onGoToLab }: CurriculumExp
                   className="absolute inset-0 w-full h-full"
                   allow="autoplay; encrypted-media"
                   allowFullScreen
-                  title={`شرح الباب المرئي`}
+                  title={lang === "en" ? "Syllabus Video Explanation" : "شرح الباب المرئي"}
                 />
               </div>
             </div>
@@ -1291,7 +1499,7 @@ export default function CurriculumExplorer({ onAskAi, onGoToLab }: CurriculumExp
                 readingTheme === "warm" ? "text-[#8b4f23] bg-[#f2e7cc]" :
                 "text-indigo-400 bg-indigo-950/80"
               }`}>
-                {selectedChapter.arabicTitle ? selectedChapter.arabicTitle.split(":")[0] : "المنهج الدراسي"}
+                {lang === "en" ? selectedChapter.title.split(":")[0] : (selectedChapter.arabicTitle ? selectedChapter.arabicTitle.split(":")[0] : "المنهج الدراسي")}
               </span>
               <h2 className={`text-xl md:text-2xl font-black mt-2 transition-all duration-300 ${
                 readingTheme === "default" ? "text-slate-800" :
@@ -1299,15 +1507,15 @@ export default function CurriculumExplorer({ onAskAi, onGoToLab }: CurriculumExp
                 readingTheme === "warm" ? "text-[#5c3c26]" :
                 "text-white"
               }`}>
-                {currentLesson.title}
+                {lang === "en" && LESSON_TRANSLATIONS[currentLesson.id] ? LESSON_TRANSLATIONS[currentLesson.id].title : currentLesson.title}
               </h2>
-              {currentLesson.subtitle && (
+              {(currentLesson.subtitle || (lang === "en" && LESSON_TRANSLATIONS[currentLesson.id])) && (
                 <p className={`text-sm mt-1 transition-all duration-300 ${
                   readingTheme === "default" ? "text-slate-500" :
                   readingTheme === "sepia" ? "text-[#7b6752]" :
                   readingTheme === "warm" ? "text-[#7f6f60]" :
                   "text-slate-400"
-                }`}>{currentLesson.subtitle}</p>
+                }`}>{lang === "en" && LESSON_TRANSLATIONS[currentLesson.id] ? LESSON_TRANSLATIONS[currentLesson.id].subtitle : currentLesson.subtitle}</p>
               )}
             </div>
 
@@ -1320,20 +1528,20 @@ export default function CurriculumExplorer({ onAskAi, onGoToLab }: CurriculumExp
                     ? "bg-rose-50 border-rose-200 text-rose-600 hover:bg-rose-100"
                     : "bg-slate-50 border-slate-200 text-slate-500 hover:bg-slate-100 hover:text-slate-700"
                 }`}
-                title={favorites.includes(currentLesson.id) ? "إزالة من المفضلة" : "إضافة إلى المفضلة"}
+                title={favorites.includes(currentLesson.id) ? t.removeFromFavorites : t.addToFavorites}
               >
                 <Heart className={`h-4 w-4 ${favorites.includes(currentLesson.id) ? "fill-rose-500 text-rose-500" : "text-slate-400"}`} />
-                <span>{favorites.includes(currentLesson.id) ? "مفضّل" : "أضف للمفضلة"}</span>
+                <span>{favorites.includes(currentLesson.id) ? (lang === "en" ? "Starred" : "مفضّل") : (lang === "en" ? "Star" : "أضف للمفضلة")}</span>
               </button>
 
               {/* Quick Ask AI Trigger */}
               <button
                 id={`ask-ai-lesson-${currentLesson.id}`}
-                onClick={() => onAskAi(`${selectedChapter.arabicTitle}: ${currentLesson.title}`)}
+                onClick={() => onAskAi(`${selectedChapter.title}: ${(lang === "en" && LESSON_TRANSLATIONS[currentLesson.id]) ? LESSON_TRANSLATIONS[currentLesson.id].title : currentLesson.title}`)}
                 className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 border border-indigo-200 text-indigo-600 hover:text-white hover:bg-indigo-600 rounded-xl text-xs font-bold transition duration-300 active:scale-95"
               >
                 <Cpu className="h-4 w-4 text-indigo-500 group-hover:text-white animate-pulse" />
-                <span>اسأل المعلم الذكي عن هذا الدرس</span>
+                <span>{t.askAiTutor}</span>
               </button>
             </div>
           </div>
@@ -1347,7 +1555,7 @@ export default function CurriculumExplorer({ onAskAi, onGoToLab }: CurriculumExp
           }`} id="reading-mode-toolbar">
             <div className="flex items-center gap-1.5">
               <Type className={`h-4 w-4 ${readingTheme === "dark" ? "text-indigo-400" : "text-blue-600"}`} />
-              <span className={`text-xs font-black ${readingTheme === "dark" ? "text-slate-300" : "text-slate-700"}`}>تحكّم القراءة المريحة:</span>
+              <span className={`text-xs font-black ${readingTheme === "dark" ? "text-slate-300" : "text-slate-700"}`}>{t.comfortableReading}:</span>
             </div>
 
             <div className="flex flex-wrap items-center gap-3">
@@ -1361,7 +1569,7 @@ export default function CurriculumExplorer({ onAskAi, onGoToLab }: CurriculumExp
                       : "text-slate-600 hover:bg-slate-100"
                   }`}
                 >
-                  الافتراضي
+                  {t.default}
                 </button>
                 <button
                   onClick={() => setReadingTheme("sepia")}
@@ -1370,9 +1578,9 @@ export default function CurriculumExplorer({ onAskAi, onGoToLab }: CurriculumExp
                       ? "bg-[#80421d] text-white shadow-xs"
                       : "text-[#6b5847] hover:bg-[#e4d4b2]"
                   }`}
-                  title="وضع سيبيا المريح للعين"
+                  title="Warm Sepia theme"
                 >
-                  سيبيا 📖
+                  {lang === "en" ? "Sepia 📖" : "سيبيا 📖"}
                 </button>
                 <button
                   onClick={() => setReadingTheme("warm")}
@@ -1381,9 +1589,9 @@ export default function CurriculumExplorer({ onAskAi, onGoToLab }: CurriculumExp
                       ? "bg-[#8b4f23] text-white shadow-xs"
                       : "text-[#705e52] hover:bg-[#ebd9bd]"
                   }`}
-                  title="وضع دافئ خفيف"
+                  title="Creamy warm theme"
                 >
-                  دافئ 💡
+                  {lang === "en" ? "Warm 💡" : "دافئ 💡"}
                 </button>
                 <button
                   onClick={() => setReadingTheme("dark")}
@@ -1392,15 +1600,15 @@ export default function CurriculumExplorer({ onAskAi, onGoToLab }: CurriculumExp
                       ? "bg-indigo-600 text-white shadow-xs"
                       : "text-slate-400 hover:bg-slate-800"
                   }`}
-                  title="الوضع الليلي"
+                  title="Eye-safe Dark theme"
                 >
-                  ليلي 🌙
+                  {lang === "en" ? "Dark 🌙" : "ليلي 🌙"}
                 </button>
               </div>
 
               {/* Font Size Selector */}
               <div className="flex items-center gap-1 bg-white/40 dark:bg-black/10 p-1 rounded-lg border border-slate-200/50">
-                <span className={`text-[9px] px-1 font-black ${readingTheme === "dark" ? "text-slate-400" : "text-slate-500"}`}>الحجم:</span>
+                <span className={`text-[9px] px-1 font-black ${readingTheme === "dark" ? "text-slate-400" : "text-slate-500"}`}>{t.textSize}:</span>
                 <button
                   onClick={() => setReadingSize("normal")}
                   className={`px-1.5 py-0.5 text-[10px] font-bold rounded-md transition ${
@@ -1435,7 +1643,7 @@ export default function CurriculumExplorer({ onAskAi, onGoToLab }: CurriculumExp
 
               {/* Line Spacing Selector */}
               <div className="flex items-center gap-1 bg-white/40 dark:bg-black/10 p-1 rounded-lg border border-slate-200/50">
-                <span className={`text-[9px] px-1 font-black ${readingTheme === "dark" ? "text-slate-400" : "text-slate-500"}`}>التباعد:</span>
+                <span className={`text-[9px] px-1 font-black ${readingTheme === "dark" ? "text-slate-400" : "text-slate-500"}`}>{t.lineSpacing}:</span>
                 <button
                   onClick={() => setReadingSpacing("normal")}
                   className={`px-1.5 py-0.5 text-[10px] font-bold rounded-md transition ${
@@ -1444,7 +1652,7 @@ export default function CurriculumExplorer({ onAskAi, onGoToLab }: CurriculumExp
                       : (readingTheme === "dark" ? "text-slate-400 hover:bg-slate-800" : "text-slate-600 hover:bg-slate-100")
                   }`}
                 >
-                  عادي
+                  {lang === "en" ? "Normal" : "عادي"}
                 </button>
                 <button
                   onClick={() => setReadingSpacing("relaxed")}
@@ -1454,65 +1662,103 @@ export default function CurriculumExplorer({ onAskAi, onGoToLab }: CurriculumExp
                       : (readingTheme === "dark" ? "text-slate-400 hover:bg-slate-800" : "text-slate-600 hover:bg-slate-100")
                   }`}
                 >
-                  متباعد
+                  {t.relaxed}
                 </button>
               </div>
             </div>
           </div>
 
           {/* Lesson Body paragraphs */}
-          <div className={`space-y-4 text-justify transition-all duration-300 ${
+          <div className={`space-y-4 transition-all duration-300 ${
             readingSize === "normal" ? "text-sm md:text-base" : readingSize === "large" ? "text-base md:text-lg" : "text-lg md:text-xl"
           } ${
-            readingTheme === "default" ? "text-slate-700" :
+            readingTheme === "default" ? "text-slate-700 font-sans" :
             readingTheme === "sepia" ? "text-[#423223]" :
             readingTheme === "warm" ? "text-[#46392f]" :
             "text-slate-300"
-          }`}>
-            {currentLesson.content ? (
-              renderLessonContent(currentLesson.content)
+          } ${lang === "en" ? "text-left" : "text-right text-justify"}`}>
+            {lang === "en" && LESSON_TRANSLATIONS[currentLesson.id] ? (
+              <div className="space-y-6">
+                {/* Core Concept */}
+                <div className="p-4 rounded-xl bg-blue-50/40 border border-blue-100/50">
+                  <h4 className="font-black text-slate-800 mb-2 text-sm uppercase tracking-wide flex items-center gap-1">
+                    <BookOpen className="h-4 w-4 text-blue-600" />
+                    <span>Core Concept & Theory</span>
+                  </h4>
+                  <p className="leading-relaxed text-slate-700">{LESSON_TRANSLATIONS[currentLesson.id].concept}</p>
+                </div>
+
+                {/* Key Terminology Directory */}
+                <div className="space-y-3">
+                  <h4 className="font-black text-slate-800 text-sm uppercase tracking-wide flex items-center gap-1.5 border-b pb-2">
+                    <Type className="h-4 w-4 text-indigo-600" />
+                    <span>Approved Technical Glossary & Translation</span>
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {LESSON_TRANSLATIONS[currentLesson.id].keyTerms.map((term, i) => (
+                      <div key={i} className="p-4 bg-white border border-slate-200 rounded-xl shadow-xs hover:border-indigo-300 transition-all duration-300 flex flex-col justify-between">
+                        <div>
+                          <div className="flex items-center justify-between gap-2 border-b pb-1.5 mb-2">
+                            <span className="font-black text-indigo-600 font-mono text-xs">{term.en}</span>
+                            <span className="font-bold text-slate-800 text-xs bg-slate-100 px-2 py-0.5 rounded-md">{term.ar}</span>
+                          </div>
+                          <p className="text-xs text-slate-500 leading-relaxed">{term.def}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
             ) : (
-              <p className="text-slate-400 italic">محتوى الدرس قيد التحميل والتجهيز...</p>
+              currentLesson.content ? (
+                renderLessonContent(currentLesson.content)
+              ) : (
+                <p className="text-slate-400 italic">محتوى الدرس قيد التحميل والتجهيز...</p>
+              )
             )}
           </div>
 
           {/* Formulas and Equations Card */}
-          {currentLesson.formulas && currentLesson.formulas.length > 0 && (
-            <div className="mt-8 bg-slate-50 border border-slate-200 rounded-xl p-5" id="lesson-formulas-card">
-              <h4 className="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2 border-b border-slate-200 pb-2">
-                <Compass className="h-4 w-4 text-blue-600 animate-spin-slow" />
-                <span>القوانين الهندسية في هذا الدرس</span>
-              </h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {currentLesson.formulas.map((form, idx) => (
-                  <div key={idx} className="bg-white border border-slate-200 p-4 rounded-lg flex flex-col justify-between shadow-sm">
-                    <div>
-                      <span className="text-xs font-bold text-slate-500">{form.name}</span>
-                      <div className="my-2.5 p-2 bg-blue-50 border border-blue-100 rounded-md text-center font-mono font-bold text-blue-600 text-sm md:text-base">
-                        {form.formula}
+          {(() => {
+            const activeFormulas = (lang === "en" && LESSON_TRANSLATIONS[currentLesson.id]?.formulas) 
+              ? LESSON_TRANSLATIONS[currentLesson.id].formulas 
+              : currentLesson.formulas;
+            if (!activeFormulas || activeFormulas.length === 0) return null;
+            return (
+              <div className="mt-8 bg-slate-50 border border-slate-200 rounded-xl p-5" id="lesson-formulas-card">
+                <h4 className="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2 border-b border-slate-200 pb-2">
+                  <Compass className="h-4 w-4 text-blue-600 animate-spin-slow" />
+                  <span>{lang === "en" ? "Engineering Laws in this Lesson" : "القوانين الهندسية في هذا الدرس"}</span>
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {activeFormulas.map((form, idx) => (
+                    <div key={idx} className="bg-white border border-slate-200 p-4 rounded-lg flex flex-col justify-between shadow-sm">
+                      <div>
+                        <span className="text-xs font-bold text-slate-500">{form.name}</span>
+                        <div className="my-2.5 p-2 bg-blue-50 border border-blue-100 rounded-md text-center font-mono font-bold text-blue-600 text-sm md:text-base">
+                          {form.formula}
+                        </div>
                       </div>
+                      <p className="text-xs text-slate-500 mt-1">{form.explanation}</p>
                     </div>
-                    <p className="text-xs text-slate-500 mt-1">{form.explanation}</p>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
-
-          {/* Core Visual Guide / Reference Image according to PDF styles */}
+            );
+          })()}
           <div className="mt-8 bg-slate-50 border border-slate-200 rounded-xl p-5" id="lesson-diagram-card">
             <div className="flex justify-between items-center mb-3 border-b border-slate-200 pb-2">
               <h4 className="text-sm font-bold text-slate-800 flex items-center gap-2">
                 <Award className="h-4 w-4 text-blue-600" />
-                <span>التوضيح والرسومات الهندسية المساندة</span>
+                <span>{lang === "en" ? "Supporting Engineering Diagrams & Visuals" : "التوضيح والرسومات الهندسية المساندة"}</span>
               </h4>
               <button
                 onClick={() => setIsDiagramZoomed(true)}
                 className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold text-indigo-600 hover:text-white hover:bg-indigo-600 bg-white border border-slate-200 rounded-lg transition shadow-sm active:scale-95"
-                title="تكبير الرسم ملء الشاشة"
+                title={lang === "en" ? "Fullscreen zoom view" : "تكبير الرسم ملء الشاشة"}
               >
                 <Maximize2 className="h-3.5 w-3.5" />
-                <span>تكبير ملء الشاشة</span>
+                <span>{lang === "en" ? "Fullscreen Zoom" : "تكبير ملء الشاشة"}</span>
               </button>
             </div>
             
@@ -1530,6 +1776,18 @@ export default function CurriculumExplorer({ onAskAi, onGoToLab }: CurriculumExp
             const LabIcon = mappedLab.labId === "projection" ? Compass :
                             mappedLab.labId === "engine" ? RefreshCw :
                             mappedLab.labId === "elasticity" ? Activity : Zap;
+
+            const labName = lang === "en"
+              ? (mappedLab.labId === "projection" ? "Interactive Orthographic Projection Simulator" :
+                 mappedLab.labId === "engine" ? "Internal Combustion Cycle Inspector" :
+                 mappedLab.labId === "elasticity" ? "Stress-Strain Hooke's Law Tester" : "Interactive Workbench")
+              : mappedLab.labName;
+
+            const labDesc = lang === "en"
+              ? (mappedLab.labId === "projection" ? "Manipulate 3D projection beams onto Orthographic planes live." :
+                 mappedLab.labId === "engine" ? "Analyze the four-stroke piston cycle with pressure-volume indicators." :
+                 mappedLab.labId === "elasticity" ? "Stretch metal bars to plot elastic limits, yield stress, and tensile failures." : mappedLab.description)
+              : mappedLab.description;
             
             return (
               <div className="mt-8 bg-emerald-50/50 border border-emerald-200/80 rounded-2xl p-6 shadow-sm flex flex-col md:flex-row items-center md:items-start justify-between gap-5" id="lesson-associated-lab-card">
@@ -1537,10 +1795,12 @@ export default function CurriculumExplorer({ onAskAi, onGoToLab }: CurriculumExp
                   <div className="bg-emerald-600 text-white p-3.5 rounded-2xl shadow-md flex items-center justify-center shrink-0">
                     <LabIcon className={`h-6 w-6 ${mappedLab.labId === "engine" ? "animate-spin-slow" : mappedLab.labId === "elasticity" ? "animate-pulse" : ""}`} />
                   </div>
-                  <div className="text-center md:text-right space-y-1">
-                    <span className="text-[10px] font-black text-emerald-600 tracking-wider bg-emerald-100/60 px-2.5 py-0.5 rounded-full inline-block">المعمل التفاعلي للدرس</span>
-                    <h4 className="text-base font-bold text-slate-800">{mappedLab.labName}</h4>
-                    <p className="text-xs text-slate-600 leading-relaxed max-w-2xl">{mappedLab.description}</p>
+                  <div className={`space-y-1 ${lang === "en" ? "text-left md:text-left" : "text-center md:text-right"}`}>
+                    <span className="text-[10px] font-black text-emerald-600 tracking-wider bg-emerald-100/60 px-2.5 py-0.5 rounded-full inline-block">
+                      {lang === "en" ? "Interactive Study Lab" : "المعمل التفاعلي للدرس"}
+                    </span>
+                    <h4 className="text-base font-bold text-slate-800">{labName}</h4>
+                    <p className="text-xs text-slate-600 leading-relaxed max-w-2xl">{labDesc}</p>
                   </div>
                 </div>
                 {onGoToLab && (
@@ -1548,8 +1808,8 @@ export default function CurriculumExplorer({ onAskAi, onGoToLab }: CurriculumExp
                     onClick={() => onGoToLab(currentLesson.id)}
                     className="inline-flex items-center gap-2 px-5 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs shadow-md shadow-emerald-600/10 hover:shadow-lg transition duration-300 active:scale-95 shrink-0"
                   >
-                    <span>دخول المعمل وإجراء التجربة</span>
-                    <ArrowLeft className="h-4 w-4" />
+                    <span>{lang === "en" ? "Enter Lab & Run Experiment" : "دخول المعمل وإجراء التجربة"}</span>
+                    <ArrowLeft className={`h-4 w-4 ${lang === "en" ? "rotate-180" : ""}`} />
                   </button>
                 )}
               </div>
@@ -1558,7 +1818,7 @@ export default function CurriculumExplorer({ onAskAi, onGoToLab }: CurriculumExp
 
           {/* Lesson Summary Card (تلخيص الدرس) */}
           {(() => {
-            const summary = lessonSummaries[currentLesson.id];
+            const summary = (lang === "en" ? englishSummaries[currentLesson.id] : lessonSummaries[currentLesson.id]) || lessonSummaries[currentLesson.id];
             if (!summary) return null;
             return (
               <div className={`mt-8 border rounded-2xl p-6 relative overflow-hidden transition-all duration-300 ${
@@ -1577,19 +1837,23 @@ export default function CurriculumExplorer({ onAskAi, onGoToLab }: CurriculumExp
                   <div className="bg-indigo-600 text-white p-2 rounded-xl shadow-sm">
                     <Lightbulb className="h-5 w-5 animate-pulse" />
                   </div>
-                  <div>
+                  <div className={lang === "en" ? "text-left" : "text-right"}>
                     <h4 className={`text-base font-black transition-all duration-300 ${
                       readingTheme === "default" ? "text-slate-800" :
                       readingTheme === "sepia" ? "text-[#5a2e16]" :
                       readingTheme === "warm" ? "text-[#5c3c26]" :
                       "text-white"
-                    }`}>بطاقة التلخيص والمذاكرة الذكية 📋</h4>
+                    }`}>
+                      {lang === "en" ? "Smart Revision & Summary Card 📋" : "بطاقة التلخيص والمذاكرة الذكية 📋"}
+                    </h4>
                     <p className={`text-[10px] font-bold transition-all duration-300 ${
                       readingTheme === "default" ? "text-slate-500" :
                       readingTheme === "sepia" ? "text-[#7b6752]" :
                       readingTheme === "warm" ? "text-[#7f6f60]" :
                       "text-slate-400"
-                    }`}>الخلاصة المركّزة للدرس لسرعة الحفظ والمراجعة العاجلة قبل الامتحان</p>
+                    }`}>
+                      {lang === "en" ? "Condensed study takeaways for rapid revision and exam readiness" : "الخلاصة المركّزة للدرس لسرعة الحفظ والمراجعة العاجلة قبل الامتحان"}
+                    </p>
                   </div>
                 </div>
 
@@ -1599,7 +1863,9 @@ export default function CurriculumExplorer({ onAskAi, onGoToLab }: CurriculumExp
                     readingTheme === "sepia" ? "text-[#8a4a21]" :
                     readingTheme === "warm" ? "text-[#9a5d35]" :
                     "text-indigo-400"
-                  }`}>النقاط الذهبية المستخلصة:</h5>
+                  } ${lang === "en" ? "text-left" : "text-right"}`}>
+                    {lang === "en" ? "Key Study Takeaways:" : "النقاط الذهبية المستخلصة:"}
+                  </h5>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {summary.takeaways.map((point, index) => (
                       <div key={index} className={`border p-3.5 rounded-xl text-xs md:text-sm leading-relaxed flex gap-2.5 shadow-xs transition duration-300 hover:translate-y-[-1px] ${
@@ -1607,7 +1873,7 @@ export default function CurriculumExplorer({ onAskAi, onGoToLab }: CurriculumExp
                         readingTheme === "sepia" ? "bg-[#faf6e8] border-[#e2d4b2] text-[#4d3c2c]" :
                         readingTheme === "warm" ? "bg-[#faf7f0] border-[#ebdcb9] text-[#4f4237]" :
                         "bg-slate-900 border-slate-800 text-slate-300"
-                      }`}>
+                      } ${lang === "en" ? "text-left" : "text-right"}`}>
                         <span className={`flex-shrink-0 flex items-center justify-center w-5 h-5 font-bold text-[10px] rounded-full mt-0.5 transition-all duration-300 ${
                           readingTheme === "default" ? "bg-indigo-100 text-indigo-700" :
                           readingTheme === "sepia" ? "bg-[#eae0c6] text-[#80421d]" :
@@ -1616,7 +1882,7 @@ export default function CurriculumExplorer({ onAskAi, onGoToLab }: CurriculumExp
                         }`}>
                           {index + 1}
                         </span>
-                        <span className="text-right">{point}</span>
+                        <span className="w-full">{point}</span>
                       </div>
                     ))}
                   </div>
@@ -1625,9 +1891,9 @@ export default function CurriculumExplorer({ onAskAi, onGoToLab }: CurriculumExp
                 <div className="bg-indigo-600 text-white p-4 rounded-xl border border-indigo-700 shadow-sm flex flex-col md:flex-row items-start md:items-center gap-3">
                   <div className="bg-white/20 px-3 py-1.5 rounded-lg text-xs font-black shrink-0 tracking-wider flex items-center gap-1">
                     <Award className="h-3.5 w-3.5" />
-                    <span>تلميحة امتحانية ✍️</span>
+                    <span>{lang === "en" ? "Exam Tip ✍️" : "تلميحة امتحانية ✍️"}</span>
                   </div>
-                  <p className="text-xs md:text-sm font-semibold leading-relaxed text-right">
+                  <p className={`text-xs md:text-sm font-semibold leading-relaxed w-full ${lang === "en" ? "text-left" : "text-right"}`}>
                     {summary.examTip}
                   </p>
                 </div>
@@ -1639,26 +1905,28 @@ export default function CurriculumExplorer({ onAskAi, onGoToLab }: CurriculumExp
 
       {/* Zoomed Diagram Modal */}
       {isDiagramZoomed && (
-        <div className="fixed inset-0 z-[100] bg-slate-900/90 backdrop-blur-md flex flex-col items-center justify-center p-4 md:p-8 animate-fadeIn" dir="rtl">
+        <div className="fixed inset-0 z-[100] bg-slate-900/90 backdrop-blur-md flex flex-col items-center justify-center p-4 md:p-8 animate-fadeIn" dir={lang === "en" ? "ltr" : "rtl"}>
           <div className="bg-white rounded-3xl p-6 md:p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto flex flex-col justify-between shadow-2xl relative border border-slate-200">
             {/* Close Button */}
             <button
               onClick={() => setIsDiagramZoomed(false)}
               className="absolute top-4 left-4 p-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-full transition active:scale-95 border border-slate-200"
-              title="إغلاق التكبير"
+              title={lang === "en" ? "Close Zoom" : "إغلاق التكبير"}
             >
               <X className="h-5 w-5" />
             </button>
 
             {/* Header info */}
-            <div className="mb-6 text-right pr-2 border-r-4 border-indigo-600">
+            <div className={`mb-6 pr-2 border-r-4 border-indigo-600 ${lang === "en" ? "text-left" : "text-right"}`}>
               <span className="text-xs text-indigo-600 font-bold bg-indigo-50 px-2.5 py-1 rounded-full">
-                {selectedChapter.arabicTitle ? selectedChapter.arabicTitle.split(":")[0] : "المنهج الدراسي"}
+                {lang === "en" ? selectedChapter.title.split(":")[0] : (selectedChapter.arabicTitle ? selectedChapter.arabicTitle.split(":")[0] : "المنهج الدراسي")}
               </span>
               <h3 className="text-xl font-black text-slate-800 mt-2">
-                مخطط توضيحي: {currentLesson.title}
+                {lang === "en" ? "Technical Diagram: " + ((lang === "en" && LESSON_TRANSLATIONS[currentLesson.id]) ? LESSON_TRANSLATIONS[currentLesson.id].title : currentLesson.title) : "مخطط توضيحي: " + currentLesson.title}
               </h3>
-              <p className="text-xs text-slate-500 mt-1">عرض مكبر عالي الدقة لفهم وتأمل تفاصيل الرسم الهندسي</p>
+              <p className="text-xs text-slate-500 mt-1">
+                {lang === "en" ? "High-definition zoomed view to examine orthographic lines and engineering details." : "عرض مكبر عالي الدقة لفهم وتأمل تفاصيل الرسم الهندسي"}
+              </p>
             </div>
 
             {/* Zoomed Diagram Content */}
@@ -1670,25 +1938,25 @@ export default function CurriculumExplorer({ onAskAi, onGoToLab }: CurriculumExp
 
             {/* Action buttons / asking AI about it */}
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-slate-100 pt-4 w-full">
-              <p className="text-xs text-slate-500 text-center sm:text-right max-w-md leading-relaxed">
-                تفحّص الرموز، المساقط، والتعليقات المكتوبة لمساعدتك على الإجابة الدقيقة في امتحان الشهادة السودانية.
+              <p className={`text-xs text-slate-500 max-w-md leading-relaxed ${lang === "en" ? "text-left" : "text-right"}`}>
+                {lang === "en" ? "Study symbols, projection views, and dimensions to prepare for the Sudan National Examination." : "تفحّص الرموز، المساقط، والتعليقات المكتوبة لمساعدتك على الإجابة الدقيقة في امتحان الشهادة السودانية."}
               </p>
               <div className="flex gap-2 w-full sm:w-auto">
                 <button
                   onClick={() => {
                     setIsDiagramZoomed(false);
-                    onAskAi(`اشرح لي الرسم الهندسي والمخطط بالتفصيل لدرس: ${currentLesson.title}`);
+                    onAskAi(lang === "en" ? `Explain the engineering drawing diagram in detail for lesson: ${LESSON_TRANSLATIONS[currentLesson.id]?.title || currentLesson.title}` : `اشرح لي الرسم الهندسي والمخطط بالتفصيل لدرس: ${currentLesson.title}`);
                   }}
                   className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition duration-300 active:scale-95 shadow-md"
                 >
                   <Cpu className="h-4 w-4 animate-pulse" />
-                  <span>اسأل المعلم عن هذا المخطط ✦</span>
+                  <span>{lang === "en" ? "Ask Tutor About This Diagram ✦" : "اسأل المعلم عن هذا المخطط ✦"}</span>
                 </button>
                 <button
                   onClick={() => setIsDiagramZoomed(false)}
                   className="flex-1 sm:flex-initial px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition duration-300 active:scale-95"
                 >
-                  إغلاق النافذة
+                  {lang === "en" ? "Close Window" : "إغلاق النافذة"}
                 </button>
               </div>
             </div>

@@ -214,6 +214,7 @@ export const termsData: Term[] = [
 
 interface TermsSectionProps {
   onAskAi: (topic: string) => void;
+  lang?: "ar" | "en";
 }
 
 export default function TermsSection({ onAskAi }: TermsSectionProps) {

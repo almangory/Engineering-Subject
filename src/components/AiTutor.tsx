@@ -10,6 +10,7 @@ interface AiTutorProps {
   isOpen: boolean;
   onClose: () => void;
   presetTopic?: string;
+  lang?: "ar" | "en";
 }
 
 // Normalize Arabic text helper to ignore diacritics, different alefs, teh marbutas, and make search extremely flexible
