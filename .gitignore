@@ -6,3 +6,9 @@ coverage/
 *.log
 .env*
 !.env.example
+public/videos/
+public/pdf/
+*.pdf
+*.mp4
+فيديو/
+*.txt

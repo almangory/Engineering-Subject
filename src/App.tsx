@@ -5,11 +5,16 @@ import LabSection from "./components/LabSection";
 import WorksheetSection from "./components/WorksheetSection";
 import TermsSection from "./components/TermsSection";
 import AiTutor from "./components/AiTutor";
-import { Award, Compass, Zap, BookOpen, Activity, FileText, ArrowLeft, ArrowRight, ShieldCheck, Eye, Sparkles, Bot } from "lucide-react";
+import PdfTextbookModal from "./components/PdfTextbookModal";
+import VideoPlayerModal from "./components/VideoPlayerModal";
+import { Award, Compass, Zap, BookOpen, Activity, FileText, ArrowLeft, ArrowRight, ShieldCheck, Eye, Sparkles, Bot, Video } from "lucide-react";
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<string>("curriculum");
   const [aiTutorOpen, setAiTutorOpen] = useState(false);
+  const [pdfModalOpen, setPdfModalOpen] = useState(false);
+  const [videoModalOpen, setVideoModalOpen] = useState(false);
+  const [activeVideoChapter, setActiveVideoChapter] = useState("chapter-1");
   const [presetTopic, setPresetTopic] = useState<string | undefined>(undefined);
   const [activeLab, setActiveLab] = useState<string>("projection");
   const [isHeaderCollapsed, setIsHeaderCollapsed] = useState(false);
@@ -52,6 +57,46 @@ export default function App() {
         </button>
       )}
 
+      {/* 🇸🇩 شريط السيو والروابط العكسية المعتمد لمنظومة المناهج السودانية التفاعلية | منصة نقلة */}
+      <div
+        className="print:hidden border-b border-emerald-500/20 shadow-sm"
+        style={{
+          background: "linear-gradient(90deg, #064E3B 0%, #047857 50%, #065f46 100%)",
+          color: "#ffffff",
+          padding: "7px 16px",
+          fontSize: "12.5px",
+          fontFamily: "'Tajawal', 'Cairo', system-ui, -apple-system, sans-serif",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: "8px", fontWeight: 700 }}>
+          <span className="text-base">🇸🇩</span>
+          <span>{lang === "ar" ? "ضمن منظومة المناهج السودانية التفاعلية | منصة نقلة" : "Sudanese Interactive Curricula Ecosystem | Naqla Platform"}</span>
+        </div>
+        <a
+          href="https://sudan-interactive-curricula.vercel.app/"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            color: "#6ee7b7",
+            fontWeight: 800,
+            textDecoration: "none",
+            fontSize: "11.5px",
+            display: "flex",
+            alignItems: "center",
+            gap: "4px",
+            transition: "color 0.2s",
+          }}
+          className="hover:underline hover:text-emerald-200"
+        >
+          <span>{lang === "ar" ? "العودة للمنصة الرئيسية" : "Back to Main Portal"}</span>
+          <span className="text-xs">↗</span>
+        </a>
+      </div>
+
       {/* Top Header Navigation */}
       <Header
         activeTab={activeTab}
@@ -60,6 +105,8 @@ export default function App() {
           setPresetTopic(undefined);
           setAiTutorOpen(true);
         }}
+        openPdfModal={() => setPdfModalOpen(true)}
+        openVideoModal={() => setVideoModalOpen(true)}
         isHeaderCollapsed={isHeaderCollapsed}
         setIsHeaderCollapsed={setIsHeaderCollapsed}
         lang={lang}
@@ -84,7 +131,16 @@ export default function App() {
                 </p>
               </div>
             </div>
-            <CurriculumExplorer onAskAi={handleAskAi} onGoToLab={handleGoToLab} lang={lang} />
+            <CurriculumExplorer
+              onAskAi={handleAskAi}
+              onGoToLab={handleGoToLab}
+              openPdfModal={() => setPdfModalOpen(true)}
+              openVideoModal={(chapterId?: string) => {
+                if (chapterId) setActiveVideoChapter(chapterId);
+                setVideoModalOpen(true);
+              }}
+              lang={lang}
+            />
           </div>
         )}
 
@@ -157,6 +213,21 @@ export default function App() {
         isOpen={aiTutorOpen}
         onClose={() => setAiTutorOpen(false)}
         presetTopic={presetTopic}
+        lang={lang}
+      />
+
+      {/* Official Curriculum Textbook PDF Modal */}
+      <PdfTextbookModal
+        isOpen={pdfModalOpen}
+        onClose={() => setPdfModalOpen(false)}
+        lang={lang}
+      />
+
+      {/* Official Certified Unit Video Player Modal */}
+      <VideoPlayerModal
+        isOpen={videoModalOpen}
+        onClose={() => setVideoModalOpen(false)}
+        initialChapterId={activeVideoChapter}
         lang={lang}
       />
 

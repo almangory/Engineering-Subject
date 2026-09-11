@@ -12,9 +12,18 @@ const CHAPTER_VIDEOS: Record<string, string> = {
   "chapter-4": "https://drive.google.com/file/d/1cM1mEUZdiuVc7ltQoYnpDxbqHWAcQmD7/preview",
 };
 
+const CHAPTER_LOCAL_VIDEOS: Record<string, string> = {
+  "chapter-1": "/videos/unit1.mp4",
+  "chapter-2": "/videos/unit2.mp4",
+  "chapter-3": "/videos/unit3.mp4",
+  "chapter-4": "/videos/unit4.mp4",
+};
+
 interface CurriculumExplorerProps {
   onAskAi: (topic: string) => void;
   onGoToLab?: (labId: string) => void;
+  openPdfModal?: () => void;
+  openVideoModal?: (chapterId?: string) => void;
   lang?: "ar" | "en";
 }
 
@@ -1058,10 +1067,17 @@ function renderLessonDiagram(lessonId: string) {
   }
 }
 
-export default function CurriculumExplorer({ onAskAi, onGoToLab, lang = "ar" }: CurriculumExplorerProps) {
+export default function CurriculumExplorer({
+  onAskAi,
+  onGoToLab,
+  openPdfModal,
+  openVideoModal,
+  lang = "ar",
+}: CurriculumExplorerProps) {
   const t = UI_TRANSLATIONS[lang];
   const [selectedChapter, setSelectedChapter] = useState<Chapter>(curriculumData[0]);
   const [selectedLessonId, setSelectedLessonId] = useState<string>("intro-projection");
+  const [videoSourceMode, setVideoSourceMode] = useState<"local" | "drive">("local");
   const [searchQuery, setSearchQuery] = useState("");
   const [favorites, setFavorites] = useState<string[]>(() => {
     const saved = localStorage.getItem("favorite_lessons");
@@ -1441,10 +1457,40 @@ export default function CurriculumExplorer({ onAskAi, onGoToLab, lang = "ar" }: 
 
         {/* Main Content Area - Selected Lesson */}
         <div className="lg:col-span-8 space-y-6" id="lesson-content-panel">
+          {/* Official Textbook Quick Access Banner */}
+          {openPdfModal && (
+            <div className="bg-gradient-to-r from-emerald-800 via-teal-800 to-emerald-900 rounded-2xl p-4 text-white shadow-sm flex flex-wrap items-center justify-between gap-3 border border-emerald-700/50">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 bg-white/10 rounded-xl border border-white/15">
+                  <BookOpen className="h-5 w-5 text-emerald-300" />
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                    <span>{lang === "en" ? "Official Ministry Textbook (Bakht Al-Ruda)" : "كتاب المنهج المدرسي المعتمد (بخت الرضا)"}</span>
+                    <span className="text-[10px] bg-emerald-500/30 text-emerald-200 px-2 py-0.5 rounded-full">PDF</span>
+                  </h4>
+                  <p className="text-xs text-emerald-200/90 mt-0.5">
+                    {lang === "en"
+                      ? "Read original printed textbook pages and diagrams side-by-side"
+                      : "طالع الصفحات والرسومات الهندسية الأصلية من نسخة الكتاب المعتمد"}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={openPdfModal}
+                className="px-4 py-2 bg-white text-emerald-800 hover:bg-emerald-50 rounded-xl text-xs font-bold transition shadow-sm flex items-center gap-1.5 cursor-pointer"
+              >
+                <BookOpen className="h-4 w-4" />
+                <span>{lang === "en" ? "Open Textbook PDF" : "فتح الكتاب المدرسي"}</span>
+                <span className="text-xs">↗</span>
+              </button>
+            </div>
+          )}
+
           {/* Chapter Explanation Video Card */}
-          {CHAPTER_VIDEOS[selectedChapter.id] && (
+          {(CHAPTER_LOCAL_VIDEOS[selectedChapter.id] || CHAPTER_VIDEOS[selectedChapter.id]) && (
             <div className="bg-white border border-slate-200 rounded-2xl p-4 md:p-5 shadow-sm space-y-3 relative overflow-hidden" id="chapter-video-card">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex flex-wrap items-center justify-between border-b border-slate-100 pb-3 gap-2">
                 <div className="flex items-center gap-2.5">
                   <div className="bg-rose-50 text-rose-600 p-2.5 rounded-xl">
                     <Video className="h-5 w-5 animate-pulse" />
@@ -1459,19 +1505,62 @@ export default function CurriculumExplorer({ onAskAi, onGoToLab, lang = "ar" }: 
                     </p>
                   </div>
                 </div>
-                <div className="text-[10px] text-rose-600 font-bold bg-rose-50 px-2 py-1 rounded-full animate-pulse">
-                  {lang === "en" ? "Autoplay Active ⚡" : "جاري التشغيل التلقائي ⚡"}
+
+                <div className="flex items-center gap-2">
+                  {/* Local vs Drive Switcher */}
+                  <div className="flex items-center bg-slate-100 rounded-lg p-0.5 text-[11px] font-bold">
+                    <button
+                      onClick={() => setVideoSourceMode("local")}
+                      className={`px-2.5 py-1 rounded-md transition ${
+                        videoSourceMode === "local" ? "bg-rose-600 text-white shadow-xs" : "text-slate-600 hover:text-slate-900"
+                      }`}
+                    >
+                      {lang === "en" ? "Local HD ⚡" : "محلي فائق السرعة ⚡"}
+                    </button>
+                    <button
+                      onClick={() => setVideoSourceMode("drive")}
+                      className={`px-2.5 py-1 rounded-md transition ${
+                        videoSourceMode === "drive" ? "bg-rose-600 text-white shadow-xs" : "text-slate-600 hover:text-slate-900"
+                      }`}
+                    >
+                      {lang === "en" ? "Drive Stream 🌐" : "بث Drive 🌐"}
+                    </button>
+                  </div>
+
+                  {openVideoModal && (
+                    <button
+                      onClick={() => openVideoModal(selectedChapter.id)}
+                      className="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg text-xs font-bold transition flex items-center gap-1"
+                      title={lang === "en" ? "Open Fullscreen Video Classroom" : "فتح قاعة الفيديو بملء الشاشة"}
+                    >
+                      <Maximize2 className="h-3.5 w-3.5" />
+                      <span className="hidden sm:inline">{lang === "en" ? "Theater Mode" : "شاشة كاملة"}</span>
+                    </button>
+                  )}
                 </div>
               </div>
-              <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-slate-950 border border-slate-200 shadow-inner">
-                <iframe
-                  key={selectedChapter.id}
-                  src={`${CHAPTER_VIDEOS[selectedChapter.id]}?autoplay=1`}
-                  className="absolute inset-0 w-full h-full"
-                  allow="autoplay; encrypted-media"
-                  allowFullScreen
-                  title={lang === "en" ? "Syllabus Video Explanation" : "شرح الباب المرئي"}
-                />
+
+              <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-slate-950 border border-slate-200 shadow-inner flex items-center justify-center">
+                {videoSourceMode === "local" ? (
+                  <video
+                    key={`local-${selectedChapter.id}`}
+                    src={CHAPTER_LOCAL_VIDEOS[selectedChapter.id]}
+                    controls
+                    playsInline
+                    className="w-full h-full object-contain"
+                  >
+                    {lang === "ar" ? "متصفحك لا يدعم تشغيل هذا الفيديو." : "Your browser does not support HTML5 video."}
+                  </video>
+                ) : (
+                  <iframe
+                    key={`drive-${selectedChapter.id}`}
+                    src={`${CHAPTER_VIDEOS[selectedChapter.id]}?autoplay=1`}
+                    className="absolute inset-0 w-full h-full"
+                    allow="autoplay; encrypted-media"
+                    allowFullScreen
+                    title={lang === "en" ? "Syllabus Video Explanation" : "شرح الباب المرئي"}
+                  />
+                )}
               </div>
             </div>
           )}

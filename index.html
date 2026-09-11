@@ -1,13 +1,108 @@
 <!doctype html>
-<html lang="en">
+<html lang="ar" dir="rtl" style="background-color: #064E3B; margin: 0; padding: 0; min-height: 100%;">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>My Google AI Studio App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+    <title>منهج العلوم الهندسية - الصف الثاني ثانوي | منصة نقلة للمناهج السودانية التفاعلية</title>
+    <meta name="description" content="المنصة التفاعلية المعتمدة لمنهج العلوم الهندسية للصف الثاني ثانوي في السودان (الرسم الهندسي، الهندسة الميكانيكية، الهندسة الكهربائية والإلكترونية، الهندسة المدنية والبيئة) - معمل افتراضي، أوراق عمل، وفيديوهات الشرح." />
+    
+    <!-- Google Fonts: Cairo & Tajawal -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+
+    <!-- 🌟 الستايل الحرج لشاشة التحميل الفورية لمنع الشاشة البيضاء نهائياً -->
+    <style>
+      html, body {
+        background-color: #064E3B !important;
+        margin: 0;
+        padding: 0;
+        min-height: 100%;
+        font-family: 'Tajawal', 'Cairo', system-ui, -apple-system, sans-serif;
+      }
+      @keyframes naqlaPulse {
+        0%, 100% { transform: scale(1); filter: drop-shadow(0 0 20px rgba(16, 185, 129, 0.4)); }
+        50% { transform: scale(1.06); filter: drop-shadow(0 0 35px rgba(52, 211, 153, 0.75)); }
+      }
+      @keyframes naqlaProgress {
+        0% { transform: translateX(100%); }
+        50% { transform: translateX(0%); }
+        100% { transform: translateX(-100%); }
+      }
+      .naqla-logo-anim { animation: naqlaPulse 2.4s ease-in-out infinite; }
+      .naqla-bar-anim { animation: naqlaProgress 1.6s cubic-bezier(0.4, 0, 0.2, 1) infinite; }
+    </style>
+
+    <!-- 🇸🇩 جسر الدخول الموحد التلقائي من منصة المناهج السودانية (Naqla SSO Receiver) -->
+    <script>
+    (function() {
+      try {
+        const hash = window.location.hash;
+        if (hash && hash.includes('naqla_sso=')) {
+          const params = new URLSearchParams(hash.replace(/^#/, ''));
+          const ssoData = params.get('naqla_sso');
+          if (ssoData) {
+            const user = JSON.parse(decodeURIComponent(escape(atob(ssoData))));
+            if (user && user.ts && (Date.now() - user.ts < 10 * 60 * 1000)) {
+              console.log('🇸🇩 [منصة المناهج] تم تسجيل الدخول تلقائياً للمستخدم:', user.username);
+              localStorage.setItem('sudan_auth_user', JSON.stringify(user));
+              localStorage.setItem('currentUser', JSON.stringify(user));
+              localStorage.setItem('user', JSON.stringify(user));
+              params.delete('naqla_sso');
+              const cleanHash = params.toString() ? '#' + params.toString() : '';
+              window.history.replaceState(null, '', window.location.pathname + window.location.search + cleanHash);
+            }
+          }
+        }
+      } catch (e) {
+        console.warn('Naqla SSO receiver error:', e);
+      }
+    })();
+    </script>
   </head>
-  <body>
-    <div id="root"></div>
+  <body style="background-color: #064E3B; margin: 0; padding: 0; min-height: 100%;">
+    <div id="root">
+      <!-- 🌟 شاشة التحميل الفورية لشعار نقلة وشريط التقدم (تمنع الشاشة البيضاء تماماً) -->
+      <div id="naqla-initial-loader" style="position: fixed; inset: 0; z-index: 999999; display: flex; flex-direction: column; align-items: center; justify-content: center; background: radial-gradient(circle at center, #064E3B 0%, #032b20 60%, #021a14 100%); color: white; font-family: 'Tajawal', 'Cairo', system-ui, -apple-system, sans-serif; direction: rtl; user-select: none; text-align: center; padding: 20px;">
+        
+        <!-- شعار نقلة في المنتصف (فيكتور SVG فوري بـ 0 ثانية وبدون أي طلبات شبكة) -->
+        <div class="naqla-logo-anim" style="width: 100px; height: 100px; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; background: rgba(255, 255, 255, 0.08); border: 1.5px solid rgba(212, 175, 55, 0.45); border-radius: 26px; padding: 14px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);">
+          <svg viewBox="0 0 500 500" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="nq-gold-dyn" x1="0%" y1="100%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#9B6F1A" />
+                <stop offset="20%" stop-color="#D4AF37" />
+                <stop offset="50%" stop-color="#FFF8E1" />
+                <stop offset="80%" stop-color="#D4AF37" />
+                <stop offset="100%" stop-color="#845D10" />
+              </linearGradient>
+            </defs>
+            <path d="M 250,225 L 250,295" stroke="url(#nq-gold-dyn)" stroke-width="6" stroke-linecap="round" />
+            <path d="M 250,285 C 210,268 150,268 112,295 L 125,215 C 160,192 215,192 250,208 Z" fill="none" stroke="url(#nq-gold-dyn)" stroke-width="5" />
+            <path d="M 250,285 C 290,268 350,268 388,295 L 375,215 C 340,192 285,192 250,208 Z" fill="none" stroke="url(#nq-gold-dyn)" stroke-width="5" />
+            <path d="M 250,225 L 250,150" stroke="url(#nq-gold-dyn)" stroke-width="5" stroke-linecap="round" />
+            <path d="M 250,210 C 225,200 215,180 230,170 C 245,160 250,190 250,210 Z" fill="url(#nq-gold-dyn)" />
+            <path d="M 250,175 C 220,165 210,140 228,132 C 246,124 250,155 250,175 Z" fill="url(#nq-gold-dyn)" />
+            <path d="M 250,140 C 240,120 240,95 250,90 C 260,95 260,120 250,140 Z" fill="url(#nq-gold-dyn)" />
+            <path d="M 250,205 L 300,140 L 335,95" fill="none" stroke="url(#nq-gold-dyn)" stroke-width="6" stroke-linecap="round" />
+            <path d="M 310,93 L 340,90 L 337,120 Z" fill="url(#nq-gold-dyn)" />
+          </svg>
+        </div>
+
+        <!-- نصوص الهوية والتحميل -->
+        <h2 style="margin: 0; font-size: 22px; font-weight: 800; color: #ffffff; letter-spacing: 0.3px;">منصة نقلة التعليمية</h2>
+        <p style="margin: 8px 0 0 0; font-size: 13.5px; font-weight: 600; color: #a7f3d0; opacity: 0.95;">العلوم الهندسية | الصف الثاني ثانوي - جاري فتح المادة التفاعلية...</p>
+
+        <!-- شريط التقدم النيوني المتحرك -->
+        <div style="width: 250px; max-width: 80vw; height: 6px; background: rgba(255, 255, 255, 0.12); border-radius: 9999px; overflow: hidden; margin-top: 24px; position: relative; border: 1px solid rgba(255, 255, 255, 0.15); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);">
+          <div class="naqla-bar-anim" style="width: 60%; height: 100%; border-radius: 9999px; background: linear-gradient(90deg, #10b981, #34d399, #6ee7b7); box-shadow: 0 0 12px rgba(52, 211, 153, 0.8);"></div>
+        </div>
+
+        <span style="margin-top: 14px; font-size: 11.5px; font-weight: 500; color: #6ee7b7; opacity: 0.85;">يرجى الانتظار ثوانٍ معدودة...</span>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
+
 
