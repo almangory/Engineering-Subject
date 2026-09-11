@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { ChatMessage } from "../types";
-import { X, Send, Sparkles, Bot, Trash2, HelpCircle, BookOpen, Lightbulb, Award } from "lucide-react";
+import { X, Send, Sparkles, Trash2, HelpCircle, BookOpen, Lightbulb, Award } from "lucide-react";
 import { curriculumData } from "../data/curriculumData";
 import { termsData } from "./TermsSection";
 import { lessonSummaries } from "./CurriculumExplorer";
@@ -37,17 +37,19 @@ function searchLocalContent(userQuery: string, currentTopic?: string): string {
     "تست", "تجربه", "كيفك", "من انت", "من تكون", "هاي", "hello", "hi"
   ];
   if (greetings.some(g => normQuery === g || normQuery.includes(g))) {
-    return `وعليكم السلام ورحمة الله وبركاته يا مهندس المستقبل! 🇸🇩
+    return `وعليكم السلام ورحمة الله وبركاته يا باشمهندس المستقبل! 🇸🇩
 
-أنا **المساعد الهندسي ومحرك البحث المحلي**. تم تصميمي لمساعدتك في فهم مادة العلوم الهندسية للصف الثاني ثانوي ميكانيكا، كهرباء، رسم هندسي، ومواد، والرد على استفساراتك فوراً وبشكل مجاني تماماً وبدون أي استهلاك لبيانات الإنترنت أو استخدام الذكاء الاصطناعي المكلف!
+أنا **ذكاء نقلة**، مرشدك ومعلمك الهندسي التفاعلي المعتمد لمادة العلوم الهندسية للصف الثاني ثانوي (المنهج السوداني - بخت الرضا).
+
+أنا هنا لمساعدتك في فهم وشرح أبواب المنهج الأربعة (الرسم الهندسي، الهندسة الميكانيكية، الهندسة الكهربائية والإلكترونية، والهندسة المدنية والبيئة)، وتبسيط القوانين وحل التمارين فورياً وبشكل مجاني تماماً وبدون إنترنت!
 
 **💡 كيف يمكنك الاستفادة مني؟**
-1. 📐 **البحث عن الدروس والشروحات:** اكتب اسم أي درس (مثال: "الإسقاط المتعامد"، "المنظور الأيزومتري"، "الدرفلة"، "الفرن اللافح"، "المكثفات"، "الجملونات"، "قانون هوك").
-2. 📚 **تعريف المصطلحات الفنية:** اسأل عن أي مصطلح (مثال: "ما هو الحديد الغفل؟"، "تعريف اللزوجة"، "ما معنى البرنز؟").
-3. 📐 **القوانين الهندسية:** اطلب قانوناً (مثال: "قانون المكثف"، "معادلة معامل هوك"، "الممانعة المغناطيسية").
-4. ❓ **أسئلة تدريبية تفاعلية:** اكتب كلمة "**سؤال**" أو "**تمرين**" وسأقوم فوراً بسحب أسئلة حقيقية من كراسة العمل مع الحل التفصيلي لتتدرب عليها!
+1. 📐 **شرح المفاهيم والدروس:** اكتب اسم أي موضوع (مثال: "الإسقاط المتعامد"، "المنظور الأيزومتري"، "الفرن اللافح"، "دورة أوتو الرباعية"، "المكثفات"، "أشباه الموصلات"، "الجملونات"، "قانون هوك").
+2. 📚 **تعريف المصطلحات الفنية:** اسأل عن أي مصطلح (مثال: "ما هي الصلادة؟"، "ما هو الخبث؟"، "تعريف اللزوجة"، "ما هي الممانعة المغناطيسية؟").
+3. 📐 **القوانين الهندسية:** اطلب أي معادلة (مثال: "قانون سعة المكثف"، "معامل المرونة"، "قانون نيوتن للزوجة").
+4. ❓ **أسئلة واختبارات تفاعلية:** اكتب كلمة "**سؤال**" أو "**تمرين**" وسأطرح عليك أسئلة تدريبية من كراسة العمل مع الحل والتعليل!
 
-ما هو الموضوع أو القانون الذي تود مراجعته الآن؟`;
+ما هو الموضوع أو القانون الذي تود أن نبدأ بمراجعته الآن؟`;
   }
 
   // Collect matched items
@@ -237,10 +239,8 @@ export default function AiTutor({ isOpen, onClose, presetTopic }: AiTutorProps) 
   useEffect(() => {
     if (isOpen && messages.length === 0) {
       const welcomeText = presetTopic
-        ? `أهلاً بك يا بطل! لقد قمت بفتح المساعد بمرجع لدرس: "${presetTopic}".
-
-لقد قمت فوراً بمسح وبحث محتوى المنهج لهذا الموضوع. ما النقاط أو القوانين التي تجد فيها صعوبة وتريد مني تبسيطها لك بالمعادلات والشرح الهندسي؟`
-        : "مرحباً بك يا باشمهندس المستقبل! 🇸🇩 أنا مرشدك ومساعدك الهندسي الذكي لتبسيط منهج العلوم الهندسية للصف الثاني ثانوي.\n\nتفضل بطرح أي سؤال، قانون، تمرين، أو مصطلح علمي ترغب في شرحه، وسأقوم بالبحث الفوري في محتوى كراسة الشرح والمنهج والرد عليك بأمثلة دقيقة مبسطة ومجانية تماماً بدون إنترنت!";
+        ? `أهلاً بك يا باشمهندس! أنا **ذكاء نقلة** 🇸🇩، مرشدك الهندسي المعتمد.\n\nلقد قمت بفتح المساعد لمراجعة درس: "${presetTopic}".\n\nأنا جاهز لتبسيط هذا الموضوع، شرح القوانين والمعادلات، وحل التمارين الهندسية المتعلقة به خطوة بخطوة!`
+        : "مرحباً بك يا باشمهندس المستقبل! 🇸🇩 أنا **ذكاء نقلة**، معلمك ومرشدك الهندسي التفاعلي المعتمد لمادة العلوم الهندسية للصف الثاني ثانوي (بخت الرضا).\n\nتفضل بطرح أي سؤال، قانون، تمرين، أو مصطلح هندسي، وسأقوم بالبحث الفوري وشرحه لك بالمعادلات والأمثلة الدقيقة مجاناً وبدون إنترنت!";
       
       setMessages([
         {
@@ -305,15 +305,22 @@ export default function AiTutor({ isOpen, onClose, presetTopic }: AiTutorProps) 
       {/* Header */}
       <div className="bg-slate-50 border-b border-slate-200 p-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="bg-gradient-to-tr from-indigo-600 via-blue-600 to-emerald-500 text-white p-2 rounded-xl shadow-md shadow-indigo-600/10">
-            <Bot className="h-5 w-5" />
+          <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-emerald-600 via-teal-600 to-indigo-600 p-0.5 border-2 border-amber-400 shadow-md flex items-center justify-center overflow-hidden shrink-0">
+            <img
+              src="/assets/sudan-bot-avatar.png"
+              alt="ذكاء نقلة"
+              className="w-full h-full object-cover rounded-xl"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = "/assets/naqla_bot_avatar.png";
+              }}
+            />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-slate-800 flex items-center gap-1.5">
-              <span>البحث الهندسي الذكي والمساعد</span>
+            <h3 className="text-sm font-black text-slate-800 flex items-center gap-1.5">
+              <span>ذكاء نقلة 🇸🇩 | المهندس الذكي</span>
               <span className="h-2 w-2 rounded-full bg-emerald-500 animate-ping" />
             </h3>
-            <p className="text-[10px] text-slate-500">مساعد محلي فوري غير مكلف للرد من المنهج المعتمد</p>
+            <p className="text-[10px] text-slate-500 font-medium">المرشد التفاعلي لمنهج العلوم الهندسية (بخت الرضا)</p>
           </div>
         </div>
 
@@ -321,13 +328,13 @@ export default function AiTutor({ isOpen, onClose, presetTopic }: AiTutorProps) 
           <button
             onClick={handleClearChat}
             title="مسح المحادثة"
-            className="p-2 text-slate-400 hover:text-rose-500 rounded-lg hover:bg-slate-200/50 transition"
+            className="p-2 text-slate-400 hover:text-rose-500 rounded-lg hover:bg-slate-200/50 transition cursor-pointer"
           >
             <Trash2 className="h-4 w-4" />
           </button>
           <button
             onClick={onClose}
-            className="p-2 text-slate-400 hover:text-slate-800 rounded-lg hover:bg-slate-200/50 transition"
+            className="p-2 text-slate-400 hover:text-slate-800 rounded-lg hover:bg-slate-200/50 transition cursor-pointer"
           >
             <X className="h-5 w-5" />
           </button>
@@ -347,11 +354,25 @@ export default function AiTutor({ isOpen, onClose, presetTopic }: AiTutorProps) 
           return (
             <div
               key={msg.id}
-              className={`flex gap-3 text-right ${isAssistant ? "justify-start" : "justify-end"}`}
+              className={`flex gap-2.5 text-right ${isAssistant ? "justify-start" : "justify-end"}`}
             >
+              {isAssistant && (
+                <div className="w-7 h-7 rounded-full border border-amber-400/90 overflow-hidden shrink-0 mt-1 shadow-xs">
+                  <img
+                    src="/assets/sudan-bot-avatar.png"
+                    alt="ذكاء نقلة"
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = "/assets/naqla_bot_avatar.png";
+                    }}
+                  />
+                </div>
+              )}
               <div className={`flex flex-col max-w-[85%] ${isAssistant ? "items-start" : "items-end"}`}>
                 <div className="flex items-center gap-1.5 text-[10px] text-slate-400 mb-1">
-                  <span>{isAssistant ? "المساعد الهندسي (مبحث محلي)" : "أنت"}</span>
+                  <span className={isAssistant ? "font-bold text-amber-700" : "font-medium"}>
+                    {isAssistant ? "ذكاء نقلة 🇸🇩" : "أنت"}
+                  </span>
                   <span className="font-mono">{msg.timestamp}</span>
                 </div>
                 <div
@@ -369,9 +390,19 @@ export default function AiTutor({ isOpen, onClose, presetTopic }: AiTutorProps) 
         })}
 
         {loading && (
-          <div className="flex gap-3 justify-start">
+          <div className="flex gap-2.5 justify-start">
+            <div className="w-7 h-7 rounded-full border border-amber-400/90 overflow-hidden shrink-0 mt-1 shadow-xs">
+              <img
+                src="/assets/sudan-bot-avatar.png"
+                alt="ذكاء نقلة"
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = "/assets/naqla_bot_avatar.png";
+                }}
+              />
+            </div>
             <div className="flex flex-col items-start max-w-[80%]">
-              <span className="text-[10px] text-slate-400 mb-1">يجري البحث الفوري...</span>
+              <span className="text-[10px] text-amber-700 font-bold mb-1">ذكاء نقلة يجري البحث الفوري...</span>
               <div className="bg-slate-50 border border-slate-200 p-3.5 rounded-2xl rounded-tr-none flex items-center space-x-1.5 space-x-reverse shadow-sm">
                 <div className="w-2.5 h-2.5 bg-indigo-500 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
                 <div className="w-2.5 h-2.5 bg-indigo-500 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />

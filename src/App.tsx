@@ -7,7 +7,7 @@ import TermsSection from "./components/TermsSection";
 import AiTutor from "./components/AiTutor";
 import PdfTextbookModal from "./components/PdfTextbookModal";
 import VideoPlayerModal from "./components/VideoPlayerModal";
-import { Award, Compass, Zap, BookOpen, Activity, FileText, ArrowLeft, ArrowRight, ShieldCheck, Eye, Sparkles, Bot, Video } from "lucide-react";
+import { Award, Compass, Zap, BookOpen, Activity, FileText, ArrowLeft, ArrowRight, ShieldCheck, Eye, Sparkles, Video } from "lucide-react";
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<string>("curriculum");
@@ -187,22 +187,35 @@ export default function App() {
         )}
       </main>
 
-      {/* Floating Smart AI Tutor & Search Button (Bottom-Left/Right depending on lang) */}
+      {/* Floating Naqla AI Tutor Button (Bottom-Left/Right depending on lang) */}
       <div className={`fixed bottom-6 z-50 print:hidden ${lang === "ar" ? "left-6" : "right-6"}`}>
         <button
           onClick={() => {
             setPresetTopic(undefined);
             setAiTutorOpen(true);
           }}
-          className="group flex items-center justify-center w-14 h-14 bg-gradient-to-tr from-indigo-600 via-blue-600 to-emerald-600 hover:from-indigo-500 hover:to-emerald-500 text-white rounded-full shadow-2xl shadow-indigo-500/40 border border-white/20 hover:scale-110 active:scale-95 transition-all duration-300 relative"
-          title={lang === "ar" ? "البحث والمساعد الهندسي 💬" : "Search & Engineering AI Assistant 💬"}
+          className="group flex items-center justify-center w-16 h-16 bg-gradient-to-tr from-emerald-600 via-teal-600 to-indigo-600 hover:from-emerald-500 hover:to-indigo-500 text-white rounded-full shadow-2xl shadow-emerald-600/40 border-2 border-amber-400/80 hover:scale-110 active:scale-95 transition-all duration-300 relative cursor-pointer"
+          title={lang === "ar" ? "ذكاء نقلة | المساعد الهندسي 💬" : "Naqla AI | Engineering Assistant 💬"}
           id="floating-search-tutor-btn"
         >
-          <div className="relative">
-            <Bot className="h-6 w-6 text-white group-hover:rotate-12 transition duration-300" />
-            <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
+          <div className="relative w-full h-full p-1 flex items-center justify-center">
+            <img
+              src="/assets/sudan-bot-avatar.png"
+              alt="ذكاء نقلة"
+              className="w-full h-full object-cover rounded-full shadow-inner"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = "/assets/naqla_bot_avatar.png";
+              }}
+            />
+            {/* Live Indicator Dot */}
+            <span className="absolute -top-0.5 -right-0.5 flex h-3.5 w-3.5">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+              <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-500 border-2 border-white"></span>
+            </span>
+
+            {/* Label badge on hover */}
+            <span className="absolute -top-7 bg-slate-900/90 text-amber-300 text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 border border-amber-400/30 shadow-md">
+              {lang === "ar" ? "ذكاء نقلة 🇸🇩" : "Naqla AI 🇸🇩"}
             </span>
           </div>
         </button>
