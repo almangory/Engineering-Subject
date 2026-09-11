@@ -217,6 +217,55 @@ export default function WorksheetSection() {
   // Custom interactive diagram renderer
   const renderInteractiveDiagram = (diagramId: string) => {
     switch (diagramId) {
+      case "three-planes":
+        return (
+          <div className="bg-white border border-slate-200 rounded-xl p-4 my-3 max-w-sm mx-auto shadow-inner relative">
+            <svg viewBox="0 0 400 240" className="w-full h-auto text-slate-500">
+              {/* Coordinate Axes / Fold Lines */}
+              <line x1="20" y1="120" x2="380" y2="120" stroke="#94a3b8" strokeWidth="1.5" strokeDasharray="4 2" />
+              <line x1="200" y1="15" x2="200" y2="225" stroke="#94a3b8" strokeWidth="1.5" strokeDasharray="4 2" />
+              
+              {/* 45 degree transfer line in 4th quadrant */}
+              <line x1="200" y1="120" x2="330" y2="220" stroke="#cbd5e1" strokeWidth="1.5" strokeDasharray="3" />
+              <text x="275" y="165" className="text-[9px] fill-slate-400 font-mono">45°</text>
+
+              {/* Box 1: Front View (Top-Left) */}
+              <rect x="50" y="25" width="110" height="75" fill="#eff6ff" stroke="#2563eb" strokeWidth="2" rx="4" />
+              <path d="M50,60 L120,60 M120,25 L120,60" stroke="#3b82f6" strokeWidth="1.5" strokeDasharray="3" />
+              
+              {/* Box 2: Top View (Bottom-Left, directly under Front) */}
+              <rect x="50" y="135" width="110" height="75" fill="#ecfdf5" stroke="#059669" strokeWidth="2" rx="4" />
+              <path d="M50,170 L160,170" stroke="#10b981" strokeWidth="1.5" strokeDasharray="3" />
+
+              {/* Box 3: Left Side View (Top-Right, next to Front) */}
+              <rect x="235" y="25" width="85" height="75" fill="#fef3c7" stroke="#d97706" strokeWidth="2" rx="4" />
+              <circle cx="277" cy="62" r="14" fill="none" stroke="#f59e0b" strokeWidth="1.5" strokeDasharray="3" />
+
+              {/* Alignment / Projector lines */}
+              <line x1="160" y1="40" x2="235" y2="40" stroke="#cbd5e1" strokeWidth="1" strokeDasharray="2" />
+              <line x1="160" y1="85" x2="235" y2="85" stroke="#cbd5e1" strokeWidth="1" strokeDasharray="2" />
+              <line x1="75" y1="100" x2="75" y2="135" stroke="#cbd5e1" strokeWidth="1" strokeDasharray="2" />
+              <line x1="135" y1="100" x2="135" y2="135" stroke="#cbd5e1" strokeWidth="1" strokeDasharray="2" />
+
+              {/* Badges for labeling */}
+              <g transform="translate(105, 62)">
+                <circle r="12" fill="#ef4444" className="animate-pulse" />
+                <text textAnchor="middle" y="4" fill="white" className="text-xs font-black font-mono">1</text>
+              </g>
+              <g transform="translate(105, 172)">
+                <circle r="12" fill="#ef4444" className="animate-pulse" />
+                <text textAnchor="middle" y="4" fill="white" className="text-xs font-black font-mono">2</text>
+              </g>
+              <g transform="translate(277, 62)">
+                <circle r="12" fill="#ef4444" className="animate-pulse" />
+                <text textAnchor="middle" y="4" fill="white" className="text-xs font-black font-mono">3</text>
+              </g>
+            </svg>
+            <p className="text-center text-[10px] text-slate-500 mt-2 font-semibold">
+              لوحة توزيع المساقط الثلاثة (نظام الزاوية الأولى السوداني): طابق أرقام المساقط
+            </p>
+          </div>
+        );
       case "capacitor":
         return (
           <div className="bg-white border border-slate-200 rounded-xl p-4 my-3 max-w-sm mx-auto shadow-inner relative">
