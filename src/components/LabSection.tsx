@@ -77,6 +77,7 @@ export default function LabSection({
 
   const lessonsInCat = CHAPTER_LESSONS[activeCategory];
   const [selectedLessonId, setSelectedLessonId] = useState<string>(lessonsInCat[0].id);
+  const [isMobileControlsOpen, setIsMobileControlsOpen] = useState(true);
 
   // Sync selectedLessonId if category changes manually
   const handleCategoryChange = (cat: "projection" | "engine" | "capacitor" | "elasticity") => {
@@ -367,17 +368,28 @@ export default function LabSection({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6" id="experiment-stage-panel">
         
         {/* Left Column: Interactive Controls & Formulas */}
-        <div className="lg:col-span-4 bg-white border border-slate-200 rounded-2xl p-5 flex flex-col justify-between space-y-6 shadow-sm">
+        <div className="order-2 lg:order-1 lg:col-span-4 bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 flex flex-col justify-between space-y-4 shadow-sm">
           <div className="space-y-4">
-            <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
-              <div className="bg-emerald-50 text-emerald-600 p-2 rounded-lg">
-                <Award className="h-5 w-5" />
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2">
+                <div className="bg-emerald-50 text-emerald-600 p-2 rounded-lg">
+                  <Award className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-black text-slate-800">بطاقة تحكّم التجربة</h3>
+                  <p className="text-[10px] text-slate-500">عدّل المتغيرات الفيزيائية ولاحظ النتائج فوراً</p>
+                </div>
               </div>
-              <div>
-                <h3 className="text-sm font-black text-slate-800">بطاقة تحكّم التجربة</h3>
-                <p className="text-[10px] text-slate-500">عدّل المتغيرات الفيزيائية ولاحظ النتائج فوراً</p>
-              </div>
+              <button
+                onClick={() => setIsMobileControlsOpen(!isMobileControlsOpen)}
+                className="lg:hidden text-[11px] font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-2.5 py-1 rounded-lg transition active:scale-95"
+              >
+                {isMobileControlsOpen ? "تصغير ▴" : "توسيع المتحكمات ▾"}
+              </button>
             </div>
+
+            {/* Dynamic Controls Body (collapsible on mobile) */}
+            <div className={`${isMobileControlsOpen ? "block" : "hidden lg:block"} space-y-4 text-xs`}>
 
             {/* Render Context-specific description and controls */}
             <div className="space-y-4 text-xs">
@@ -1168,6 +1180,7 @@ export default function LabSection({
                 )}
 
               </div>
+              </div>
             </div>
           </div>
 
@@ -1196,7 +1209,7 @@ export default function LabSection({
         </div>
 
         {/* Right Column: High-fidelity Vector Graphic Simulator Screen */}
-        <div className="lg:col-span-8 bg-slate-950 border-2 border-emerald-950/80 rounded-3xl p-5 sm:p-7 min-h-[460px] flex flex-col justify-between relative overflow-hidden text-slate-300 shadow-xl">
+        <div className="order-1 lg:order-2 lg:col-span-8 bg-slate-950 border-2 border-emerald-950/80 rounded-3xl p-4 sm:p-7 min-h-[440px] flex flex-col justify-between relative overflow-hidden text-slate-300 shadow-xl">
           
           {/* Subtle blueprint grid background overlay */}
           <div
@@ -1231,6 +1244,12 @@ export default function LabSection({
                 {selectedLessonId}
               </span>
             </div>
+          </div>
+
+          {/* Mobile Touch Guidance Banner */}
+          <div className="lg:hidden w-full flex items-center justify-between py-1.5 px-3 bg-emerald-950/70 border border-emerald-500/30 rounded-xl text-[10px] text-emerald-300 my-2">
+            <span>👆 تفاعل باللمس: المس وحرك للتفاعل الحي والمباشر</span>
+            <span className="font-mono font-bold text-emerald-400">3D/2D LAB</span>
           </div>
 
           {/* DYNAMIC 3D WEBGL CANVAS CORE */}

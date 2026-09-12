@@ -7,6 +7,7 @@ import TermsSection from "./components/TermsSection";
 import AiTutor from "./components/AiTutor";
 import PdfTextbookModal from "./components/PdfTextbookModal";
 import VideoPlayerModal from "./components/VideoPlayerModal";
+import MobileBottomNav from "./components/MobileBottomNav";
 import { Award, Compass, Zap, BookOpen, Activity, FileText, ArrowLeft, ArrowRight, ShieldCheck, Eye, Sparkles, Video } from "lucide-react";
 
 export default function App() {
@@ -114,7 +115,7 @@ export default function App() {
       />
 
       {/* Main Container */}
-      <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      <main className="flex-1 max-w-7xl mx-auto w-full px-3 sm:px-6 lg:px-8 py-4 sm:py-6 md:py-8 pb-28 md:pb-12 space-y-6 md:space-y-8">
         
         {/* Core Sections Switcher Display */}
         {activeTab === "curriculum" && (
@@ -187,8 +188,8 @@ export default function App() {
         )}
       </main>
 
-      {/* Floating Naqla AI Tutor Button (Bottom-Left/Right depending on lang) */}
-      <div className={`fixed bottom-6 z-50 print:hidden ${lang === "ar" ? "left-6" : "right-6"}`}>
+      {/* Floating Naqla AI Tutor Button (Visible on Desktop only, mobile uses bottom nav) */}
+      <div className={`hidden md:flex fixed bottom-6 z-50 print:hidden ${lang === "ar" ? "left-6" : "right-6"}`}>
         <button
           onClick={() => {
             setPresetTopic(undefined);
@@ -200,11 +201,11 @@ export default function App() {
         >
           <div className="relative w-full h-full p-1 flex items-center justify-center">
             <img
-              src="/assets/sudan-bot-avatar.png"
+              src="/assets/naqla_bot_avatar.png"
               alt="ذكاء نقلة"
               className="w-full h-full object-cover rounded-full shadow-inner"
               onError={(e) => {
-                (e.target as HTMLImageElement).src = "/assets/naqla_bot_avatar.png";
+                (e.target as HTMLImageElement).src = "/naqla_bot_avatar.png";
               }}
             />
             {/* Live Indicator Dot */}
@@ -262,6 +263,17 @@ export default function App() {
           </p>
         </div>
       </footer>
+
+      {/* 📱 Mobile Docked Bottom Navigation Bar (5 Main Ecosystem Tabs) */}
+      <MobileBottomNav
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        openAiTutor={() => {
+          setPresetTopic(undefined);
+          setAiTutorOpen(true);
+        }}
+        lang={lang}
+      />
     </div>
   );
 }

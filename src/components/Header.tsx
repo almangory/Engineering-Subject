@@ -62,7 +62,7 @@ export default function Header({
   return (
     <header className="bg-blue-600 text-white sticky top-0 z-40 shadow-lg">
       <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ${isHeaderCollapsed ? "hidden md:block" : "block"}`}>
-        <div className="flex items-center justify-between h-20">
+        <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo & School Vibe */}
           <div className="flex items-center space-x-4 space-x-reverse">
             <div className="bg-white/20 text-white p-2.5 rounded-xl border border-white/30 shadow-md">
@@ -170,49 +170,6 @@ export default function Header({
             </div>
           </div>
         </div>
-      </div>
-      
-      {/* Mobile navigation bar */}
-      <div className="md:hidden flex justify-around bg-blue-700 py-2.5 px-1 border-t border-blue-500/30 overflow-x-auto">
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = activeTab === item.id;
-          const displayName = lang === "ar" ? item.nameAr : item.nameEn;
-          return (
-            <button
-              key={item.id}
-              onClick={() => setActiveTab(item.id)}
-              className={`flex flex-col items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-medium transition-colors whitespace-nowrap ${
-                isActive ? "text-white font-bold bg-white/15" : "text-blue-100 hover:text-white"
-              }`}
-            >
-              <Icon className="h-4 w-4" />
-              <span>{displayName}</span>
-            </button>
-          );
-        })}
-
-        {openPdfModal && (
-          <button
-            onClick={openPdfModal}
-            className="flex flex-col items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-medium text-emerald-200 hover:text-white transition-colors whitespace-nowrap"
-            title={lang === "ar" ? "الكتاب PDF" : "PDF Book"}
-          >
-            <BookOpen className="h-4 w-4" />
-            <span>{lang === "ar" ? "الكتاب PDF" : "PDF"}</span>
-          </button>
-        )}
-
-        {openVideoModal && (
-          <button
-            onClick={openVideoModal}
-            className="flex flex-col items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-medium text-rose-200 hover:text-white transition-colors whitespace-nowrap"
-            title={lang === "ar" ? "شرح الفيديو" : "Videos"}
-          >
-            <Video className="h-4 w-4" />
-            <span>{lang === "ar" ? "الفيديو" : "Videos"}</span>
-          </button>
-        )}
       </div>
     </header>
   );

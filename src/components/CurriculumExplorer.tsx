@@ -1236,105 +1236,151 @@ export default function CurriculumExplorer({
 
   return (
     <div className="space-y-6 w-full animate-fadeIn" id="curriculum-explorer-root" dir={lang === "ar" ? "rtl" : "ltr"}>
-      {/* Mobile / Tablet Dropdown Selector (قوائم منسدلة للجوال والتابلت) */}
-      <div className="block lg:hidden bg-slate-50 border border-slate-200 rounded-2xl p-4 shadow-sm" id="mobile-curriculum-selector">
-        <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
-          <div className="text-right w-full sm:w-auto">
-            <span className="text-[10px] font-black text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full inline-block">
-              {lang === "en" ? selectedChapter.title.split(":")[0] : (selectedChapter.arabicTitle ? selectedChapter.arabicTitle.split(":")[0] : "المنهج الدراسي")}
-            </span>
-            <h3 className="text-sm font-bold text-slate-800 mt-1 flex items-center gap-1.5 justify-start">
-              <BookOpen className="h-4 w-4 text-blue-500 shrink-0" />
-              <span>{lang === "en" ? "Current Lesson: " : "الدرس الحالي: "}{(lang === "en" && LESSON_TRANSLATIONS[currentLesson.id]) ? LESSON_TRANSLATIONS[currentLesson.id].title : currentLesson.title}</span>
-            </h3>
-          </div>
-          
-          <button
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 active:scale-95 text-white font-bold rounded-xl text-xs transition shadow-sm"
-          >
-            <span>{isMobileMenuOpen ? (lang === "en" ? "Close Menu" : "إغلاق قائمة المنهج") : (lang === "en" ? "Browse Syllabus ▾" : "تصفح أبواب المنهج ▾")}</span>
-          </button>
+      {/* 📱 Mobile First-Class Curriculum Browser (شريط تصفح الأبواب والدروس للجوال) */}
+      <div className="block lg:hidden space-y-3" id="mobile-curriculum-selector">
+        
+        {/* 1. Horizontal Scrollable Chapter Pills */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none -mx-1 px-1">
+          {curriculumData.map((chap, idx) => {
+            const isChapActive = selectedChapter.id === chap.id;
+            const chapShortTitle = lang === "ar" 
+              ? (chap.arabicTitle.includes(":") ? chap.arabicTitle.split(":")[1].trim() : chap.arabicTitle)
+              : chap.title.split(":")[0];
+            const chapNum = lang === "ar" ? `الباب ${idx + 1}` : `Ch ${idx + 1}`;
+            
+            return (
+              <button
+                key={chap.id}
+                onClick={() => {
+                  setSelectedChapter(chap);
+                  if (chap.lessons && chap.lessons.length > 0 && !chap.lessons.some(l => l.id === selectedLessonId)) {
+                    handleLessonSelect(chap, chap.lessons[0].id);
+                  }
+                }}
+                className={`flex-shrink-0 flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all duration-200 active:scale-95 shadow-xs ${
+                  isChapActive
+                    ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/20 ring-2 ring-blue-400/40"
+                    : "bg-white text-slate-700 border border-slate-200 hover:bg-slate-50"
+                }`}
+              >
+                <span className={`text-[10px] px-1.5 py-0.5 rounded-md font-mono ${isChapActive ? "bg-white/20 text-white" : "bg-slate-100 text-slate-500"}`}>
+                  {chapNum}
+                </span>
+                <span className="whitespace-nowrap">{chapShortTitle}</span>
+              </button>
+            );
+          })}
         </div>
 
-        {isMobileMenuOpen && (
-          <div className="mt-4 pt-4 border-t border-slate-200 space-y-4 animate-fadeIn">
-            {/* Search field on mobile */}
-            <div className="relative">
-              <span className={`absolute inset-y-0 flex items-center pointer-events-none text-slate-400 ${lang === "en" ? "left-0 pl-3" : "right-0 pr-3"}`}>
-                <Search className="h-4 w-4" />
+        {/* 2. Horizontal Swipeable Lesson Ribbon for Selected Chapter */}
+        <div className="bg-white border border-slate-200/90 rounded-2xl p-3 shadow-xs space-y-2.5">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <BookOpen className="h-4 w-4 text-blue-600" />
+              <span className="text-xs font-bold text-slate-800">
+                {lang === "ar" ? `دروس ${selectedChapter.arabicTitle.split(":")[0]}:` : `Lessons:`}
               </span>
-              <input
-                type="text"
-                placeholder={t.searchPlaceholder}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className={`w-full py-2 bg-white text-slate-800 placeholder-slate-400 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 ${lang === "en" ? "pl-9 pr-4 text-left" : "pr-9 pl-4 text-right"}`}
-              />
+              <span className="text-[10px] bg-blue-50 text-blue-700 font-bold px-2 py-0.5 rounded-full">
+                {selectedChapter.lessons.length} {lang === "ar" ? "دروس" : "lessons"}
+              </span>
             </div>
 
-            {/* Collapsible Chapters (Accordions) in Mobile Dropdown */}
-            <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1">
-              {filteredChapters.map((chapter) => {
-                const isChapExpanded = expandedChapters[chapter.id] ?? false;
-                const activeChapTitle = lang === "en" ? chapter.title : chapter.arabicTitle;
-                const chapLabel = activeChapTitle.split(":")[0];
-                const chapName = activeChapTitle.split(":")[1] || activeChapTitle;
+            {/* Quick search/all chapters toggle */}
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="text-[11px] font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1 bg-blue-50/80 px-2.5 py-1 rounded-lg transition active:scale-95"
+            >
+              <span>{isMobileMenuOpen ? (lang === "ar" ? "إغلاق البحث ✕" : "Close ✕") : (lang === "ar" ? "البحث الشامل 🔍" : "Search 🔍")}</span>
+            </button>
+          </div>
 
-                return (
-                  <div key={chapter.id} className="border border-slate-200 rounded-xl bg-white overflow-hidden shadow-sm">
+          {/* Swipeable Lesson Pills */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-1.5 scrollbar-none -mx-1 px-1">
+            {selectedChapter.lessons.map((lesson, lIdx) => {
+              const isSelected = lesson.id === selectedLessonId;
+              const isReviewed = reviewedLessons.includes(lesson.id);
+              const isFav = favorites.includes(lesson.id);
+              const activeTrans = LESSON_TRANSLATIONS[lesson.id];
+              const lessonTitle = (lang === "en" && activeTrans) ? activeTrans.title : lesson.title;
+
+              return (
+                <button
+                  key={lesson.id}
+                  onClick={() => handleLessonSelect(selectedChapter, lesson.id)}
+                  className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs transition-all duration-200 active:scale-95 ${
+                    isSelected
+                      ? "bg-blue-600 text-white font-bold shadow-md shadow-blue-600/25"
+                      : "bg-slate-50 hover:bg-slate-100 text-slate-700 font-medium border border-slate-200/80"
+                  }`}
+                >
+                  <span className={`text-[10px] font-mono px-1 rounded ${isSelected ? "bg-white/20 text-white font-bold" : "text-slate-400"}`}>
+                    {lIdx + 1}
+                  </span>
+                  <span className="whitespace-nowrap max-w-[150px] truncate">{lessonTitle}</span>
+                  {isReviewed && (
+                    <span className={`text-[9px] ${isSelected ? "text-emerald-300" : "text-emerald-600 font-bold"}`} title="تمت المراجعة">
+                      ✓
+                    </span>
+                  )}
+                  {isFav && (
+                    <span className="text-[9px] text-amber-400">★</span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Search Dropdown Drawer if toggled */}
+          {isMobileMenuOpen && (
+            <div className="pt-3 border-t border-slate-100 space-y-3 animate-fadeIn">
+              <div className="relative">
+                <span className={`absolute inset-y-0 flex items-center pointer-events-none text-slate-400 ${lang === "en" ? "left-0 pl-3" : "right-0 pr-3"}`}>
+                  <Search className="h-4 w-4" />
+                </span>
+                <input
+                  type="text"
+                  placeholder={t.searchPlaceholder}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className={`w-full py-2 bg-slate-50 text-slate-800 placeholder-slate-400 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 ${lang === "en" ? "pl-9 pr-4 text-left" : "pr-9 pl-4 text-right"}`}
+                  autoFocus
+                />
+              </div>
+
+              <div className="space-y-2 max-h-[260px] overflow-y-auto pr-1">
+                {filteredChapters.map((chapter) => (
+                  <div key={chapter.id} className="border border-slate-200 rounded-xl bg-slate-50/50 overflow-hidden">
                     <button
                       onClick={() => toggleChapter(chapter.id)}
-                      className={`w-full bg-slate-50 hover:bg-slate-100/80 p-3 border-b border-slate-200 flex items-center justify-between transition focus:outline-none ${lang === "en" ? "text-left" : "text-right"}`}
+                      className="w-full p-2.5 bg-slate-100/70 hover:bg-slate-200/50 flex items-center justify-between text-xs font-bold text-slate-800"
                     >
-                      <div>
-                        <span className="text-[10px] font-bold text-blue-600 font-mono">
-                          {chapLabel}
-                        </span>
-                        <h4 className="text-xs font-bold text-slate-800 mt-0.5">
-                          {chapName}
-                        </h4>
-                      </div>
-                      <ChevronDown className={`h-4 w-4 text-slate-500 transition-transform duration-300 ${isChapExpanded ? "rotate-180" : ""}`} />
+                      <span>{lang === "en" ? chapter.title : chapter.arabicTitle}</span>
+                      <ChevronDown className={`h-3.5 w-3.5 text-slate-500 transition-transform ${expandedChapters[chapter.id] ? "rotate-180" : ""}`} />
                     </button>
-
-                    {isChapExpanded && (
-                      <div className="p-1 space-y-1 bg-slate-50/50">
-                        {chapter.lessons && chapter.lessons.length > 0 ? (
-                          chapter.lessons.map((lesson) => {
-                            const isSelected = lesson.id === selectedLessonId;
-                            const activeLessonTrans = LESSON_TRANSLATIONS[lesson.id];
-                            const lessonTitle = (lang === "en" && activeLessonTrans) ? activeLessonTrans.title : lesson.title;
-
-                            return (
-                              <button
-                                key={lesson.id}
-                                onClick={() => {
-                                  handleLessonSelect(chapter as any, lesson.id);
-                                  setIsMobileMenuOpen(false); // auto-close
-                                }}
-                                className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-bold transition ${
-                                  isSelected
-                                    ? "bg-blue-600 text-white shadow-sm"
-                                    : "text-slate-600 hover:bg-slate-200/60"
-                                } ${lang === "en" ? "text-left" : "text-right"}`}
-                              >
-                                <span className="truncate">{lessonTitle}</span>
-                                <ChevronLeft className={`h-3.5 w-3.5 flex-shrink-0 ${lang === "en" ? "ml-2 rotate-180" : "mr-2"} ${isSelected ? "text-white" : "text-slate-400"}`} />
-                              </button>
-                            );
-                          })
-                        ) : (
-                          <p className="text-slate-400 text-xs p-2 text-center">{t.noResults}</p>
-                        )}
+                    {expandedChapters[chapter.id] && (
+                      <div className="p-1 space-y-1 bg-white">
+                        {chapter.lessons.map((lesson) => (
+                          <button
+                            key={lesson.id}
+                            onClick={() => {
+                              handleLessonSelect(chapter as any, lesson.id);
+                              setIsMobileMenuOpen(false);
+                            }}
+                            className={`w-full text-right px-2.5 py-1.5 rounded-lg text-xs font-medium transition ${
+                              lesson.id === selectedLessonId ? "bg-blue-600 text-white font-bold" : "text-slate-700 hover:bg-slate-100"
+                            }`}
+                          >
+                            {lesson.title}
+                          </button>
+                        ))}
                       </div>
                     )}
                   </div>
-                );
-              })}
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       {/* Mobile progress tracker & PDF exporter */}

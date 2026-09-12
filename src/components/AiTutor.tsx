@@ -301,13 +301,24 @@ export default function AiTutor({ isOpen, onClose, presetTopic }: AiTutorProps) 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-y-0 left-0 right-0 lg:left-auto lg:w-[480px] bg-white border-r border-slate-200 shadow-2xl z-50 flex flex-col justify-between">
+    <>
+      {/* Backdrop overlay for focus and easy tap-to-dismiss */}
+      <div 
+        onClick={onClose} 
+        className="fixed inset-0 bg-slate-950/40 backdrop-blur-xs z-50 transition-opacity" 
+        aria-hidden="true" 
+      />
+
+      <div 
+        className="fixed inset-y-0 left-0 right-0 lg:left-auto lg:w-[480px] bg-white border-r border-slate-200 shadow-2xl z-50 flex flex-col justify-between"
+        dir="rtl"
+      >
       {/* Header */}
       <div className="bg-slate-50 border-b border-slate-200 p-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-emerald-600 via-teal-600 to-indigo-600 p-0.5 border-2 border-amber-400 shadow-md flex items-center justify-center overflow-hidden shrink-0">
             <img
-              src="/assets/sudan-bot-avatar.png"
+              src="/assets/naqla_bot_avatar.png"
               alt="ذكاء نقلة"
               className="w-full h-full object-cover rounded-xl"
               onError={(e) => {
@@ -359,7 +370,7 @@ export default function AiTutor({ isOpen, onClose, presetTopic }: AiTutorProps) 
               {isAssistant && (
                 <div className="w-7 h-7 rounded-full border border-amber-400/90 overflow-hidden shrink-0 mt-1 shadow-xs">
                   <img
-                    src="/assets/sudan-bot-avatar.png"
+                    src="/assets/naqla_bot_avatar.png"
                     alt="ذكاء نقلة"
                     className="w-full h-full object-cover"
                     onError={(e) => {
@@ -393,7 +404,7 @@ export default function AiTutor({ isOpen, onClose, presetTopic }: AiTutorProps) 
           <div className="flex gap-2.5 justify-start">
             <div className="w-7 h-7 rounded-full border border-amber-400/90 overflow-hidden shrink-0 mt-1 shadow-xs">
               <img
-                src="/assets/sudan-bot-avatar.png"
+                src="/assets/naqla_bot_avatar.png"
                 alt="ذكاء نقلة"
                 className="w-full h-full object-cover"
                 onError={(e) => {
@@ -421,8 +432,30 @@ export default function AiTutor({ isOpen, onClose, presetTopic }: AiTutorProps) 
         <div ref={messagesEndRef} />
       </div>
 
+      {/* Quick suggestion chips for mobile and rapid querying */}
+      <div className="bg-slate-50 border-t border-slate-200 px-3 py-2 overflow-x-auto flex items-center gap-1.5 scrollbar-none">
+        <span className="text-[10px] text-slate-400 font-bold whitespace-nowrap">💡 اقتراحات:</span>
+        {[
+          { label: "📐 الإسقاط المتعامد", query: "ما هو الإسقاط المتعامد وقواعده؟" },
+          { label: "⚙️ محرك 4 أشواط", query: "اشرح دورة أوتو الرباعية لمحرك البنزين" },
+          { label: "🔋 سعة المكثف", query: "قانون سعة المكثف والعوامل المؤثرة" },
+          { label: "🔬 قانون هوك", query: "قانون هوك ومعامل المرونة" },
+          { label: "📝 تمرين تدريبي", query: "تمرين" },
+          { label: "📚 ما هو الخبث؟", query: "ما هو الخبث ومكونات شحنة الفرن اللافح؟" },
+        ].map((chip) => (
+          <button
+            key={chip.label}
+            type="button"
+            onClick={() => setInput(chip.query)}
+            className="text-[11px] font-medium bg-white hover:bg-indigo-50 text-slate-700 hover:text-indigo-600 border border-slate-200 hover:border-indigo-300 rounded-full px-2.5 py-1 whitespace-nowrap transition active:scale-95 shadow-2xs shrink-0"
+          >
+            {chip.label}
+          </button>
+        ))}
+      </div>
+
       {/* Input area */}
-      <form onSubmit={handleSendMessage} className="bg-slate-50 border-t border-slate-200 p-4 flex gap-2">
+      <form onSubmit={handleSendMessage} className="bg-slate-50 border-t border-slate-200/80 p-3 sm:p-4 flex gap-2">
         <input
           type="text"
           placeholder="ابحث عن درس، قانون، مصطلح، أو اكتب 'تمرين'..."
@@ -440,5 +473,6 @@ export default function AiTutor({ isOpen, onClose, presetTopic }: AiTutorProps) 
         </button>
       </form>
     </div>
+    </>
   );
 }
