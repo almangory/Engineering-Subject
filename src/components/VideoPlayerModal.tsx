@@ -8,6 +8,13 @@ interface VideoPlayerModalProps {
   lang?: "ar" | "en";
 }
 
+function getYouTubeEmbedUrl(url: string): string | null {
+  if (!url) return null;
+  const regExp = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=|shorts\/)|youtu\.be\/)([^"&?\/\s]{11})/;
+  const match = url.match(regExp);
+  return match ? `https://www.youtube-nocookie.com/embed/${match[1]}?rel=0&modestbranding=1` : null;
+}
+
 export const UNIT_VIDEOS: Record<
   string,
   {
@@ -15,7 +22,7 @@ export const UNIT_VIDEOS: Record<
     titleEn: string;
     descAr: string;
     descEn: string;
-    localUrl: string;
+    youtubeUrl: string;
     driveUrl: string;
     duration: string;
   }
@@ -25,7 +32,7 @@ export const UNIT_VIDEOS: Record<
     titleEn: "Unit 1: Engineering Drawing Fundamentals",
     descAr: "الإسقاط المتعامد، مساقط النقطة والمستقيم والسطح، المنظور الأيزومتري بزاوية 30° والمائل 45°، ورسم الأبعاد والتكريك.",
     descEn: "Orthographic projection, points, lines, surfaces, isometric & oblique projection, dimensioning and freehand sketching.",
-    localUrl: "/videos/unit1.mp4",
+    youtubeUrl: "https://youtu.be/ePN5TYPrYSw",
     driveUrl: "https://drive.google.com/file/d/1zJFZNcScTSp_Vt0ykfHYBG43uqsDrzsI/preview",
     duration: "شرح شامل",
   },
@@ -34,7 +41,7 @@ export const UNIT_VIDEOS: Record<
     titleEn: "Unit 2: Mechanical Engineering Fundamentals",
     descAr: "علم الفلزات وسبائكها، أفران الصهر (الفرن العالي والكيوبولا والصلب والدرفلة)، محركات الاحتراق الداخلي ودورة أوتو وأنظمة محرك السيارة.",
     descEn: "Metals, blast furnace, cupola, steel rolling, alloys, four-stroke Otto cycle, and automobile engine systems.",
-    localUrl: "/videos/unit2.mp4",
+    youtubeUrl: "https://youtu.be/VUi1WYWCGrg",
     driveUrl: "https://drive.google.com/file/d/1OP-xcYtE90oC43jCRV_aMy07D43oFJjO/preview",
     duration: "شرح شامل",
   },
@@ -43,7 +50,7 @@ export const UNIT_VIDEOS: Record<
     titleEn: "Unit 3: Electrical & Electronic Engineering",
     descAr: "الكميات والوحدات الكهربائية، قانون كولوم، المكثفات، الحث الكهرومغناطيسي، المحاثة، الإلكترونيات، وبلورات أشباه الموصلات والتشويب.",
     descEn: "Electrical units, Coulomb's law, capacitors, electromagnetic induction, self-inductance, semiconductors and doping.",
-    localUrl: "/videos/unit3.mp4",
+    youtubeUrl: "https://youtu.be/kGhjlR5wJ34",
     driveUrl: "https://drive.google.com/file/d/17_g6bEPc9jw9t0Juwzx9pBhFRfrLueCP/preview",
     duration: "شرح شامل",
   },
@@ -52,7 +59,7 @@ export const UNIT_VIDEOS: Record<
     titleEn: "Unit 4: Civil & Environmental Engineering",
     descAr: "المنشآت والعوارض والجملونات، الأحمال والتربة والأساسات، ميكانيكا المواد وقانون هوك، ضغط الموائع واللزوجة، والهندسة البيئية وموارد المياه.",
     descEn: "Structures, beams, trusses, arches, foundations, Hooke's law, fluid mechanics, viscosity, and environmental water resources.",
-    localUrl: "/videos/unit4.mp4",
+    youtubeUrl: "https://youtu.be/jiR2kMguSIE",
     driveUrl: "https://drive.google.com/file/d/1cM1mEUZdiuVc7ltQoYnpDxbqHWAcQmD7/preview",
     duration: "شرح شامل",
   },
@@ -65,20 +72,11 @@ export default function VideoPlayerModal({
   lang = "ar",
 }: VideoPlayerModalProps) {
   const [selectedUnit, setSelectedUnit] = useState<string>(initialChapterId);
-  const [sourceType, setSourceType] = useState<"local" | "stream">("local");
-  const [playbackRate, setPlaybackRate] = useState<number>(1);
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const [sourceType, setSourceType] = useState<"youtube" | "drive">("youtube");
 
   if (!isOpen) return null;
 
   const currentVideo = UNIT_VIDEOS[selectedUnit] || UNIT_VIDEOS["chapter-1"];
-
-  const handleSpeedChange = (speed: number) => {
-    setPlaybackRate(speed);
-    if (videoRef.current) {
-      videoRef.current.playbackRate = speed;
-    }
-  };
 
   return (
     <div
@@ -115,17 +113,17 @@ export default function VideoPlayerModal({
             {/* Source Switcher */}
             <div className="hidden sm:flex items-center bg-slate-800/80 rounded-xl p-0.5 border border-slate-700 text-xs">
               <button
-                onClick={() => setSourceType("local")}
+                onClick={() => setSourceType("youtube")}
                 className={`px-2.5 py-1 rounded-lg font-bold transition text-xs ${
-                  sourceType === "local" ? "bg-rose-600 text-white" : "text-slate-400 hover:text-white"
+                  sourceType === "youtube" ? "bg-rose-600 text-white" : "text-slate-400 hover:text-white"
                 }`}
               >
-                {lang === "ar" ? "محلي فائق السرعة ⚡" : "Local HD ⚡"}
+                {lang === "ar" ? "بث YouTube ⚡" : "YouTube ⚡"}
               </button>
               <button
-                onClick={() => setSourceType("stream")}
+                onClick={() => setSourceType("drive")}
                 className={`px-2.5 py-1 rounded-lg font-bold transition text-xs ${
-                  sourceType === "stream" ? "bg-rose-600 text-white" : "text-slate-400 hover:text-white"
+                  sourceType === "drive" ? "bg-rose-600 text-white" : "text-slate-400 hover:text-white"
                 }`}
               >
                 {lang === "ar" ? "بث Drive 🌐" : "Drive Stream 🌐"}
@@ -149,12 +147,7 @@ export default function VideoPlayerModal({
             return (
               <button
                 key={unitId}
-                onClick={() => {
-                  setSelectedUnit(unitId);
-                  if (videoRef.current) {
-                    videoRef.current.currentTime = 0;
-                  }
-                }}
+                onClick={() => setSelectedUnit(unitId)}
                 className={`px-3.5 py-1.5 rounded-xl font-bold whitespace-nowrap transition flex items-center gap-1.5 ${
                   isSelected
                     ? "bg-gradient-to-r from-rose-600 to-pink-600 text-white shadow-lg shadow-rose-600/30"
@@ -170,18 +163,15 @@ export default function VideoPlayerModal({
 
         {/* Video Player Area */}
         <div className="flex-1 bg-black relative flex items-center justify-center overflow-hidden">
-          {sourceType === "local" ? (
-            <video
-              ref={videoRef}
-              key={currentVideo.localUrl}
-              src={currentVideo.localUrl}
-              controls
-              autoPlay
-              playsInline
-              className="w-full h-full object-contain"
-            >
-              {lang === "ar" ? "متصفحك لا يدعم تشغيل هذا الفيديو." : "Your browser does not support HTML5 video."}
-            </video>
+          {sourceType === "youtube" ? (
+            <iframe
+              key={currentVideo.youtubeUrl}
+              src={getYouTubeEmbedUrl(currentVideo.youtubeUrl) || ""}
+              className="w-full h-full border-none"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowFullScreen
+              title={lang === "ar" ? currentVideo.titleAr : currentVideo.titleEn}
+            />
           ) : (
             <iframe
               key={currentVideo.driveUrl}
@@ -205,26 +195,15 @@ export default function VideoPlayerModal({
             </span>
           </p>
 
-          {sourceType === "local" && (
-            <div className="flex items-center gap-2">
-              <span className="text-slate-400 text-[11px] font-bold">
-                {lang === "ar" ? "سرعة العرض:" : "Speed:"}
-              </span>
-              {[0.75, 1, 1.25, 1.5].map((speed) => (
-                <button
-                  key={speed}
-                  onClick={() => handleSpeedChange(speed)}
-                  className={`px-2 py-0.5 rounded text-[11px] font-mono font-bold transition ${
-                    playbackRate === speed
-                      ? "bg-rose-600 text-white"
-                      : "bg-slate-800 text-slate-300 hover:bg-slate-700"
-                  }`}
-                >
-                  {speed}x
-                </button>
-              ))}
-            </div>
-          )}
+          <a
+            href={currentVideo.youtubeUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold transition text-xs"
+          >
+            <ExternalLink className="w-3.5 h-3.5" />
+            <span>{lang === "ar" ? "مشاهدة على YouTube" : "Watch on YouTube"}</span>
+          </a>
         </div>
       </div>
     </div>

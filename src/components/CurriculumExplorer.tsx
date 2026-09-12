@@ -13,10 +13,10 @@ const CHAPTER_VIDEOS: Record<string, string> = {
 };
 
 const CHAPTER_LOCAL_VIDEOS: Record<string, string> = {
-  "chapter-1": "/videos/unit1.mp4",
-  "chapter-2": "/videos/unit2.mp4",
-  "chapter-3": "/videos/unit3.mp4",
-  "chapter-4": "/videos/unit4.mp4",
+  "chapter-1": "https://youtu.be/ePN5TYPrYSw",
+  "chapter-2": "https://youtu.be/VUi1WYWCGrg",
+  "chapter-3": "https://youtu.be/kGhjlR5wJ34",
+  "chapter-4": "https://youtu.be/jiR2kMguSIE",
 };
 
 interface CurriculumExplorerProps {
