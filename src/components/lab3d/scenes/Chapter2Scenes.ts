@@ -14,32 +14,32 @@ export function buildChapter2Scene(
     if ((obj as THREE.Mesh).geometry) (obj as THREE.Mesh).geometry.dispose();
   }
 
-  // Helper to create a 3D sprite label
-  const createLabel = (text: string, pos: THREE.Vector3, color: string = "#38bdf8") => {
+  // Helper to create high-resolution 3D sprite label
+  const createLabel = (text: string, pos: THREE.Vector3, color: string = "#38bdf8", scale: number = 1.3) => {
     const canvas = document.createElement("canvas");
-    canvas.width = 256;
-    canvas.height = 64;
+    canvas.width = 384;
+    canvas.height = 80;
     const ctx = canvas.getContext("2d");
     if (ctx) {
-      ctx.fillStyle = "rgba(15, 23, 42, 0.85)";
-      ctx.roundRect(4, 4, 248, 56, 12);
+      ctx.fillStyle = "rgba(10, 15, 29, 0.88)";
+      ctx.roundRect(6, 6, 372, 68, 16);
       ctx.fill();
       ctx.strokeStyle = color;
-      ctx.lineWidth = 3;
-      ctx.roundRect(4, 4, 248, 56, 12);
+      ctx.lineWidth = 3.5;
+      ctx.roundRect(6, 6, 372, 68, 16);
       ctx.stroke();
 
-      ctx.fillStyle = "#f8fafc";
-      ctx.font = "bold 22px 'Tajawal', sans-serif";
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "bold 24px 'Tajawal', sans-serif";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      ctx.fillText(text, 128, 32);
+      ctx.fillText(text, 192, 40);
     }
     const texture = new THREE.CanvasTexture(canvas);
     const spriteMat = new THREE.SpriteMaterial({ map: texture, depthTest: false });
     const sprite = new THREE.Sprite(spriteMat);
     sprite.position.copy(pos);
-    sprite.scale.set(1.4, 0.35, 1);
+    sprite.scale.set(scale * 1.5, scale * 0.35, 1);
     return sprite;
   };
 
@@ -280,7 +280,6 @@ export function buildChapter2Scene(
       const temp = params.furnaceTemp || 1400;
 
       // 1. Massive Blast Furnace Body with 180° Front Cutaway
-      // Stack (جسم الفرن العالي المخروطي المشقوق بزاوية 180 درجة لمعاينة الشحنة بالكامل)
       const stackOuter = new THREE.Mesh(
         new THREE.CylinderGeometry(1.4, 2.4, 4.6, 32, 1, false, Math.PI / 2, Math.PI),
         new THREE.MeshStandardMaterial({ color: 0x475569, metalness: 0.85, roughness: 0.35, side: THREE.DoubleSide })
@@ -288,7 +287,7 @@ export function buildChapter2Scene(
       stackOuter.position.y = 2.8;
       furnaceGroup.add(stackOuter);
 
-      // Refractory brick lining (بطانة الطوب الحراري القرميدي)
+      // Refractory brick lining (بطانة الطوب الحراري)
       const brickLining = new THREE.Mesh(
         new THREE.CylinderGeometry(1.3, 2.25, 4.5, 32, 1, false, Math.PI / 2, Math.PI),
         new THREE.MeshStandardMaterial({ color: 0x9a3412, roughness: 0.9, side: THREE.BackSide })
@@ -296,7 +295,7 @@ export function buildChapter2Scene(
       brickLining.position.y = 2.8;
       furnaceGroup.add(brickLining);
 
-      // 2. Inclined Skip Hoist Rail Bridge (كوبري عربات الشحن المائل لنقل الخام وفحم الكوك)
+      // 2. Inclined Skip Hoist Rail Bridge (كوبري عربات الشحن المائل)
       const railGeo = new THREE.CylinderGeometry(0.08, 0.08, 6.2, 8);
       const railMat = new THREE.MeshStandardMaterial({ color: 0x1e293b });
       const rail1 = new THREE.Mesh(railGeo, railMat);
@@ -304,18 +303,18 @@ export function buildChapter2Scene(
       rail1.rotation.z = -Math.PI / 4;
       furnaceGroup.add(rail1);
 
-      // Skip Car (عربة الشحن الميكانيكية الصاعدة للقمة)
+      // Skip Car (عربة الشحن الميكانيكية الصاعدة)
       const skipCar = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.6, 0.8), new THREE.MeshStandardMaterial({ color: 0xd97706 }));
       const carProgress = (time * 0.5) % 1;
       skipCar.position.set(-4.0 + carProgress * 3.0, 1.2 + carProgress * 3.5, -0.6);
       furnaceGroup.add(skipCar);
 
-      // Top Charging Double-Bell Hopper (قادوس الأجراس المزدوجة لمنع تسرب الغازات)
+      // Top Charging Double-Bell Hopper
       const bellTop = new THREE.Mesh(new THREE.ConeGeometry(1.1, 0.8, 24), new THREE.MeshStandardMaterial({ color: 0x18181b, metalness: 0.9 }));
       bellTop.position.set(0, 5.4, 0);
       furnaceGroup.add(bellTop);
 
-      // 3. Alternating Burden Layers (طبقات الشحنة الداخلية: خام الحديد الأحمر، فحم الكوك الأسود، الحجر الجيري الأبيض)
+      // 3. Alternating Burden Layers (طبقات الشحنة)
       for (let l = 0; l < 6; l++) {
         const lY = 1.2 + l * 0.58;
         const lRad = 2.1 - l * 0.14;
@@ -328,7 +327,7 @@ export function buildChapter2Scene(
         furnaceGroup.add(layer);
       }
 
-      // 4. Bustle Pipe (الماسورة الحلقية الضخمة التي تلف الفرن لتوزيع نفخ الهواء الساخن)
+      // 4. Bustle Pipe (الماسورة الحلقية)
       const bustleGeo = new THREE.TorusGeometry(2.6, 0.28, 16, 32);
       const bustleMat = new THREE.MeshStandardMaterial({ color: 0xb45309, metalness: 0.8 });
       const bustle = new THREE.Mesh(bustleGeo, bustleMat);
@@ -336,7 +335,7 @@ export function buildChapter2Scene(
       bustle.position.y = 1.1;
       furnaceGroup.add(bustle);
 
-      // Tuyeres & Blowpipes (تيورات حقن الهواء الساخن مع لهب ناري متدفق)
+      // Tuyeres & Blowpipes
       [-2.1, 2.1].forEach((tx) => {
         const tuyere = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 0.8, 16), bustleMat);
         tuyere.rotation.z = Math.PI / 2;
@@ -351,7 +350,7 @@ export function buildChapter2Scene(
         }
       });
 
-      // 5. Hearth Molten Pig Iron & Slag (بئر المصهور وخروج زهر التماسيح والخبث)
+      // 5. Hearth Molten Pig Iron & Slag
       const moltenColor = temp > 1300 ? 0xf59e0b : 0xef4444;
       const molten = new THREE.Mesh(
         new THREE.CylinderGeometry(2.2, 2.2, 0.6, 32),
@@ -360,7 +359,7 @@ export function buildChapter2Scene(
       molten.position.y = 0.4;
       furnaceGroup.add(molten);
 
-      // Taphole Runner Chute (مجرى تدفق زهر التماسيح المصبوب)
+      // Taphole Runner Chute
       if (isTapped) {
         const runner = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.2, 0.6), new THREE.MeshStandardMaterial({ color: 0x27272a }));
         runner.position.set(2.2, 0.2, 0);
@@ -370,7 +369,7 @@ export function buildChapter2Scene(
         moltenStream.position.set(2.2, 0.25, 0);
         furnaceGroup.add(moltenStream);
 
-        // Ladle (المغرفة الصناعية لتجميع الحديد الزهر)
+        // Ladle
         const ladle = new THREE.Mesh(new THREE.CylinderGeometry(0.8, 0.6, 1.0, 24), new THREE.MeshStandardMaterial({ color: 0x18181b, metalness: 0.9 }));
         ladle.position.set(3.8, 0.1, 0);
         furnaceGroup.add(ladle);
@@ -394,14 +393,14 @@ export function buildChapter2Scene(
       const passes = params.rollingPasses || 1;
       const rollSpeed = time * 4;
 
-      // Heavy 2-High Rolling Mill Stand Housings (إطارات الدرفلة الثقيلة مع براغي الضبط العلوية)
+      // Heavy 2-High Rolling Mill Stand Housings
       const standMat = new THREE.MeshStandardMaterial({ color: 0x1e3a8a, metalness: 0.85, roughness: 0.3 });
       [-1.9, 1.9].forEach((x) => {
         const stand = new THREE.Mesh(new THREE.BoxGeometry(0.9, 4.2, 2.6), standMat);
         stand.position.set(x, 1.0, 0);
         millGroup.add(stand);
 
-        // Motorized screw-down spindle on top of each stand (براغي ضبط خلوص الدرافيل)
+        // Motorized screw-down spindle on top of each stand
         const screw = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 1.0, 16), new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.9 }));
         screw.position.set(x, 3.4, 0);
         millGroup.add(screw);
@@ -412,7 +411,7 @@ export function buildChapter2Scene(
         millGroup.add(handwheel);
       });
 
-      // Two Counter-Rotating Hardened Steel Rolls (الدرافيل الفولاذية الصلدة الدوارة)
+      // Two Counter-Rotating Hardened Steel Rolls
       const rollR = 0.7;
       const rollGap = 0.55 - (passes - 1) * 0.08;
       const rollMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.98, roughness: 0.1 });
@@ -429,7 +428,7 @@ export function buildChapter2Scene(
       btmRoll.position.set(0, 1.0 - rollR - rollGap / 2, 0);
       millGroup.add(btmRoll);
 
-      // Glowing Hot Steel Slab Passing Through (لوح الصلب الساخن المتوهج الذي يتناقص سمكه)
+      // Glowing Hot Steel Slab Passing Through
       const slabColor = temp > 1050 ? (temp > 1150 ? 0xfef08a : 0xf59e0b) : 0xef4444;
       const slabMat = new THREE.MeshStandardMaterial({ color: slabColor, emissive: slabColor, emissiveIntensity: 0.8, roughness: 0.3 });
 
@@ -444,7 +443,7 @@ export function buildChapter2Scene(
       outSlab.position.set(0, 1.0, 1.8);
       millGroup.add(outSlab);
 
-      // Motorized Roller Conveyor Tables (طاولة الدرافيل الناقلة)
+      // Motorized Roller Conveyor Tables
       const convMat = new THREE.MeshStandardMaterial({ color: 0x475569, metalness: 0.8 });
       [-3.0, -2.2, -1.4, 1.4, 2.2, 3.0].forEach((z) => {
         const cRoll = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.14, 2.8, 16), convMat);
@@ -470,12 +469,12 @@ export function buildChapter2Scene(
       const zn = params.alloyMixZinc ?? 30;
       const sn = params.alloyMixTin ?? 0;
 
-      // Foundry Tilt Furnace (فرن صهر البوتقة القابل للإمالة)
+      // Foundry Tilt Furnace
       const furnaceBody = new THREE.Mesh(new THREE.CylinderGeometry(1.9, 1.9, 2.6, 32), new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.7 }));
       furnaceBody.position.set(-1.6, 0.3, 0);
       alloyGroup.add(furnaceBody);
 
-      // Graphite Clay Crucible (البوتقة الجرافيتية بداخل الفرن)
+      // Graphite Clay Crucible
       const crucible = new THREE.Mesh(new THREE.CylinderGeometry(1.3, 1.0, 2.0, 32, 1, true), new THREE.MeshStandardMaterial({ color: 0x18181b, roughness: 0.9, side: THREE.DoubleSide }));
       crucible.position.set(-1.6, 0.6, 0);
       alloyGroup.add(crucible);
@@ -530,24 +529,25 @@ export function buildChapter2Scene(
       break;
     }
 
-    // -----------------------------------------------------------------------
-    // LESSON 11: محاكي الأشواط الأربعة (Ultra-Realistic 4-Stroke Cutaway Engine)
-    // -----------------------------------------------------------------------
+    // -------------------------------------------------------------------------------------
+    // LESSON 11: محاكي الأشواط الأربعة والبستم المقطوع (The True 3D Piston Anatomy Cutaway)
+    // المطابق تماماً لصورة المرجع الهندسية المعتمدة (90° Quarter-Cutaway + Hollow Pin + Rings)
+    // -------------------------------------------------------------------------------------
     case "engines-cycles": {
       const engineGroup = new THREE.Group();
-      engineGroup.position.set(0, -0.8, 0);
+      engineGroup.position.set(0, -0.6, 0);
 
       const isPlaying = params.enginePlaying !== false;
       const speed = params.engineSpeed || 1;
-      const manualStroke = params.engineStroke || 1;
+      const manualStroke = params.engineStroke || 0;
 
       // Crank angle: 0 to 4*PI (720 degrees for a full 4-stroke cycle)
-      const theta = isPlaying ? (time * 5 * speed) % (4 * Math.PI) : ((manualStroke - 1) * Math.PI);
+      // When paused, manualStroke (0: Intake, 1: Compression, 2: Power, 3: Exhaust) directly locks theta
+      let theta = isPlaying ? (time * 4 * speed) % (4 * Math.PI) : (manualStroke * Math.PI);
       const strokeIdx = Math.floor(theta / Math.PI) % 4;
-      // 0: Intake (سحب), 1: Compression (ضغط), 2: Power (قدرة), 3: Exhaust (عادم)
 
-      const crankRadius = 0.75;
-      const conRodLength = 2.2;
+      const crankRadius = 0.85;
+      const conRodLength = 2.4;
 
       // Exact Kinematic Positions
       const crankPinX = crankRadius * Math.sin(theta);
@@ -555,163 +555,240 @@ export function buildChapter2Scene(
       const wristPinY = crankPinY + Math.sqrt(conRodLength * conRodLength - crankPinX * crankPinX);
       const rodAngle = Math.atan2(crankPinX, wristPinY - crankPinY);
 
-      // =====================================================================
-      // 1. ENGINE CYLINDER BLOCK WITH 180° REAR CUTAWAY & COOLING FINS
-      // =====================================================================
-      // The front is 100% open so the piston, rings, pin, and rod are unobstructed!
-      const cylBoreRadius = 1.25;
-      const cylHeight = 3.6;
+      const pistonRadius = 1.4;
+      const pistonHeight = 1.8;
 
-      // Open 180° Half Cylinder Sleeve (بطانة الأسطوانة الداخلية المصقولة كالمراة)
-      const sleeveGeo = new THREE.CylinderGeometry(
-        cylBoreRadius,
-        cylBoreRadius,
-        cylHeight,
+      // =====================================================================
+      // 1. CYLINDER WALL WITH 180° REAR CUTAWAY (جدار الأسطوانة المشقوق)
+      // =====================================================================
+      // The cylinder wall is cut open in front so the student sees the hone-finish bore and the moving piston!
+      const cylSleeveGeo = new THREE.CylinderGeometry(
+        pistonRadius + 0.05,
+        pistonRadius + 0.05,
+        4.4,
         32,
         1,
-        true,
+        false,
         Math.PI / 2,
-        Math.PI // Only back 180° is drawn, front 180° is wide open cutaway!
+        Math.PI // Back 180° is drawn, front 180° is wide open cutaway!
       );
-      const sleeveMat = new THREE.MeshStandardMaterial({
+      const cylMat = new THREE.MeshStandardMaterial({
         color: 0x94a3b8,
-        metalness: 0.95,
-        roughness: 0.15,
+        metalness: 0.92,
+        roughness: 0.25,
         side: THREE.DoubleSide,
       });
-      const sleeve = new THREE.Mesh(sleeveGeo, sleeveMat);
-      sleeve.position.y = 2.1;
-      engineGroup.add(sleeve);
+      const cylSleeve = new THREE.Mesh(cylSleeveGeo, cylMat);
+      cylSleeve.position.y = 2.2;
+      engineGroup.add(cylSleeve);
 
-      // Outer Engine Block Casting with Cooling Fins (الكتلة الخارجية وزعانف التبريد)
-      const finCount = 8;
-      const finMat = new THREE.MeshStandardMaterial({
-        color: 0x334155, // Heavy dark cast iron
-        metalness: 0.8,
-        roughness: 0.5,
-        side: THREE.DoubleSide,
+      // Cylinder wall cross-section thickness edge (حافة سماكة جدار الأسطوانة)
+      const edgeGeo = new THREE.BoxGeometry(0.18, 4.4, 0.2);
+      const edgeMat = new THREE.MeshStandardMaterial({ color: 0x64748b, metalness: 0.8 });
+      [-pistonRadius - 0.05, pistonRadius + 0.05].forEach((ex) => {
+        const edge = new THREE.Mesh(edgeGeo, edgeMat);
+        edge.position.set(ex, 2.2, 0);
+        engineGroup.add(edge);
       });
-      for (let f = 0; f < finCount; f++) {
-        const finY = 1.0 + f * 0.38;
-        const finGeo = new THREE.CylinderGeometry(
-          cylBoreRadius + 0.35,
-          cylBoreRadius + 0.35,
-          0.08,
-          32,
-          1,
-          true,
-          Math.PI / 2,
-          Math.PI
-        );
-        const fin = new THREE.Mesh(finGeo, finMat);
-        fin.position.y = finY;
-        engineGroup.add(fin);
-      }
-
-      // Cutaway Edge Borders (إبراز حواف القطع باللون البرتقالي الهندسي للدلالة على المقطع)
-      const borderMat = new THREE.MeshBasicMaterial({ color: 0xf59e0b });
-      [-cylBoreRadius, cylBoreRadius].forEach((bx) => {
-        const borderEdge = new THREE.Mesh(new THREE.BoxGeometry(0.08, cylHeight, 0.1), borderMat);
-        borderEdge.position.set(bx, 2.1, 0);
-        engineGroup.add(borderEdge);
-      });
-
-      // Crankcase Lower Frame (حوض عمود الكرنك السفلي المفتوح)
-      const crankcaseMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.85 });
-      const crankcaseBack = new THREE.Mesh(new THREE.BoxGeometry(3.2, 1.8, 1.4), crankcaseMat);
-      crankcaseBack.position.set(0, 0, -0.8);
-      engineGroup.add(crankcaseBack);
 
       // =====================================================================
-      // 2. TRUE PISTON ASSEMBLY (المكبس الهندسي الحقيقي مع الحلقات والبنز والجذع)
+      // 2. THE TRUE PISTON ASSEMBLY WITH 90° QUARTER CUTAWAY (المكبس المقطوع ربعياً)
+      // المطابق للصورة: يكشف سماكة الرأس، غرفة الاحتراق، بنز المكبس المجوف، وأخاديد الحلقات!
       // =====================================================================
       const pistonGroup = new THREE.Group();
       pistonGroup.position.set(0, wristPinY, 0);
 
-      // Piston Crown (تاج المكبس المصنوع من سبائك الألومنيوم)
-      const crownMat = new THREE.MeshStandardMaterial({
-        color: 0xe2e8f0,
+      // Aluminum Piston Body with 270° angle (90° front-right pie quadrant cut out!)
+      const pistonMat = new THREE.MeshStandardMaterial({
+        color: 0xe2e8f0, // Machined aluminum
         metalness: 0.95,
-        roughness: 0.18,
-      });
-      const crownGeo = new THREE.CylinderGeometry(cylBoreRadius - 0.05, cylBoreRadius - 0.05, 0.5, 32);
-      const crown = new THREE.Mesh(crownGeo, crownMat);
-      crown.position.y = 0.55;
-      pistonGroup.add(crown);
-
-      // 3 Compression & Oil Piston Rings (حلقات المكبس الثلاث الفولاذية)
-      const ringMat = new THREE.MeshStandardMaterial({
-        color: 0x0f172a, // Dark polished steel rings
-        metalness: 0.9,
-        roughness: 0.1,
-      });
-      [0.68, 0.56, 0.44].forEach((ry) => {
-        const ringGeo = new THREE.TorusGeometry(cylBoreRadius - 0.03, 0.035, 12, 32);
-        const ring = new THREE.Mesh(ringGeo, ringMat);
-        ring.rotation.x = Math.PI / 2;
-        ring.position.y = ry;
-        pistonGroup.add(ring);
+        roughness: 0.2,
+        side: THREE.DoubleSide,
       });
 
-      // Piston Skirt (قميص / جذع المكبس مع تجاويف تخفيف الوزن)
-      const skirtGeo = new THREE.CylinderGeometry(cylBoreRadius - 0.06, cylBoreRadius - 0.06, 0.7, 32, 1, true);
-      const skirt = new THREE.Mesh(skirtGeo, crownMat);
-      skirt.position.y = 0.05;
-      pistonGroup.add(skirt);
+      // Main cylindrical skirt & head with 270° sweep (cuts out 0 to PI/2)
+      const pistonBodyGeo = new THREE.CylinderGeometry(
+        pistonRadius,
+        pistonRadius,
+        pistonHeight,
+        36,
+        1,
+        false,
+        Math.PI / 2,
+        Math.PI * 1.5 // 270 degrees!
+      );
+      const pistonBody = new THREE.Mesh(pistonBodyGeo, pistonMat);
+      pistonBody.position.y = 0.2;
+      pistonGroup.add(pistonBody);
 
-      // Wrist Pin / Gudgeon Pin (بنز المكبس الفولاذي المار بمنتصف الرأس)
-      const wristPinGeo = new THREE.CylinderGeometry(0.18, 0.18, cylBoreRadius * 1.6, 24);
-      const wristPinMat = new THREE.MeshStandardMaterial({
-        color: 0xffffff,
-        metalness: 1.0,
-        roughness: 0.1,
+      // Dished Combustion Bowl in Piston Crown (غرفة الاحتراق المقعرة في رأس المكبس 4)
+      const bowlGeo = new THREE.CylinderGeometry(0.85, 0.65, 0.25, 24, 1, false, Math.PI / 2, Math.PI * 1.5);
+      const bowlMat = new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.8, roughness: 0.4 });
+      const bowl = new THREE.Mesh(bowlGeo, bowlMat);
+      bowl.position.y = 1.05;
+      pistonGroup.add(bowl);
+
+      // Cut Section Faces (أسطح القطع المتعامدة التي تبرز سماكة المعدن بالألومنيوم المصقول)
+      const cutMat = new THREE.MeshStandardMaterial({ color: 0xcbd5e1, metalness: 0.9, roughness: 0.3 });
+
+      // Radial cut wall 1 (along Z-axis)
+      const cutWall1 = new THREE.Mesh(new THREE.BoxGeometry(0.08, pistonHeight - 0.2, pistonRadius - 0.4), cutMat);
+      cutWall1.position.set(0, 0.2, (pistonRadius - 0.4) / 2);
+      pistonGroup.add(cutWall1);
+
+      // Radial cut wall 2 (along X-axis)
+      const cutWall2 = new THREE.Mesh(new THREE.BoxGeometry(pistonRadius - 0.4, pistonHeight - 0.2, 0.08), cutMat);
+      cutWall2.position.set((pistonRadius - 0.4) / 2, 0.2, 0);
+      pistonGroup.add(cutWall2);
+
+      // Graphite Anti-Friction Skirt Coating (الإسكتلميس 50% - طبقة جرافيت رمادية على جدار المكبس)
+      const graphiteMat = new THREE.MeshStandardMaterial({ color: 0x3f3f46, roughness: 0.8, metalness: 0.4 });
+      const graphitePad = new THREE.Mesh(
+        new THREE.CylinderGeometry(pistonRadius + 0.005, pistonRadius + 0.005, 0.9, 24, 1, true, Math.PI * 0.9, Math.PI * 0.7),
+        graphiteMat
+      );
+      graphitePad.position.y = -0.1;
+      pistonGroup.add(graphitePad);
+
+      // =====================================================================
+      // 3. THE 3 PISTON RINGS IN THEIR GROOVES (حلقات المكبس الثلاث)
+      // 1: Top purple-steel compression ring
+      // 2: Second bronze compression ring
+      // 3: Oil control ring with golden expander spring underneath
+      // =====================================================================
+      const ringRadius = pistonRadius + 0.015;
+
+      // 1. حلقة الضغط العلوية (Purple-Steel Top Compression Ring)
+      const ring1Mat = new THREE.MeshStandardMaterial({ color: 0x8b5cf6, metalness: 0.95, roughness: 0.15 });
+      const ring1 = new THREE.Mesh(
+        new THREE.TorusGeometry(ringRadius, 0.045, 12, 32, Math.PI * 1.5),
+        ring1Mat
+      );
+      ring1.rotation.x = Math.PI / 2;
+      ring1.rotation.z = Math.PI / 2;
+      ring1.position.y = 0.82;
+      pistonGroup.add(ring1);
+
+      // 2. حلقة الضغط الثانية (Bronze/Amber Second Compression Ring)
+      const ring2Mat = new THREE.MeshStandardMaterial({ color: 0xd97706, metalness: 0.9, roughness: 0.2 });
+      const ring2 = new THREE.Mesh(
+        new THREE.TorusGeometry(ringRadius, 0.045, 12, 32, Math.PI * 1.5),
+        ring2Mat
+      );
+      ring2.rotation.x = Math.PI / 2;
+      ring2.rotation.z = Math.PI / 2;
+      ring2.position.y = 0.65;
+      pistonGroup.add(ring2);
+
+      // 3. حلقة التحكم في الزيت (Oil Control Ring with Wavy Expander Spring)
+      const ring3Mat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.95, roughness: 0.1 });
+      const ring3 = new THREE.Mesh(
+        new THREE.TorusGeometry(ringRadius, 0.035, 12, 32, Math.PI * 1.5),
+        ring3Mat
+      );
+      ring3.rotation.x = Math.PI / 2;
+      ring3.rotation.z = Math.PI / 2;
+      ring3.position.y = 0.48;
+      pistonGroup.add(ring3);
+
+      // Golden Wavy Expander Spring in oil ring groove (النابض التفوسفوري المتعرج)
+      const springMat = new THREE.MeshStandardMaterial({ color: 0xfacc15, wireframe: true });
+      const expanderSpring = new THREE.Mesh(
+        new THREE.TorusGeometry(ringRadius - 0.02, 0.03, 12, 40, Math.PI * 1.5),
+        springMat
+      );
+      expanderSpring.rotation.x = Math.PI / 2;
+      expanderSpring.rotation.z = Math.PI / 2;
+      expanderSpring.position.y = 0.48;
+      pistonGroup.add(expanderSpring);
+
+      // 11. مجاري تصريف الزيت (Oil Drain Holes under oil ring)
+      const holeMat = new THREE.MeshBasicMaterial({ color: 0x0f172a });
+      [-0.8, -0.4, 0, 0.4].forEach((hx) => {
+        const drainHole = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.25, 8), holeMat);
+        drainHole.rotation.x = Math.PI / 2;
+        drainHole.position.set(hx, 0.35, pistonRadius - 0.05);
+        pistonGroup.add(drainHole);
       });
-      const wristPin = new THREE.Mesh(wristPinGeo, wristPinMat);
-      wristPin.rotation.x = Math.PI / 2;
-      wristPin.position.y = 0;
-      pistonGroup.add(wristPin);
+
+      // =====================================================================
+      // 4. HOLLOW WRIST PIN & BOSS (بنز المكبس المجوف وثقب البنز)
+      // =====================================================================
+      // Piston Pin Boss (ثقب بنز المكبس المعزز بداخل التجويف)
+      const bossMat = new THREE.MeshStandardMaterial({ color: 0xcbd5e1, metalness: 0.9 });
+      const pinBoss = new THREE.Mesh(new THREE.CylinderGeometry(0.38, 0.38, 1.9, 24), bossMat);
+      pinBoss.rotation.x = Math.PI / 2;
+      pinBoss.position.set(0, 0, 0);
+      pistonGroup.add(pinBoss);
+
+      // Hollow Steel Wrist Pin (بنز المكبس المجوف بفتحة داخلية واضحة كالصورة تماماً!)
+      const pinOuterMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, metalness: 0.98, roughness: 0.1 });
+      const pinInnerMat = new THREE.MeshBasicMaterial({ color: 0x0f172a }); // Dark hollow core
+
+      // Outer cylinder sleeve of pin
+      const pinOuter = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.24, 2.0, 24, 1, true), pinOuterMat);
+      pinOuter.rotation.x = Math.PI / 2;
+      pistonGroup.add(pinOuter);
+
+      // Dark hollow center inside the pin (الثقب الداخلي للبنز)
+      const pinHole = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.15, 2.02, 24), pinInnerMat);
+      pinHole.rotation.x = Math.PI / 2;
+      pistonGroup.add(pinHole);
 
       engineGroup.add(pistonGroup);
 
       // =====================================================================
-      // 3. FORGED I-BEAM CONNECTING ROD (ذراع التوصيل - البييل المسبوك)
+      // 5. FORGED I-BEAM CONNECTING ROD (ذراع التوصيل - البييل المسبوك)
+      // المطابق للصورة: ساق مقطع I بلون برونزي مسبوك، سبيكة نحاسية، ومسامير الكاب
       // =====================================================================
       const conRodGroup = new THREE.Group();
       conRodGroup.position.set((crankPinX + 0) / 2, (crankPinY + wristPinY) / 2, 0);
       conRodGroup.rotation.z = -rodAngle;
 
+      // Forged steel/bronze alloy finish
       const rodMat = new THREE.MeshStandardMaterial({
-        color: 0x64748b,
-        metalness: 0.9,
-        roughness: 0.25,
+        color: 0x9a7b56, // Warm forged bronze-steel tone
+        metalness: 0.88,
+        roughness: 0.32,
       });
 
-      // Small End (عين البييل الصغرى حول بنز المكبس)
-      const smallEnd = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 0.35, 24), rodMat);
+      // Small End (عين البييل الصغرى حول البنز)
+      const smallEnd = new THREE.Mesh(new THREE.CylinderGeometry(0.36, 0.36, 0.42, 24), rodMat);
       smallEnd.rotation.x = Math.PI / 2;
       smallEnd.position.y = conRodLength / 2;
       conRodGroup.add(smallEnd);
 
-      // Bronze Bushing inside small end (جلبة نحاسية برونزية)
-      const bronzeBushing = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.22, 0.36, 16), new THREE.MeshStandardMaterial({ color: 0xd97706, metalness: 0.9 }));
-      bronzeBushing.rotation.x = Math.PI / 2;
-      bronzeBushing.position.y = conRodLength / 2;
-      conRodGroup.add(bronzeBushing);
+      // 9. سبيكة ذراع التوصيل (Connecting Rod Bronze Bushing Shell)
+      const bushing = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.26, 0.26, 0.44, 20),
+        new THREE.MeshStandardMaterial({ color: 0xd97706, metalness: 0.95, roughness: 0.2 })
+      );
+      bushing.rotation.x = Math.PI / 2;
+      bushing.position.y = conRodLength / 2;
+      conRodGroup.add(bushing);
 
-      // I-Beam Center Shank (ساق البييل المقطع على شكل حرف I لتحمل إجهاد الانحناء والانضغاط)
-      const shank = new THREE.Mesh(new THREE.BoxGeometry(0.22, conRodLength - 0.7, 0.28), rodMat);
-      conRodGroup.add(shank);
+      // 8. ساق ذراع التوصيل بمقطع I-Beam مع أضلاع التقوية المركزية
+      const shankLength = conRodLength - 0.85;
+      const shankCenter = new THREE.Mesh(new THREE.BoxGeometry(0.14, shankLength, 0.36), rodMat);
+      conRodGroup.add(shankCenter);
 
-      // Big End with Rod Cap & Bolts (عين البييل الكبرى ذات الغطاء ومسامير التثبيت)
-      const bigEnd = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.42, 0.38, 24), rodMat);
+      // I-Beam Outer Flanges (شفتا حرف I الجانبيتان لتحمل عزم الانحناء)
+      [-0.1, 0.1].forEach((fx) => {
+        const flange = new THREE.Mesh(new THREE.BoxGeometry(0.08, shankLength, 0.44), rodMat);
+        flange.position.x = fx;
+        conRodGroup.add(flange);
+      });
+
+      // نهاية ذراع التوصيل الكبيرة ومسامير الربط (Big End Rod Cap with Hex Bolts)
+      const bigEnd = new THREE.Mesh(new THREE.CylinderGeometry(0.52, 0.52, 0.46, 24), rodMat);
       bigEnd.rotation.x = Math.PI / 2;
       bigEnd.position.y = -conRodLength / 2;
       conRodGroup.add(bigEnd);
 
-      // Rod Bolts (مسامير ربط كاب البييل)
-      const boltMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, metalness: 0.95 });
-      [-0.32, 0.32].forEach((bx) => {
-        const bolt = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.3, 0.1), boltMat);
+      // Rod Cap Split line & Hex Bolts (مسامير ربط كاب البييل الفولاذية)
+      const boltMat = new THREE.MeshStandardMaterial({ color: 0xf1f5f9, metalness: 1.0, roughness: 0.1 });
+      [-0.38, 0.38].forEach((bx) => {
+        const bolt = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.35, 6), boltMat);
         bolt.position.set(bx, -conRodLength / 2, 0);
         conRodGroup.add(bolt);
       });
@@ -719,166 +796,136 @@ export function buildChapter2Scene(
       engineGroup.add(conRodGroup);
 
       // =====================================================================
-      // 4. CRANKSHAFT & FLYWHEEL (عمود الكرنك مع أثقال الموازنة والحذافة)
+      // 6. 10. عمود الكرنك الكامل (Full Crankshaft with Massive Counterweights)
       // =====================================================================
       const crankGroup = new THREE.Group();
       crankGroup.position.set(0, 0, 0);
 
-      // Counterweight Webs (أثقال الموازنة الهلالية الضخمة لمعادلة قوى القصور الذاتي)
-      const counterWeightGeo = new THREE.CylinderGeometry(0.95, 0.95, 0.32, 32, 1, false, 0, Math.PI);
-      const crankMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.95, roughness: 0.2 });
-      const counterWeight = new THREE.Mesh(counterWeightGeo, crankMat);
+      // Full Crankshaft with 2 heavy counterweights and crank web
+      const crankWebMat = new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.95, roughness: 0.2 });
+      const counterWeight = new THREE.Mesh(
+        new THREE.CylinderGeometry(1.2, 1.2, 0.38, 32, 1, false, 0, Math.PI),
+        crankWebMat
+      );
       counterWeight.rotation.z = theta + Math.PI / 2;
       crankGroup.add(counterWeight);
 
-      // Crank Pin Journal (ركبة الكرنك المربوطة بالبييل)
-      const crankPin = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 0.42, 24), new THREE.MeshStandardMaterial({ color: 0xf8fafc, metalness: 1.0 }));
+      // Crankpin Journal (ركبة الكرنك المصقولة)
+      const crankPin = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.25, 0.25, 0.5, 24),
+        new THREE.MeshStandardMaterial({ color: 0xffffff, metalness: 1.0, roughness: 0.08 })
+      );
       crankPin.rotation.x = Math.PI / 2;
       crankPin.position.set(crankPinX, crankPinY, 0);
       crankGroup.add(crankPin);
 
-      // Heavy Rear Flywheel (حذافة المحرك الخلفية المسننة)
-      const flywheelGeo = new THREE.CylinderGeometry(1.4, 1.4, 0.25, 36);
-      const flywheelMat = new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.9 });
-      const flywheel = new THREE.Mesh(flywheelGeo, flywheelMat);
-      flywheel.rotation.x = Math.PI / 2;
-      flywheel.position.set(0, 0, -1.0);
-      crankGroup.add(flywheel);
+      // Crankshaft Main Shaft Journal (عمود المرفق الرئيسي الدائر في كراسي المحرك)
+      const mainShaft = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.35, 0.35, 2.2, 24),
+        new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.95, roughness: 0.15 })
+      );
+      mainShaft.rotation.x = Math.PI / 2;
+      mainShaft.position.set(0, 0, -0.6);
+      crankGroup.add(mainShaft);
 
       engineGroup.add(crankGroup);
 
       // =====================================================================
-      // 5. CYLINDER HEAD, VALVES & SPARK PLUG (رأس الأسطوانة والصمامات وشمعة الاشتعال)
+      // 7. ANGLED INTAKE & EXHAUST POPPET VALVES (صمامات السحب والعادم المائلة)
+      // المطابقة للصورة: صمامان مائلان بزاوية 25° يستقران في قبة غرفة الاحتراق
       // =====================================================================
-      const headGroup = new THREE.Group();
-      headGroup.position.set(0, 4.0, 0);
+      const valvesGroup = new THREE.Group();
+      valvesGroup.position.set(0, 4.2, 0);
 
-      // Cutaway Cylinder Head casting (غرفة الاحتراق المقطوعة)
-      const headCast = new THREE.Mesh(new THREE.BoxGeometry(3.0, 0.8, 2.4), new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.8 }));
-      headGroup.add(headCast);
+      const intakeOpen = strokeIdx === 0;
+      const exhaustOpen = strokeIdx === 3;
 
-      // Intake Runner (left blue tube) & Exhaust Runner (right red tube)
-      const intakeRunner = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 1.2, 16), new THREE.MeshStandardMaterial({ color: 0x0284c7, metalness: 0.6 }));
-      intakeRunner.rotation.z = Math.PI / 3;
-      intakeRunner.position.set(-1.1, 0.4, 0);
-      headGroup.add(intakeRunner);
+      const vStemMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, metalness: 0.95, roughness: 0.1 });
+      const vHeadMat = new THREE.MeshStandardMaterial({ color: 0x475569, metalness: 0.9 });
 
-      const exhaustRunner = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 1.2, 16), new THREE.MeshStandardMaterial({ color: 0x9a3412, metalness: 0.8 }));
-      exhaustRunner.rotation.z = -Math.PI / 3;
-      exhaustRunner.position.set(1.1, 0.4, 0);
-      headGroup.add(exhaustRunner);
+      // صمام السحب (Intake Valve - Left Angled)
+      const inLift = intakeOpen ? 0.35 : 0;
+      const intakeValve = new THREE.Group();
+      intakeValve.position.set(-0.65, 0 - inLift * 0.9, inLift * 0.4);
+      intakeValve.rotation.z = Math.PI / 7; // Angled as in reference image!
+      const inVHead = new THREE.Mesh(new THREE.ConeGeometry(0.42, 0.18, 24), vHeadMat);
+      inVHead.position.y = -0.6;
+      intakeValve.add(inVHead);
+      const inVStem = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.07, 1.4, 16), vStemMat);
+      intakeValve.add(inVStem);
+      valvesGroup.add(intakeValve);
 
-      // Mushroom Poppet Valves with Springs (صمامات المشروم مع يايات الضغط الحلزونية)
-      const intakeOpen = strokeIdx === 0; // Intake stroke -> Intake valve pushes down
-      const exhaustOpen = strokeIdx === 3; // Exhaust stroke -> Exhaust valve pushes down
+      // صمام العادم (Exhaust Valve - Right Angled)
+      const exLift = exhaustOpen ? 0.35 : 0;
+      const exhaustValve = new THREE.Group();
+      exhaustValve.position.set(0.65, 0 - exLift * 0.9, exLift * 0.4);
+      exhaustValve.rotation.z = -Math.PI / 7; // Angled as in reference image!
+      const exVHead = new THREE.Mesh(new THREE.ConeGeometry(0.42, 0.18, 24), vHeadMat);
+      exVHead.position.y = -0.6;
+      exhaustValve.add(exVHead);
+      const exVStem = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.07, 1.4, 16), vStemMat);
+      exhaustValve.add(exVStem);
+      valvesGroup.add(exhaustValve);
 
-      const valveStemMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.95 });
-      const valveHeadMat = new THREE.MeshStandardMaterial({ color: 0x475569, metalness: 0.9 });
-
-      // Intake Valve (Left)
-      const intakeValveY = intakeOpen ? -0.35 : -0.05;
-      const inHead = new THREE.Mesh(new THREE.ConeGeometry(0.38, 0.15, 24), valveHeadMat);
-      inHead.position.set(-0.6, intakeValveY - 0.4, 0);
-      headGroup.add(inHead);
-      const inStem = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 1.2, 12), valveStemMat);
-      inStem.position.set(-0.6, intakeValveY + 0.2, 0);
-      headGroup.add(inStem);
-
-      // Exhaust Valve (Right)
-      const exhaustValveY = exhaustOpen ? -0.35 : -0.05;
-      const exHead = new THREE.Mesh(new THREE.ConeGeometry(0.38, 0.15, 24), valveHeadMat);
-      exHead.position.set(0.6, exhaustValveY - 0.4, 0);
-      headGroup.add(exHead);
-      const exStem = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 1.2, 12), valveStemMat);
-      exStem.position.set(0.6, exhaustValveY + 0.2, 0);
-      headGroup.add(exStem);
-
-      // Valve Springs (يايات الصمامات الحلزونية)
-      [-0.6, 0.6].forEach((vx) => {
-        const spring = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.18, 0.6, 16, 1, true), new THREE.MeshStandardMaterial({ color: 0xf59e0b, wireframe: true }));
-        spring.position.set(vx, 0.3, 0);
-        headGroup.add(spring);
-      });
-
-      // Realistic Spark Plug (شمعة الاشتعال - البوجيه ذو العازل الخزفي والقطبين)
-      const plugGroup = new THREE.Group();
-      plugGroup.position.set(0, 0.1, 0);
-      // White ceramic ribbed insulator
-      const insulator = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.14, 0.7, 16), new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.1 }));
-      insulator.position.y = 0.5;
-      plugGroup.add(insulator);
-      // Hexagonal steel nut collar
-      const hexNut = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.22, 0.25, 6), new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.95 }));
-      hexNut.position.y = 0.12;
-      plugGroup.add(hexNut);
-      // Threaded base
-      const threads = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 0.35, 16), new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.9 }));
-      threads.position.y = -0.15;
-      plugGroup.add(threads);
-      // Spark Electrode gap tip
-      const electrode = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.12, 0.03), new THREE.MeshBasicMaterial({ color: 0xf8fafc }));
-      electrode.position.set(0, -0.38, 0);
-      plugGroup.add(electrode);
-
-      headGroup.add(plugGroup);
-      engineGroup.add(headGroup);
+      engineGroup.add(valvesGroup);
 
       // =====================================================================
-      // 6. VOLUMETRIC COMBUSTION / INTAKE MIST / EXHAUST SMOKE EFFECTS
+      // 8. VOLUMETRIC COMBUSTION / INTAKE FLOW / EXHAUST SMOKE DYNAMICS
       // =====================================================================
       if (strokeIdx === 2) {
-        // Power Stroke (شوط القدرة): Brilliant expanding combustion explosion fireball!
-        const flameGeo = new THREE.SphereGeometry(1.0, 16, 16);
-        const flameMat = new THREE.MeshBasicMaterial({ color: 0xf97316, transparent: true, opacity: 0.85 });
-        const flame = new THREE.Mesh(flameGeo, flameMat);
-        flame.position.set(0, 3.4, 0);
-        flame.scale.set(1.1, 0.7, 1.1);
-        engineGroup.add(flame);
+        // شوط القدرة والاشتعال (Power Stroke): كرة لهب نارية تتوهج وتضيء الأسطوانة
+        const fireball = new THREE.Mesh(
+          new THREE.SphereGeometry(1.2, 16, 16),
+          new THREE.MeshBasicMaterial({ color: 0xf97316, transparent: true, opacity: 0.88 })
+        );
+        fireball.position.set(0, wristPinY + 1.2, 0);
+        fireball.scale.set(1.1, 0.8, 1.1);
+        engineGroup.add(fireball);
 
-        // Spark Arc Flash from Spark Plug
-        const sparkLight = new THREE.PointLight(0xfef08a, 4.0, 4);
-        sparkLight.position.set(0, 3.5, 0);
-        engineGroup.add(sparkLight);
+        const sparkBurst = new THREE.PointLight(0xfef08a, 4.5, 5);
+        sparkBurst.position.set(0, 3.8, 0);
+        engineGroup.add(sparkBurst);
       } else if (strokeIdx === 0) {
-        // Intake Stroke (شوط السحب): Blue fuel-air atomized mixture rushing into chamber
-        const mist = new THREE.Mesh(
-          new THREE.CylinderGeometry(0.9, 1.1, 1.2, 16),
+        // شوط السحب (Intake Stroke): تدفق رذاذ خليط الهواء والوقود الأزرق عبر صمام السحب المفتوح
+        const intakeMist = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.8, 1.2, 1.4, 16),
           new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.35 })
         );
-        mist.position.set(0, 2.8, 0);
-        engineGroup.add(mist);
+        intakeMist.position.set(-0.3, wristPinY + 1.3, 0);
+        engineGroup.add(intakeMist);
       } else if (strokeIdx === 3) {
-        // Exhaust Stroke (شوط العادم): Dark combustion fumes rushing out through exhaust valve
-        const smoke = new THREE.Mesh(
-          new THREE.SphereGeometry(0.6, 12, 12),
-          new THREE.MeshBasicMaterial({ color: 0x475569, transparent: true, opacity: 0.6 })
+        // شوط العادم (Exhaust Stroke): غازات الاحتراق الداكنة تندفع عبر صمام العادم المفتوح
+        const exhaustFumes = new THREE.Mesh(
+          new THREE.SphereGeometry(0.7, 12, 12),
+          new THREE.MeshBasicMaterial({ color: 0x475569, transparent: true, opacity: 0.65 })
         );
-        smoke.position.set(0.7, 4.2, 0);
-        engineGroup.add(smoke);
+        exhaustFumes.position.set(0.6, 4.2, 0);
+        engineGroup.add(exhaustFumes);
       }
 
-      // 3D FLOATING LABELS FOR ENGINE ANATOMY
-      const strokeTitles = [
-        "١. شوط السحب (Intake): المكبس يهبط، وصمام السحب مفتوح لدخول الخليط",
-        "٢. شوط الضغط (Compression): المكبس يصعد، الصمامان مغلقان، انضغاط الخليط",
-        "٣. شوط القدرة (Power): شرارة البوجيه، انفجار الوقود يدفع المكبس لأسفل بقوة",
-        "٤. شوط العادم (Exhaust): المكبس يصعد، صمام العادم مفتوح لخروج الغازات المحترقة",
-      ];
-      const strokeColors = ["#38bdf8", "#a855f7", "#f97316", "#64748b"];
-
-      engineGroup.add(createLabel("المكبس (Piston) وحلقات الضغط", new THREE.Vector3(-2.2, wristPinY + 0.4, 0), "#10b981"));
-      engineGroup.add(createLabel("ذراع التوصيل (Connecting Rod)", new THREE.Vector3(-2.0, wristPinY - 1.0, 0), "#38bdf8"));
-      engineGroup.add(createLabel("عمود الكرنك والحذافة (Crankshaft)", new THREE.Vector3(-2.2, -0.4, 0), "#f59e0b"));
-      engineGroup.add(createLabel("شمعة الاشتعال (Spark Plug)", new THREE.Vector3(0, 5.0, 0), "#facc15"));
-      engineGroup.add(createLabel(strokeTitles[strokeIdx], new THREE.Vector3(0, 5.8, 0), strokeColors[strokeIdx]));
+      // =====================================================================
+      // 9. NUMBERED 3D CALLOUT LABELS (شرح مكونات البستم بالأسهم تماماً كالصورة المرفقة)
+      // =====================================================================
+      engineGroup.add(createLabel("1. حلقة الضغط العلوية", new THREE.Vector3(2.5, wristPinY + 0.85, 0), "#8b5cf6", 0.95));
+      engineGroup.add(createLabel("2. حلقة الضغط الثانية", new THREE.Vector3(2.5, wristPinY + 0.65, 0), "#d97706", 0.95));
+      engineGroup.add(createLabel("3. حلقة التحكم في الزيت (النابض)", new THREE.Vector3(2.7, wristPinY + 0.45, 0), "#facc15", 0.95));
+      engineGroup.add(createLabel("4. رأس المكبس (غرفة الاحتراق)", new THREE.Vector3(-2.6, wristPinY + 1.0, 0), "#38bdf8", 0.95));
+      engineGroup.add(createLabel("5. جدار المكبس (الإسكتلميس)", new THREE.Vector3(2.6, wristPinY - 0.1, 0), "#94a3b8", 0.95));
+      engineGroup.add(createLabel("7. بنز المكبس المجوف", new THREE.Vector3(2.4, wristPinY - 0.5, 0), "#ffffff", 0.95));
+      engineGroup.add(createLabel("8. ذراع التوصيل (I-Beam)", new THREE.Vector3(2.5, wristPinY - 1.2, 0), "#f59e0b", 0.95));
+      engineGroup.add(createLabel("9. سبيكة ذراع التوصيل", new THREE.Vector3(-2.5, wristPinY, 0), "#d97706", 0.95));
+      engineGroup.add(createLabel("10. عمود الكرنك الكامل", new THREE.Vector3(2.5, -0.6, 0), "#38bdf8", 0.95));
+      engineGroup.add(createLabel("11. مجاري تصريف الزيت", new THREE.Vector3(-2.5, wristPinY + 0.35, 0), "#10b981", 0.95));
+      engineGroup.add(createLabel("صمام السحب وصمام العادم", new THREE.Vector3(0, 5.2, 0), "#ec4899", 1.0));
 
       sceneGroup.add(engineGroup);
       break;
     }
 
-    // -----------------------------------------------------------------------
+    // -------------------------------------------------------------------------------------
     // LESSON 12: أنظمة محرك السيارة المساعدة (High-Detail Automotive Systems)
-    // -----------------------------------------------------------------------
+    // استجابة فورية وتفاعلية لجميع مدخلات الطالب (الكاربيراتير، الرديتر، التزييت، الإشعال)
+    // -------------------------------------------------------------------------------------
     case "car-engine-systems": {
       const carGroup = new THREE.Group();
       carGroup.position.set(0, -0.4, 0);
@@ -935,16 +982,14 @@ export function buildChapter2Scene(
       });
 
       // =====================================================================
-      // 2. THE 4 EXPANDED AUTOMOTIVE SYSTEMS (كل نظام بتفاصيل هندسية دقيقة وغير مسبوقة)
+      // 2. THE 4 EXPANDED AUTOMOTIVE SYSTEMS
       // =====================================================================
 
       if (activeSys === "cooling") {
-        // -------------------------------------------------------------
-        // SYSTEM A: نظام التبريد (Cooling System: Radiator, Fan, Hoses, Thermostat)
-        // -------------------------------------------------------------
+        // SYSTEM A: نظام التبريد
         const coolGroup = new THREE.Group();
 
-        // 1. Automotive Radiator (المشعاع / الرديتر ذو الخلايا وزعانف التبريد)
+        // 1. Automotive Radiator (المشعاع / الرديتر)
         const radFrame = new THREE.Mesh(
           new THREE.BoxGeometry(3.0, 2.6, 0.4),
           new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.9, roughness: 0.25 })
@@ -952,7 +997,7 @@ export function buildChapter2Scene(
         radFrame.position.set(0, 0.9, 3.8);
         coolGroup.add(radFrame);
 
-        // Radiator Core Fins (قلب الرديتر الألومنيوم ذو الزعانف الدقيقة)
+        // Radiator Core Fins
         const radCore = new THREE.Mesh(
           new THREE.BoxGeometry(2.7, 2.0, 0.25),
           new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.95, roughness: 0.2 })
@@ -960,12 +1005,15 @@ export function buildChapter2Scene(
         radCore.position.set(0, 0.9, 3.8);
         coolGroup.add(radCore);
 
-        // Pressure Radiator Cap on top tank (غطاء الرديتر المعدني مع صمام الضغط)
+        // Pressure Radiator Cap
         const radCap = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 0.15, 16), new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.9 }));
         radCap.position.set(1.0, 2.3, 3.8);
         coolGroup.add(radCap);
 
-        // 2. Multi-Blade Cooling Fan with Shroud (مروحة التبريد السريعة مع القميص الحامي)
+        // 2. Multi-Blade Cooling Fan (سرعة دوران المروحة تتناسب طردياً مع حرارة المحرك!)
+        const radTemp = params.radiatorTemp || 90;
+        const fanSpeedMultiplier = Math.max(5, (radTemp / 90) * 20);
+
         const fanGroup = new THREE.Group();
         fanGroup.position.set(0, 0.9, 3.45);
         for (let b = 0; b < 6; b++) {
@@ -973,22 +1021,23 @@ export function buildChapter2Scene(
           blade.rotation.z = (b * Math.PI) / 3;
           fanGroup.add(blade);
         }
-        fanGroup.rotation.z = time * 16; // Fast rotating blades!
+        fanGroup.rotation.z = time * fanSpeedMultiplier;
         coolGroup.add(fanGroup);
 
-        // 3. Upper Radiator Hose (خرطوم المياه العلوي الساخن الخارج من المحرك)
-        const radTemp = params.radiatorTemp || 90;
-        const hoseColor = radTemp > 85 ? 0xef4444 : 0x0284c7; // Red if hot, blue if cold
+        // 3. Upper Radiator Hose (لون السائل يتغير فوراً مع حرارة المحرك!)
+        let hoseColor = 0x0284c7; // Cold cyan blue
+        if (radTemp > 85) hoseColor = 0xf59e0b; // Warm amber
+        if (radTemp > 100) hoseColor = 0xef4444; // Boiling red!
 
         const upperHoseCurve = new THREE.CatmullRomCurve3([
           new THREE.Vector3(0.5, 2.1, 1.6),
           new THREE.Vector3(0.6, 2.2, 2.6),
           new THREE.Vector3(0.4, 2.0, 3.6),
         ]);
-        const upperHose = new THREE.Mesh(new THREE.TubeGeometry(upperHoseCurve, 24, 0.14, 16, false), new THREE.MeshStandardMaterial({ color: hoseColor }));
+        const upperHose = new THREE.Mesh(new THREE.TubeGeometry(upperHoseCurve, 24, 0.14, 16, false), new THREE.MeshStandardMaterial({ color: hoseColor, emissive: hoseColor, emissiveIntensity: radTemp > 100 ? 0.6 : 0 }));
         coolGroup.add(upperHose);
 
-        // 4. Lower Radiator Hose (خرطوم المياه السفلي البارد العائد للمحرك)
+        // 4. Lower Radiator Hose (مياه التبريد الباردة العائدة من أسفل الرديتر)
         const lowerHoseCurve = new THREE.CatmullRomCurve3([
           new THREE.Vector3(-0.6, 0.1, 3.6),
           new THREE.Vector3(-0.7, 0.0, 2.6),
@@ -997,17 +1046,26 @@ export function buildChapter2Scene(
         const lowerHose = new THREE.Mesh(new THREE.TubeGeometry(lowerHoseCurve, 24, 0.14, 16, false), new THREE.MeshStandardMaterial({ color: 0x0284c7 }));
         coolGroup.add(lowerHose);
 
+        // Boiling Steam Particles if temp > 100°C (تصاعد البخار عند الغليان)
+        if (radTemp > 100) {
+          const steamGeo = new THREE.SphereGeometry(0.12, 8, 8);
+          const steamMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.6 });
+          for (let s = 0; s < 8; s++) {
+            const steam = new THREE.Mesh(steamGeo, steamMat);
+            steam.position.set(1.0 + (Math.random() - 0.5) * 0.3, 2.5 + ((time * 2 + s * 0.3) % 1.2), 3.8);
+            coolGroup.add(steam);
+          }
+        }
+
         coolGroup.add(createLabel("المشعاع (الرديتر) ومروحة التبريد", new THREE.Vector3(0, 2.8, 3.8), "#38bdf8"));
-        coolGroup.add(createLabel(`درجة حرارة مياه التبريد: ${radTemp}°C`, new THREE.Vector3(0, 3.4, 2.0), hoseColor === 0xef4444 ? "#ef4444" : "#38bdf8"));
+        coolGroup.add(createLabel(`حرارة مياه التبريد: ${radTemp}°C ${radTemp > 100 ? '(⚠️ غليان وتمدد صمام الغطاء!)' : '(طبيعي)'}`, new THREE.Vector3(0, 3.4, 2.0), radTemp > 100 ? "#ef4444" : "#10b981"));
 
         carGroup.add(coolGroup);
       } else if (activeSys === "fuel") {
-        // -------------------------------------------------------------
-        // SYSTEM B: نظام الوقود والكاربيراتير (Fuel System: Twin-Barrel Carburetor & Air Filter)
-        // -------------------------------------------------------------
+        // SYSTEM B: نظام الوقود والكاربيراتير
         const fuelGroup = new THREE.Group();
 
-        // 1. Classic Chrome Round Air Cleaner (منقي الهواء الأسطواني الكروم)
+        // 1. Chrome Round Air Cleaner
         const airFilter = new THREE.Mesh(
           new THREE.CylinderGeometry(1.25, 1.25, 0.45, 32),
           new THREE.MeshStandardMaterial({ color: 0xf8fafc, metalness: 0.98, roughness: 0.1 })
@@ -1015,12 +1073,12 @@ export function buildChapter2Scene(
         airFilter.position.set(-1.8, 2.6, 0);
         fuelGroup.add(airFilter);
 
-        // Wing nut on top of air cleaner
+        // Wing nut
         const wingNut = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.08, 0.1), new THREE.MeshStandardMaterial({ color: 0xf59e0b }));
         wingNut.position.set(-1.8, 2.9, 0);
         fuelGroup.add(wingNut);
 
-        // 2. High-Precision Twin-Barrel Carburetor Body (جسم الكاربيراتير ثنائي الحجرات والمغذيات)
+        // 2. High-Precision Twin-Barrel Carburetor Body
         const carbBody = new THREE.Mesh(
           new THREE.BoxGeometry(1.2, 1.1, 1.0),
           new THREE.MeshStandardMaterial({ color: 0xd97706, metalness: 0.9, roughness: 0.35 })
@@ -1028,27 +1086,26 @@ export function buildChapter2Scene(
         carbBody.position.set(-1.8, 1.7, 0);
         fuelGroup.add(carbBody);
 
-        // Twin Venturi Barrels (حجرتا الفنتوري لخلط الهواء والوقود)
+        // Twin Venturi Barrels & Rotating Butterfly Throttle Plates
+        const ratio = params.carburetorRatio || 15;
+        const throttleAngle = ((ratio - 8) / 14) * (Math.PI / 2.2);
+
         [-0.22, 0.22].forEach((vz) => {
           const barrel = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.28, 0.8, 20), new THREE.MeshStandardMaterial({ color: 0x1e293b }));
           barrel.position.set(-1.8, 1.7, vz);
           fuelGroup.add(barrel);
 
-          // Rotating Butterfly Throttle Plate (صمام الخانق الدوار الذي يتحكم به السلايدر)
-          const ratio = params.carburetorRatio || 15;
-          const throttleAngle = ((ratio - 8) / 14) * (Math.PI / 2.2);
           const throttle = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.22, 0.02, 16), new THREE.MeshStandardMaterial({ color: 0xfacc15, metalness: 1 }));
           throttle.position.set(-1.8, 1.7, vz);
           throttle.rotation.z = throttleAngle;
           fuelGroup.add(throttle);
         });
 
-        // Float Chamber Bowl (حجرة العوامة الجانبية مع أنبوب الوقود النحاسي)
+        // Float Chamber Bowl & Fuel Line
         const floatBowl = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.6, 0.7), new THREE.MeshStandardMaterial({ color: 0xb45309, metalness: 0.9 }));
         floatBowl.position.set(-2.5, 1.5, 0);
         fuelGroup.add(floatBowl);
 
-        // Fuel Line from Mechanical Pump (أنبوب توصيل البنزين النحاسي)
         const fuelLineCurve = new THREE.CatmullRomCurve3([
           new THREE.Vector3(-2.5, 1.5, 0),
           new THREE.Vector3(-2.6, 0.6, 0),
@@ -1057,7 +1114,7 @@ export function buildChapter2Scene(
         const fuelLine = new THREE.Mesh(new THREE.TubeGeometry(fuelLineCurve, 16, 0.05, 12, false), new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.95 }));
         fuelGroup.add(fuelLine);
 
-        // 3. Intake Manifold Runners (مجمع السحب الموزع للخليط إلى الأسطوانات الأربع)
+        // 3. Intake Manifold Runners
         const intakeMat = new THREE.MeshStandardMaterial({ color: 0x64748b, metalness: 0.85 });
         [-1.2, -0.4, 0.4, 1.2].forEach((pz) => {
           const runner = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.14, 1.1, 16), intakeMat);
@@ -1066,26 +1123,41 @@ export function buildChapter2Scene(
           fuelGroup.add(runner);
         });
 
-        // Spray Mist of Atomized Fuel (رذاذ قطرات الوقود المتطايرة)
-        const mistGeo = new THREE.SphereGeometry(0.04, 8, 8);
-        const mistMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
-        for (let m = 0; m < 12; m++) {
+        // Spray Mist Density & Color reflecting Air-Fuel Ratio!
+        let mistColor = 0x38bdf8; // Normal blue
+        let mistOpacity = 0.4;
+        let ratioStatus = "خلط مثالي واقتصادي 1 : 15 (احتراق تام)";
+        let statusColor = "#10b981";
+
+        if (ratio < 13) {
+          mistColor = 0x1f2937; // Rich mixture (dark unburned carbon smoke)
+          mistOpacity = 0.75;
+          ratioStatus = `خلط غني Rich (1 : ${ratio}) - استهلاك مفرط ودخان أسود!`;
+          statusColor = "#f59e0b";
+        } else if (ratio > 16) {
+          mistColor = 0xf43f5e; // Lean mixture (pink/red warning)
+          mistOpacity = 0.2;
+          ratioStatus = `خلط فقير Lean (1 : ${ratio}) - حرارة عالية وضعف عزم!`;
+          statusColor = "#ef4444";
+        }
+
+        const mistGeo = new THREE.SphereGeometry(0.05, 8, 8);
+        const mistMat = new THREE.MeshBasicMaterial({ color: mistColor, transparent: true, opacity: mistOpacity });
+        for (let m = 0; m < 16; m++) {
           const drop = new THREE.Mesh(mistGeo, mistMat);
-          drop.position.set(-1.8, 1.5 - ((time * 3 + m * 0.2) % 0.8), (Math.random() - 0.5) * 0.4);
+          drop.position.set(-1.8, 1.5 - ((time * 4 + m * 0.15) % 0.8), (Math.random() - 0.5) * 0.4);
           fuelGroup.add(drop);
         }
 
         fuelGroup.add(createLabel("المغذي (الكاربيراتير) ومنقي الهواء", new THREE.Vector3(-1.8, 3.4, 0), "#f59e0b"));
-        fuelGroup.add(createLabel(`نسبة خلط الهواء للوقود: 1 : ${params.carburetorRatio || 15}`, new THREE.Vector3(-1.8, 0.8, 0), (params.carburetorRatio || 15) === 15 ? "#10b981" : "#f43f5e"));
+        fuelGroup.add(createLabel(ratioStatus, new THREE.Vector3(-1.8, 0.7, 0), statusColor));
 
         carGroup.add(fuelGroup);
       } else if (activeSys === "lube") {
-        // -------------------------------------------------------------
-        // SYSTEM C: نظام التزييت (Lubrication System: Oil Sump, Strainer, Pump, Filter, Dipstick)
-        // -------------------------------------------------------------
+        // SYSTEM C: نظام التزييت
         const lubeGroup = new THREE.Group();
 
-        // 1. Cutaway Ribbed Oil Pan / Sump (حوض الزيت السفلي - الكارتير ذو الزعانف)
+        // 1. Sump Pan
         const sumpOuter = new THREE.Mesh(
           new THREE.BoxGeometry(2.4, 0.9, 3.6),
           new THREE.MeshStandardMaterial({ color: 0x0f172a, metalness: 0.9, roughness: 0.3 })
@@ -1093,7 +1165,7 @@ export function buildChapter2Scene(
         sumpOuter.position.y = -0.75;
         lubeGroup.add(sumpOuter);
 
-        // Golden Engine Oil Pool (مخزون زيت المحرك الذهبي الصافي)
+        // Golden Engine Oil Pool
         const oilPool = new THREE.Mesh(
           new THREE.BoxGeometry(2.2, 0.4, 3.4),
           new THREE.MeshStandardMaterial({ color: 0xeab308, roughness: 0.1, metalness: 0.8 })
@@ -1101,7 +1173,7 @@ export function buildChapter2Scene(
         oilPool.position.y = -0.7;
         lubeGroup.add(oilPool);
 
-        // 2. Oil Pickup Tube with Mesh Strainer Bell (أنبوب سحب الزيت مع مصفاة القاع)
+        // Pickup Tube & Strainer Bell
         const pickupBell = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.1, 0.2, 16), new THREE.MeshStandardMaterial({ color: 0x94a3b8, wireframe: true }));
         pickupBell.position.set(0, -0.65, 0);
         lubeGroup.add(pickupBell);
@@ -1110,7 +1182,7 @@ export function buildChapter2Scene(
         pickupTube.position.set(0, -0.2, 0);
         lubeGroup.add(pickupTube);
 
-        // 3. Spin-on Cylindrical Oil Filter (فلتر الزيت الميكانيكي على جانب المحرك)
+        // Spin-on Filter
         const filter = new THREE.Mesh(
           new THREE.CylinderGeometry(0.38, 0.38, 0.9, 24),
           new THREE.MeshStandardMaterial({ color: 0x2563eb, metalness: 0.85, roughness: 0.2 })
@@ -1119,7 +1191,7 @@ export function buildChapter2Scene(
         filter.position.set(1.7, 0.3, 0.6);
         lubeGroup.add(filter);
 
-        // 4. Engine Oil Dipstick with Yellow Pull Ring (سيخ مقاس فحص مستوى الزيت)
+        // Dipstick
         const dipstickTube = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 2.2, 12), new THREE.MeshStandardMaterial({ color: 0x64748b }));
         dipstickTube.rotation.z = -Math.PI / 8;
         dipstickTube.position.set(1.4, 1.1, -0.8);
@@ -1129,7 +1201,7 @@ export function buildChapter2Scene(
         dipstickRing.position.set(1.8, 2.2, -0.8);
         lubeGroup.add(dipstickRing);
 
-        // Pressurized Oil Spray Droplets (تزييت كراسي التحميل وجدران الأسطوانات)
+        // Pressurized Oil Spray Droplets
         const oilDropGeo = new THREE.SphereGeometry(0.06, 12, 12);
         const oilDropMat = new THREE.MeshBasicMaterial({ color: 0xfef08a });
         for (let o = 0; o < 8; o++) {
@@ -1139,21 +1211,18 @@ export function buildChapter2Scene(
         }
 
         lubeGroup.add(createLabel("حوض ومضخة الزيت (الكارتير)", new THREE.Vector3(0, -1.5, 0), "#eab308"));
-        lubeGroup.add(createLabel("فلتر الزيت وسيخ القياس", new THREE.Vector3(2.2, 1.4, 0), "#38bdf8"));
+        lubeGroup.add(createLabel("فلتر الزيت وسيخ فحص المستوى", new THREE.Vector3(2.2, 1.4, 0), "#38bdf8"));
 
         carGroup.add(lubeGroup);
       } else if (activeSys === "ignition") {
-        // -------------------------------------------------------------
-        // SYSTEM D: نظام الإشعال والكهرباء (Ignition: Battery, Coil, Distributor, Plug Wires)
-        // -------------------------------------------------------------
+        // SYSTEM D: نظام الإشعال والكهرباء
         const ignGroup = new THREE.Group();
 
-        // 1. Heavy 12V Automotive Car Battery (بطارية السيارة ذات الأقطاب الرصاصية)
+        // Battery
         const battery = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.9, 1.5), new THREE.MeshStandardMaterial({ color: 0x0f172a, metalness: 0.8 }));
         battery.position.set(2.2, 0.2, 2.2);
         ignGroup.add(battery);
 
-        // Battery Terminals (+ Red / - Black)
         const termPos = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.2, 12), new THREE.MeshStandardMaterial({ color: 0xef4444 }));
         termPos.position.set(2.0, 0.75, 2.6);
         ignGroup.add(termPos);
@@ -1161,39 +1230,36 @@ export function buildChapter2Scene(
         termNeg.position.set(2.4, 0.75, 2.6);
         ignGroup.add(termNeg);
 
-        // 2. High-Voltage Ignition Coil (ملف الإشعال - البوبينة)
+        // Ignition Coil
         const coil = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.28, 0.85, 20), new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.95 }));
         coil.position.set(1.9, 1.4, -1.2);
         ignGroup.add(coil);
 
-        // 3. Ignition Distributor (موزع الإشعال - الديلكو / الإسبراتير مع العضو الدوار)
+        // Distributor
         const distBody = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.45, 0.9, 24), new THREE.MeshStandardMaterial({ color: 0x18181b, metalness: 0.85 }));
         distBody.position.set(-1.7, 1.5, -0.6);
         ignGroup.add(distBody);
 
-        // Red Distributor Cap Towers (غطاء الديلكو مع 4 أبراج للكابلات وبرج مركزي)
         const distCap = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.42, 0.45, 24), new THREE.MeshStandardMaterial({ color: 0x991b1b, roughness: 0.3 }));
         distCap.position.set(-1.7, 2.1, -0.6);
         ignGroup.add(distCap);
 
-        // Vacuum Advance Canister on distributor side (مقدّم الإشعال بالخلخلة)
+        // Vacuum Advance Canister
         const vacCan = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 0.3, 16), new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.95 }));
         vacCan.rotation.x = Math.PI / 2;
         vacCan.position.set(-2.2, 1.8, -0.6);
         ignGroup.add(vacCan);
 
-        // 4. Four High-Tension Spark Plug Wires & Spark Plugs (كابلات البوجيهات الأربعة الملونة)
+        // Four Spark Plugs & High Tension Wires with Firing Sequence 1-3-4-2
         const wirePositionsZ = [-1.2, -0.4, 0.4, 1.2];
-        const firingSeq = [0, 2, 3, 1]; // 1 - 3 - 4 - 2 Firing order
+        const firingSeq = [0, 2, 3, 1];
         const activePlugIdx = firingSeq[Math.floor(time * 6) % 4];
 
         wirePositionsZ.forEach((pz, idx) => {
-          // Spark plug screwed in cylinder head
           const plug = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.5, 12), new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.1 }));
           plug.position.set(0, 2.7, pz);
           ignGroup.add(plug);
 
-          // Spark plug silicone high-voltage wire from distributor
           const wireCurve = new THREE.CatmullRomCurve3([
             new THREE.Vector3(-1.7, 2.3, -0.6),
             new THREE.Vector3(-1.0, 2.7, (pz - 0.6) / 2),
@@ -1202,7 +1268,7 @@ export function buildChapter2Scene(
           const wire = new THREE.Mesh(new THREE.TubeGeometry(wireCurve, 16, 0.05, 8, false), new THREE.MeshStandardMaterial({ color: 0xef4444 }));
           ignGroup.add(wire);
 
-          // Dynamic Lightning Spark at the active spark plug!
+          // Lightning Flash on Active Spark Plug
           if (idx === activePlugIdx) {
             const spark = new THREE.Mesh(new THREE.SphereGeometry(0.2, 12, 12), new THREE.MeshBasicMaterial({ color: 0x38bdf8 }));
             spark.position.set(0, 3.1, pz);
