@@ -2,8 +2,15 @@ import React, { useState, useEffect } from "react";
 import { curriculumData } from "../data/curriculumData";
 import ReviewSummaryExporter from "./ReviewSummaryExporter";
 import { Chapter, Lesson } from "../types";
-import { Search, ChevronLeft, ChevronDown, BookOpen, Compass, Award, Cpu, Star, HelpCircle, ArrowLeft, RefreshCw, Zap, Activity, Heart, Maximize2, X, Type, Check, Lightbulb, Video } from "lucide-react";
+import { Search, ChevronLeft, ChevronDown, BookOpen, Compass, Award, Cpu, Star, HelpCircle, ArrowLeft, RefreshCw, Zap, Activity, Heart, Maximize2, X, Type, Check, Lightbulb, Video, ExternalLink } from "lucide-react";
 import { UI_TRANSLATIONS, LESSON_TRANSLATIONS } from "../utils/translations";
+
+function getYouTubeEmbedUrl(url: string): string | null {
+  if (!url) return null;
+  const regExp = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=|shorts\/)|youtu\.be\/)([^"&?\/\s]{11})/;
+  const match = url.match(regExp);
+  return match ? `https://www.youtube-nocookie.com/embed/${match[1]}?rel=0&modestbranding=1` : null;
+}
 
 const CHAPTER_VIDEOS: Record<string, string> = {
   "chapter-1": "https://drive.google.com/file/d/1zJFZNcScTSp_Vt0ykfHYBG43uqsDrzsI/preview",
@@ -1085,7 +1092,7 @@ export default function CurriculumExplorer({
   const t = UI_TRANSLATIONS[lang];
   const [selectedChapter, setSelectedChapter] = useState<Chapter>(curriculumData[0]);
   const [selectedLessonId, setSelectedLessonId] = useState<string>("intro-projection");
-  const [videoSourceMode, setVideoSourceMode] = useState<"local" | "drive">("local");
+  const [videoSourceMode, setVideoSourceMode] = useState<"youtube" | "drive">("youtube");
   const [searchQuery, setSearchQuery] = useState("");
   const [favorites, setFavorites] = useState<string[]>(() => {
     const saved = localStorage.getItem("favorite_lessons");
@@ -1515,15 +1522,15 @@ export default function CurriculumExplorer({
                 </div>
 
                 <div className="flex items-center gap-2">
-                  {/* Local vs Drive Switcher */}
+                  {/* YouTube vs Drive Switcher */}
                   <div className="flex items-center bg-slate-100 rounded-lg p-0.5 text-[11px] font-bold">
                     <button
-                      onClick={() => setVideoSourceMode("local")}
+                      onClick={() => setVideoSourceMode("youtube")}
                       className={`px-2.5 py-1 rounded-md transition ${
-                        videoSourceMode === "local" ? "bg-rose-600 text-white shadow-xs" : "text-slate-600 hover:text-slate-900"
+                        videoSourceMode === "youtube" ? "bg-rose-600 text-white shadow-xs" : "text-slate-600 hover:text-slate-900"
                       }`}
                     >
-                      {lang === "en" ? "Local HD ⚡" : "محلي فائق السرعة ⚡"}
+                      {lang === "en" ? "YouTube HD ⚡" : "بث YouTube ⚡"}
                     </button>
                     <button
                       onClick={() => setVideoSourceMode("drive")}
@@ -1534,6 +1541,19 @@ export default function CurriculumExplorer({
                       {lang === "en" ? "Drive Stream 🌐" : "بث Drive 🌐"}
                     </button>
                   </div>
+
+                  {CHAPTER_LOCAL_VIDEOS[selectedChapter.id] && (
+                    <a
+                      href={CHAPTER_LOCAL_VIDEOS[selectedChapter.id]}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-2.5 py-1 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 rounded-lg text-xs font-bold transition flex items-center gap-1"
+                      title={lang === "en" ? "Open in YouTube" : "فتح على YouTube مباشرة"}
+                    >
+                      <ExternalLink className="h-3.5 w-3.5" />
+                      <span className="hidden sm:inline">YouTube</span>
+                    </a>
+                  )}
 
                   {openVideoModal && (
                     <button
@@ -1549,21 +1569,20 @@ export default function CurriculumExplorer({
               </div>
 
               <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-slate-950 border border-slate-200 shadow-inner flex items-center justify-center">
-                {videoSourceMode === "local" ? (
-                  <video
-                    key={`local-${selectedChapter.id}`}
-                    src={CHAPTER_LOCAL_VIDEOS[selectedChapter.id]}
-                    controls
-                    playsInline
-                    className="w-full h-full object-contain"
-                  >
-                    {lang === "ar" ? "متصفحك لا يدعم تشغيل هذا الفيديو." : "Your browser does not support HTML5 video."}
-                  </video>
+                {videoSourceMode === "youtube" ? (
+                  <iframe
+                    key={`yt-${selectedChapter.id}`}
+                    src={getYouTubeEmbedUrl(CHAPTER_LOCAL_VIDEOS[selectedChapter.id]) || ""}
+                    className="w-full h-full border-0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                    title={lang === "en" ? "Syllabus Video Explanation" : "شرح الباب المرئي"}
+                  />
                 ) : (
                   <iframe
                     key={`drive-${selectedChapter.id}`}
                     src={`${CHAPTER_VIDEOS[selectedChapter.id]}?autoplay=1`}
-                    className="absolute inset-0 w-full h-full"
+                    className="absolute inset-0 w-full h-full border-0"
                     allow="autoplay; encrypted-media"
                     allowFullScreen
                     title={lang === "en" ? "Syllabus Video Explanation" : "شرح الباب المرئي"}
