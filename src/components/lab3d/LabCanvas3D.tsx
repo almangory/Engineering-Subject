@@ -38,27 +38,34 @@ export const LabCanvas3D: React.FC<Lab3DProps> = ({ lessonId, params }) => {
     if (!cameraRef.current || !controlsRef.current) return;
     const cam = cameraRef.current;
     const ctrl = controlsRef.current;
+    const isEngine = lessonId === "engines-cycles";
+    const isCar = lessonId === "car-engine-systems";
+    const targetY = isEngine ? 2.0 : 1.2;
 
     switch (preset) {
       case "isometric":
-        cam.position.set(6, 5, 7);
-        ctrl.target.set(0, 1.2, 0);
+        if (isEngine) cam.position.set(4.2, 2.8, 5.2);
+        else if (isCar) cam.position.set(5.2, 3.6, 5.8);
+        else cam.position.set(6, 5, 7);
+        ctrl.target.set(0, targetY, 0);
         break;
       case "front":
-        cam.position.set(0, 1.5, 9);
-        ctrl.target.set(0, 1.5, 0);
+        cam.position.set(0, targetY, isEngine ? 6.5 : 8);
+        ctrl.target.set(0, targetY, 0);
         break;
       case "top":
-        cam.position.set(0, 9, 0.001);
+        cam.position.set(0, 8.5, 0.001);
         ctrl.target.set(0, 0, 0);
         break;
       case "side":
-        cam.position.set(9, 1.5, 0);
-        ctrl.target.set(0, 1.5, 0);
+        cam.position.set(isEngine ? 6.5 : 8, targetY, 0);
+        ctrl.target.set(0, targetY, 0);
         break;
       case "reset":
-        cam.position.set(6, 5, 7);
-        ctrl.target.set(0, 1.2, 0);
+        if (isEngine) cam.position.set(4.2, 2.8, 5.2);
+        else if (isCar) cam.position.set(5.2, 3.6, 5.8);
+        else cam.position.set(6, 5, 7);
+        ctrl.target.set(0, targetY, 0);
         setAutoRotate(false);
         break;
     }
@@ -76,19 +83,35 @@ export const LabCanvas3D: React.FC<Lab3DProps> = ({ lessonId, params }) => {
     scene.fog = new THREE.FogExp2(0x0a0f1d, 0.03);
     sceneRef.current = scene;
 
-    // 2. Camera
+    // 2. Camera Framing (Customized per experiment scale)
     const width = container.clientWidth || 600;
     const height = container.clientHeight || 450;
     const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
-    camera.position.set(6, 5, 7);
+
+    const isEngineLesson = lessonId === "engines-cycles";
+    const isCarLesson = lessonId === "car-engine-systems";
+
+    if (isEngineLesson) {
+      camera.position.set(4.2, 2.8, 5.2);
+    } else if (isCarLesson) {
+      camera.position.set(5.2, 3.6, 5.8);
+    } else {
+      camera.position.set(6, 5, 7);
+    }
     cameraRef.current = camera;
 
-    // 3. Renderer
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
+    // 3. Renderer with high color fidelity
+    const renderer = new THREE.WebGLRenderer({
+      antialias: true,
+      alpha: true,
+      powerPreference: "high-performance",
+    });
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.2;
     container.innerHTML = "";
     container.appendChild(renderer.domElement);
     rendererRef.current = renderer;
@@ -97,25 +120,33 @@ export const LabCanvas3D: React.FC<Lab3DProps> = ({ lessonId, params }) => {
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
-    controls.target.set(0, 1.2, 0);
-    controls.maxPolarAngle = Math.PI / 2 + 0.15; // Don't flip below floor
-    controls.minDistance = 2;
+    controls.target.set(0, isEngineLesson ? 2.0 : 1.2, 0);
+    controls.maxPolarAngle = Math.PI / 2 + 0.15;
+    controls.minDistance = 1.5;
     controls.maxDistance = 22;
     controls.autoRotate = autoRotate;
     controls.autoRotateSpeed = 1.5;
     controlsRef.current = controls;
 
-    // 5. Lighting
-    const ambient = new THREE.AmbientLight(0xffffff, 1.2);
+    // 5. Rich Multi-Source Studio Lighting
+    const ambient = new THREE.AmbientLight(0xffffff, 1.4);
     scene.add(ambient);
 
-    const dirLight1 = new THREE.DirectionalLight(0xffffff, 2.0);
+    const hemiLight = new THREE.HemisphereLight(0xffffff, 0x1e293b, 1.2);
+    hemiLight.position.set(0, 20, 0);
+    scene.add(hemiLight);
+
+    const dirLight1 = new THREE.DirectionalLight(0xffffff, 2.2);
     dirLight1.position.set(8, 14, 8);
     scene.add(dirLight1);
 
-    const dirLight2 = new THREE.DirectionalLight(0x38bdf8, 0.8);
-    dirLight2.position.set(-8, -4, -8);
+    const dirLight2 = new THREE.DirectionalLight(0x38bdf8, 1.0);
+    dirLight2.position.set(-8, 6, -8);
     scene.add(dirLight2);
+
+    const frontLight = new THREE.PointLight(0xffffff, 1.5, 20);
+    frontLight.position.set(0, 4, 8);
+    scene.add(frontLight);
 
     // 6. Engineering Grid Floor
     const gridHelper = new THREE.GridHelper(16, 32, 0x0284c7, 0x1e293b);
