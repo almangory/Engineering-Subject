@@ -1024,9 +1024,29 @@ export function buildChapter2Scene(
         fanGroup.rotation.z = time * fanSpeedMultiplier;
         coolGroup.add(fanGroup);
 
-        // 3. Upper Radiator Hose (لون السائل يتغير فوراً مع حرارة المحرك!)
+        // 3. Thermostat Housing & Bypass Tube (المنظم الحراري وأنبوبة التحويلة)
+        const thermoHousing = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.24, 0.28, 0.35, 16),
+          new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.9 })
+        );
+        thermoHousing.position.set(0.5, 2.1, 1.6);
+        coolGroup.add(thermoHousing);
+
+        // Bypass Hose (أنبوبة التحويلة لتسيير الماء داخل المحرك فقط عندما يكون بارداً)
+        const bypassCurve = new THREE.CatmullRomCurve3([
+          new THREE.Vector3(0.5, 2.0, 1.6),
+          new THREE.Vector3(0.65, 1.1, 1.7),
+          new THREE.Vector3(0.3, 0.2, 1.8),
+        ]);
+        const bypassHose = new THREE.Mesh(
+          new THREE.TubeGeometry(bypassCurve, 16, 0.08, 12, false),
+          new THREE.MeshStandardMaterial({ color: radTemp < 85 ? 0x0284c7 : 0x475569, roughness: 0.5 })
+        );
+        coolGroup.add(bypassHose);
+
+        // Upper Radiator Hose (مفتوح فقط عندما يتجاوز 85°م)
         let hoseColor = 0x0284c7; // Cold cyan blue
-        if (radTemp > 85) hoseColor = 0xf59e0b; // Warm amber
+        if (radTemp >= 85) hoseColor = 0xf59e0b; // Warm amber (190-230°F)
         if (radTemp > 100) hoseColor = 0xef4444; // Boiling red!
 
         const upperHoseCurve = new THREE.CatmullRomCurve3([
@@ -1058,7 +1078,8 @@ export function buildChapter2Scene(
         }
 
         coolGroup.add(createLabel("المشعاع (الرديتر) ومروحة التبريد", new THREE.Vector3(0, 2.8, 3.8), "#38bdf8"));
-        coolGroup.add(createLabel(`حرارة مياه التبريد: ${radTemp}°C ${radTemp > 100 ? '(⚠️ غليان وتمدد صمام الغطاء!)' : '(طبيعي)'}`, new THREE.Vector3(0, 3.4, 2.0), radTemp > 100 ? "#ef4444" : "#10b981"));
+        coolGroup.add(createLabel(`حرارة مياه التبريد: ${radTemp}°C (${Math.round(radTemp * 1.8 + 32)}°F) ${radTemp > 100 ? '(⚠️ غليان وتمدد صمام الغطاء!)' : radTemp >= 85 ? '(حرارة تشغيل مثالية ✅)' : '(محرك بارد ❄️)'}`, new THREE.Vector3(0, 3.4, 2.0), radTemp > 100 ? "#ef4444" : radTemp >= 85 ? "#10b981" : "#38bdf8"));
+        coolGroup.add(createLabel(`المنظم الحراري (الثرموستات): ${radTemp < 85 ? 'مغلق (دورة تحويلة داخلية قصيرة)' : 'مفتوح (سريان كامل للمشع الرديتر)'}`, new THREE.Vector3(0, 3.8, 1.6), radTemp < 85 ? "#38bdf8" : "#10b981"));
 
         carGroup.add(coolGroup);
       } else if (activeSys === "fuel") {
@@ -1101,10 +1122,21 @@ export function buildChapter2Scene(
           fuelGroup.add(throttle);
         });
 
-        // Float Chamber Bowl & Fuel Line
-        const floatBowl = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.6, 0.7), new THREE.MeshStandardMaterial({ color: 0xb45309, metalness: 0.9 }));
+        // Float Chamber Bowl & Fuel Line (غرفة العوامة وصمام الإبرة)
+        const floatBowl = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.6, 0.7), new THREE.MeshStandardMaterial({ color: 0xb45309, metalness: 0.9, transparent: true, opacity: 0.85 }));
         floatBowl.position.set(-2.5, 1.5, 0);
         fuelGroup.add(floatBowl);
+
+        // Brass Float inside bowl
+        const floatDisc = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 0.22, 16), new THREE.MeshStandardMaterial({ color: 0xfacc15, metalness: 0.9 }));
+        floatDisc.rotation.x = Math.PI / 2;
+        floatDisc.position.set(-2.5, 1.5, 0);
+        fuelGroup.add(floatDisc);
+
+        // Needle Valve Pin
+        const needlePin = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.01, 0.18, 8), new THREE.MeshStandardMaterial({ color: 0xf1f5f9, metalness: 1 }));
+        needlePin.position.set(-2.5, 1.72, 0);
+        fuelGroup.add(needlePin);
 
         const fuelLineCurve = new THREE.CatmullRomCurve3([
           new THREE.Vector3(-2.5, 1.5, 0),
@@ -1173,14 +1205,53 @@ export function buildChapter2Scene(
         oilPool.position.y = -0.7;
         lubeGroup.add(oilPool);
 
-        // Pickup Tube & Strainer Bell
+        // Pickup Tube & Strainer Bell (مصفاة سحب الزيت مع شبك الحماية)
         const pickupBell = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.1, 0.2, 16), new THREE.MeshStandardMaterial({ color: 0x94a3b8, wireframe: true }));
         pickupBell.position.set(0, -0.65, 0);
         lubeGroup.add(pickupBell);
 
-        const pickupTube = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.8, 12), new THREE.MeshStandardMaterial({ color: 0x94a3b8 }));
-        pickupTube.position.set(0, -0.2, 0);
+        const pickupTube = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.5, 12), new THREE.MeshStandardMaterial({ color: 0x94a3b8 }));
+        pickupTube.position.set(0, -0.4, 0);
         lubeGroup.add(pickupTube);
+
+        // 2. Dual-Gear Oil Pump (مضخة الزيت الترسية: ترس قائد وترس منقاد)
+        const pumpCase = new THREE.Mesh(
+          new THREE.BoxGeometry(0.9, 0.45, 0.7),
+          new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.9, transparent: true, opacity: 0.85 })
+        );
+        pumpCase.position.set(0, -0.1, 0);
+        lubeGroup.add(pumpCase);
+
+        const gearMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.9, roughness: 0.25 });
+        const driveGear = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 0.12, 16), gearMat);
+        driveGear.rotation.x = Math.PI / 2;
+        driveGear.position.set(-0.18, -0.1, 0);
+        driveGear.rotation.z = time * 8;
+        lubeGroup.add(driveGear);
+
+        const drivenGear = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 0.12, 16), gearMat);
+        drivenGear.rotation.x = Math.PI / 2;
+        drivenGear.position.set(0.18, -0.1, 0);
+        drivenGear.rotation.z = -time * 8;
+        lubeGroup.add(drivenGear);
+
+        // Pressure Relief Valve (صمام تصريف الضغط الزائد)
+        const pressureVal = params.oilPressure || 45;
+        const reliefActive = pressureVal > 60;
+
+        const reliefCylinder = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.08, 0.08, 0.4, 12),
+          new THREE.MeshStandardMaterial({ color: reliefActive ? 0xef4444 : 0x94a3b8, metalness: 0.9 })
+        );
+        reliefCylinder.position.set(0.55, -0.1, 0);
+        lubeGroup.add(reliefCylinder);
+
+        const reliefSpring = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.05, 0.05, 0.25, 8),
+          new THREE.MeshStandardMaterial({ color: 0xd97706, wireframe: true })
+        );
+        reliefSpring.position.set(0.55, -0.1, 0);
+        lubeGroup.add(reliefSpring);
 
         // Spin-on Filter
         const filter = new THREE.Mesh(
@@ -1210,7 +1281,8 @@ export function buildChapter2Scene(
           lubeGroup.add(drop);
         }
 
-        lubeGroup.add(createLabel("حوض ومضخة الزيت (الكارتير)", new THREE.Vector3(0, -1.5, 0), "#eab308"));
+        lubeGroup.add(createLabel("مضخة الزيت الترسية (ترس قائد + منقاد) والكرتير", new THREE.Vector3(0, -1.5, 0), "#eab308"));
+        lubeGroup.add(createLabel(`صمام أمان تنفيس الضغط: ${(params.oilPressure || 45) > 60 ? '⚠️ مفتوح (تصريف الزيت الفائض للكرتير)' : '✅ مغلق (ضغط مستقر ${params.oilPressure || 45} PSI)'}`, new THREE.Vector3(0, 3.4, 0), (params.oilPressure || 45) > 60 ? "#ef4444" : "#10b981"));
         lubeGroup.add(createLabel("فلتر الزيت وسيخ فحص المستوى", new THREE.Vector3(2.2, 1.4, 0), "#38bdf8"));
 
         carGroup.add(lubeGroup);
@@ -1244,11 +1316,25 @@ export function buildChapter2Scene(
         distCap.position.set(-1.7, 2.1, -0.6);
         ignGroup.add(distCap);
 
-        // Vacuum Advance Canister
+        // Vacuum Advance Canister (وحدة تقديم الشرارة بالخلخلة)
         const vacCan = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 0.3, 16), new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.95 }));
         vacCan.rotation.x = Math.PI / 2;
         vacCan.position.set(-2.2, 1.8, -0.6);
         ignGroup.add(vacCan);
+
+        // Breaker Points (قاطع الدائرة - البلاتين)
+        const platinBase = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.06, 0.2), new THREE.MeshStandardMaterial({ color: 0xd4d4d8, metalness: 0.9 }));
+        platinBase.position.set(-1.7, 1.75, -0.6);
+        ignGroup.add(platinBase);
+
+        const platinContact = new THREE.Mesh(new THREE.SphereGeometry(0.04, 8, 8), new THREE.MeshStandardMaterial({ color: 0xfacc15, metalness: 1 }));
+        platinContact.position.set(-1.65, 1.82, -0.6);
+        ignGroup.add(platinContact);
+
+        // Condenser Cylinder (المكثف لحماية نقاط البلاتين وتسريع انهيار الفيض)
+        const condenser = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.3, 16), new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.95 }));
+        condenser.position.set(-1.7, 1.45, -0.25);
+        ignGroup.add(condenser);
 
         // Four Spark Plugs & High Tension Wires with Firing Sequence 1-3-4-2
         const wirePositionsZ = [-1.2, -0.4, 0.4, 1.2];

@@ -32,6 +32,7 @@ export interface Lab3DProps {
     activeCarSystem?: "fuel" | "cooling" | "lube" | "ignition";
     carburetorRatio?: number;
     radiatorTemp?: number;
+    oilPressure?: number;
 
     // Ch 3
     coulombQ1?: number;

@@ -1,11 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Activity, Compass, Zap, HelpCircle, RefreshCw, Play, Pause, ChevronLeft, Award, Flame, Droplet, Layers, HelpCircle as Info, CheckCircle2, RotateCcw, Sparkles } from "lucide-react";
+import { Activity, Compass, Zap, HelpCircle, RefreshCw, Play, Pause, ChevronLeft, Award, Flame, Droplet, Layers, HelpCircle as Info, CheckCircle2, RotateCcw, Sparkles, BookOpen } from "lucide-react";
+import { EngineeringBlueprintModal } from "./EngineeringBlueprintModal";
+import { CAR_SYSTEMS_DATA } from "./CarSystemsDiagramViewer";
 import { LabCanvas3D } from "./lab3d/LabCanvas3D";
 
 interface LabSectionProps {
   activeLab?: string; // Can be a lab ID or lesson ID
   setActiveLab?: (lab: any) => void;
   lang?: "ar" | "en";
+  onAskAi?: (topic: string) => void;
 }
 
 // Lesson data inside Lab for standalone navigation
@@ -42,7 +45,12 @@ const CHAPTER_LESSONS = {
   ],
 };
 
-export default function LabSection({ activeLab: propActiveLab, setActiveLab: propSetActiveLab }: LabSectionProps) {
+export default function LabSection({ 
+  activeLab: propActiveLab, 
+  setActiveLab: propSetActiveLab,
+  lang = "ar",
+  onAskAi
+}: LabSectionProps) {
   const [localActiveLab, setLocalActiveLab] = useState<string>("projection");
   const activeTabId = propActiveLab !== undefined ? propActiveLab : localActiveLab;
   const setActiveTabId = propSetActiveLab !== undefined ? propSetActiveLab : setLocalActiveLab;

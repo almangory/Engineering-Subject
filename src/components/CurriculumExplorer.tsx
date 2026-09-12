@@ -4,6 +4,7 @@ import ReviewSummaryExporter from "./ReviewSummaryExporter";
 import { Chapter, Lesson } from "../types";
 import { Search, ChevronLeft, ChevronDown, BookOpen, Compass, Award, Cpu, Star, HelpCircle, ArrowLeft, RefreshCw, Zap, Activity, Heart, Maximize2, X, Type, Check, Lightbulb, Video, ExternalLink } from "lucide-react";
 import { UI_TRANSLATIONS, LESSON_TRANSLATIONS } from "../utils/translations";
+import { CarSystemsDiagramViewer, PistonCutawayDiagramViewer } from "./CarSystemsDiagramViewer";
 
 function getYouTubeEmbedUrl(url: string): string | null {
   if (!url) return null;
@@ -460,7 +461,7 @@ export const englishSummaries: Record<string, LessonSummary> = {
   }
 };
 
-function renderLessonDiagram(lessonId: string) {
+function renderLessonDiagram(lessonId: string, onAskAi?: (topic: string) => void, lang: "ar" | "en" = "ar") {
   switch (lessonId) {
     case "intro-projection":
       return (
@@ -731,80 +732,56 @@ function renderLessonDiagram(lessonId: string) {
       );
     case "engines-cycles":
       return (
-        <div className="w-full max-w-lg" id="diagram-engines-cycles">
-          <svg viewBox="0 0 400 220" className="w-full h-auto text-slate-500">
-            <g transform="translate(10, 10)">
-              {/* Stroke 1 */}
-              <g transform="translate(5, 5)">
-                <rect x="10" y="20" width="40" height="70" fill="none" stroke="#475569" strokeWidth="1.5" />
-                <rect x="13" y="55" width="34" height="25" fill="#94a3b8" />
-                <line x1="30" y1="80" x2="30" y2="120" stroke="#475569" strokeWidth="2" />
-                <line x1="16" y1="20" x2="16" y2="28" stroke="#ef4444" strokeWidth="2" />
-                <text x="30" y="140" textAnchor="middle" className="text-[9px] font-bold fill-blue-600">١. شوط السحب</text>
+        <div className="w-full max-w-4xl space-y-6" id="diagram-engines-cycles">
+          <PistonCutawayDiagramViewer onAskAi={onAskAi} lang={lang} />
+          
+          <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm text-right" dir="rtl">
+            <h4 className="text-sm font-black text-slate-800 mb-2">دورة الأشواط الأربعة لمحرّك الاحتراق الداخلي:</h4>
+            <svg viewBox="0 0 400 180" className="w-full h-auto text-slate-500">
+              <g transform="translate(10, 5)">
+                {/* Stroke 1 */}
+                <g transform="translate(5, 5)">
+                  <rect x="10" y="20" width="40" height="70" fill="none" stroke="#475569" strokeWidth="1.5" />
+                  <rect x="13" y="55" width="34" height="25" fill="#94a3b8" />
+                  <line x1="30" y1="80" x2="30" y2="120" stroke="#475569" strokeWidth="2" />
+                  <line x1="16" y1="20" x2="16" y2="28" stroke="#ef4444" strokeWidth="2" />
+                  <text x="30" y="140" textAnchor="middle" className="text-[9px] font-bold fill-blue-600">١. شوط السحب</text>
+                </g>
+                {/* Stroke 2 */}
+                <g transform="translate(100, 5)">
+                  <rect x="10" y="20" width="40" height="70" fill="none" stroke="#475569" strokeWidth="1.5" />
+                  <rect x="13" y="32" width="34" height="25" fill="#94a3b8" />
+                  <line x1="30" y1="57" x2="30" y2="100" stroke="#475569" strokeWidth="2" />
+                  <line x1="16" y1="20" x2="16" y2="15" stroke="#475569" strokeWidth="2" />
+                  <line x1="44" y1="20" x2="44" y2="15" stroke="#475569" strokeWidth="2" />
+                  <text x="30" y="140" textAnchor="middle" className="text-[9px] font-bold fill-amber-600">٢. شوط الضغط</text>
+                </g>
+                {/* Stroke 3 */}
+                <g transform="translate(195, 5)">
+                  <rect x="10" y="20" width="40" height="70" fill="none" stroke="#475569" strokeWidth="1.5" />
+                  <rect x="13" y="48" width="34" height="25" fill="#475569" />
+                  <line x1="30" y1="73" x2="30" y2="115" stroke="#475569" strokeWidth="2" />
+                  <circle cx="30" cy="20" r="6" fill="#f59e0b" opacity="0.8" />
+                  <text x="30" y="140" textAnchor="middle" className="text-[9px] font-bold fill-red-600">٣. شوط القدرة</text>
+                </g>
+                {/* Stroke 4 */}
+                <g transform="translate(290, 5)">
+                  <rect x="10" y="20" width="40" height="70" fill="none" stroke="#475569" strokeWidth="1.5" />
+                  <rect x="13" y="32" width="34" height="25" fill="#94a3b8" />
+                  <line x1="30" y1="57" x2="30" y2="100" stroke="#475569" strokeWidth="2" />
+                  <line x1="44" y1="20" x2="44" y2="28" stroke="#ea580c" strokeWidth="2" />
+                  <text x="30" y="140" textAnchor="middle" className="text-[9px] font-bold fill-slate-600">٤. شوط الطرد</text>
+                </g>
               </g>
-              {/* Stroke 2 */}
-              <g transform="translate(100, 5)">
-                <rect x="10" y="20" width="40" height="70" fill="none" stroke="#475569" strokeWidth="1.5" />
-                <rect x="13" y="32" width="34" height="25" fill="#94a3b8" />
-                <line x1="30" y1="57" x2="30" y2="100" stroke="#475569" strokeWidth="2" />
-                <line x1="16" y1="20" x2="16" y2="15" stroke="#475569" strokeWidth="2" />
-                <line x1="44" y1="20" x2="44" y2="15" stroke="#475569" strokeWidth="2" />
-                <text x="30" y="140" textAnchor="middle" className="text-[9px] font-bold fill-amber-600">٢. شوط الضغط</text>
-              </g>
-              {/* Stroke 3 */}
-              <g transform="translate(195, 5)">
-                <rect x="10" y="20" width="40" height="70" fill="none" stroke="#475569" strokeWidth="1.5" />
-                <rect x="13" y="48" width="34" height="25" fill="#475569" />
-                <line x1="30" y1="73" x2="30" y2="115" stroke="#475569" strokeWidth="2" />
-                <circle cx="30" cy="20" r="6" fill="#f59e0b" opacity="0.8" />
-                <text x="30" y="140" textAnchor="middle" className="text-[9px] font-bold fill-red-600">٣. شوط القدرة</text>
-              </g>
-              {/* Stroke 4 */}
-              <g transform="translate(290, 5)">
-                <rect x="10" y="20" width="40" height="70" fill="none" stroke="#475569" strokeWidth="1.5" />
-                <rect x="13" y="32" width="34" height="25" fill="#94a3b8" />
-                <line x1="30" y1="57" x2="30" y2="100" stroke="#475569" strokeWidth="2" />
-                <line x1="44" y1="20" x2="44" y2="28" stroke="#ea580c" strokeWidth="2" />
-                <text x="30" y="140" textAnchor="middle" className="text-[9px] font-bold fill-slate-600">٤. شوط الطرد</text>
-              </g>
-            </g>
-          </svg>
-          <p className="text-center text-xs text-indigo-600 font-bold mt-2">دورة الأشواط الأربعة لمحرّك الاحتراق الداخلي: السحب، ثم الضغط، ثم حدوث الاشتعال للقدرة، ثم الطرد</p>
+            </svg>
+            <p className="text-center text-xs text-indigo-600 font-bold mt-2">تسلسل الأشواط الأربعة: سحب الخليط، ضغطه 1:8، إشعاله لإنتاج القدرة، ثم طرد العادم</p>
+          </div>
         </div>
       );
     case "car-engine-systems":
       return (
-        <div className="w-full max-w-sm" id="diagram-car-engine-systems">
-          <svg viewBox="0 0 400 220" className="w-full h-auto text-slate-500">
-            <rect x="130" y="30" width="140" height="120" rx="8" fill="#f8fafc" stroke="#475569" strokeWidth="2" />
-            <text x="200" y="55" textAnchor="middle" className="text-[11px] font-black fill-slate-800">الأسطوانة والكباس</text>
-            
-            <g transform="translate(20, 45)">
-              <rect x="0" y="0" width="85" height="35" rx="4" fill="#eff6ff" stroke="#3b82f6" strokeWidth="1.5" />
-              <text x="42" y="21" textAnchor="middle" className="text-[9px] font-bold fill-blue-700">نظام الوقود (المغذّي)</text>
-            </g>
-            
-            <g transform="translate(295, 45)">
-              <rect x="0" y="0" width="85" height="35" rx="4" fill="#fee2e2" stroke="#ef4444" strokeWidth="1.5" />
-              <text x="42" y="21" textAnchor="middle" className="text-[9px] font-bold fill-red-700">نظام الاشتعال (البواجي)</text>
-            </g>
-            
-            <g transform="translate(20, 110)">
-              <rect x="0" y="0" width="85" height="35" rx="4" fill="#ecfdf5" stroke="#10b981" strokeWidth="1.5" />
-              <text x="42" y="21" textAnchor="middle" className="text-[9px] font-bold fill-emerald-700">نظام التبريد (الرديتر)</text>
-            </g>
-            
-            <g transform="translate(295, 110)">
-              <rect x="0" y="0" width="85" height="35" rx="4" fill="#fef3c7" stroke="#d97706" strokeWidth="1.5" />
-              <text x="42" y="21" textAnchor="middle" className="text-[9px] font-bold fill-amber-700">نظام التزييت (الزيت)</text>
-            </g>
-            
-            <line x1="105" y1="62" x2="130" y2="62" stroke="#94a3b8" strokeWidth="1" strokeDasharray="3" />
-            <line x1="270" y1="62" x2="295" y2="62" stroke="#94a3b8" strokeWidth="1" strokeDasharray="3" />
-            <line x1="105" y1="127" x2="130" y2="127" stroke="#94a3b8" strokeWidth="1" strokeDasharray="3" />
-            <line x1="270" y1="127" x2="295" y2="127" stroke="#94a3b8" strokeWidth="1" strokeDasharray="3" />
-          </svg>
-          <p className="text-center text-xs text-indigo-600 font-bold mt-2">تكامل أنظمة السيارة: التزييت، والوقود، والكهرباء، والحرارة حول الأسطوانة لضمان استقرار المحرك</p>
+        <div className="w-full max-w-4xl" id="diagram-car-engine-systems">
+          <CarSystemsDiagramViewer onAskAi={onAskAi} lang={lang} />
         </div>
       );
     case "electrical-units":
@@ -1880,7 +1857,7 @@ export default function CurriculumExplorer({
             
             {/* Custom SVG Diagrams based on active lesson */}
             <div className="bg-white rounded-lg p-6 flex flex-col items-center justify-center border border-slate-200 min-h-[220px] shadow-sm">
-              {renderLessonDiagram(currentLesson.id)}
+              {renderLessonDiagram(currentLesson.id, onAskAi, lang)}
             </div>
           </div>
 
@@ -2047,8 +2024,8 @@ export default function CurriculumExplorer({
 
             {/* Zoomed Diagram Content */}
             <div className="bg-slate-50/50 border border-slate-100 rounded-2xl p-6 md:p-12 flex flex-col items-center justify-center w-full min-h-[300px] mb-6">
-              <div className="w-full max-w-2xl transform scale-105 md:scale-110 transition duration-300">
-                {renderLessonDiagram(currentLesson.id)}
+              <div className="w-full max-w-4xl transform scale-100 transition duration-300">
+                {renderLessonDiagram(currentLesson.id, onAskAi, lang)}
               </div>
             </div>
 
