@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Activity, Compass, Zap, HelpCircle, RefreshCw, Play, Pause, ChevronLeft, Award, Flame, Droplet, Layers, HelpCircle as Info, CheckCircle2, RotateCcw, Sparkles } from "lucide-react";
+import { LabCanvas3D } from "./lab3d/LabCanvas3D";
 
 interface LabSectionProps {
   activeLab?: string; // Can be a lab ID or lesson ID
@@ -1224,647 +1225,70 @@ export default function LabSection({ activeLab: propActiveLab, setActiveLab: pro
             </div>
           </div>
 
-          {/* DYNAMIC SCREEN CORE */}
-          <div className="flex-1 flex flex-col items-center justify-center py-6">
-            
-            {/* 1. intro-projection SIMULATION */}
-            {selectedLessonId === "intro-projection" && (
-              <svg viewBox="0 0 300 200" className="w-72 h-auto text-slate-300">
-                {/* Screen plane */}
-                <rect x="40" y="30" width="10" height="140" fill="#1e293b" stroke="#38bdf8" strokeWidth="1.5" />
-                <text x="35" y="25" fill="#38bdf8" className="text-[8px] font-bold">مستوى الإسقاط</text>
+          {/* DYNAMIC 3D WEBGL CANVAS CORE */}
+          <div className="flex-1 w-full my-3">
+            <LabCanvas3D
+              lessonId={selectedLessonId}
+              params={{
+                // Ch 1
+                projBeamActive,
+                orthoAngle,
+                projectionAngle,
+                isometricStyle,
+                dimDistance,
 
-                {/* 3D Box on right */}
-                <rect x="180" y="60" width="60" height="80" fill="rgba(245, 158, 11, 0.2)" stroke="#f59e0b" strokeWidth="2" />
-                <circle cx="210" cy="100" r="15" fill="none" stroke="#f59e0b" strokeWidth="1.5" strokeDasharray="2" />
+                // Ch 2
+                metalType: metalSelected,
+                metalTestType,
+                furnaceTemp,
+                furnaceCoke,
+                furnaceLimestone,
+                furnaceRunning,
+                furnaceTapped,
+                rollingTemp: rollingTemp === 'hot' ? 1150 : 300,
+                rollingPasses: Math.max(1, Math.round((20 - rollerGap) / 3)),
+                alloyMixCopper,
+                alloyMixZinc: alloyMixOther,
+                alloyMixTin: alloyMixOther,
+                enginePlaying,
+                engineStroke,
+                activeCarSystem,
+                carburetorRatio,
 
-                {/* Beams */}
-                {projBeamActive && (
-                  <g stroke="#10b981" strokeWidth="1" strokeDasharray="3" className="animate-pulse">
-                    <line x1="180" x2="50" y1="60" y2="60" />
-                    <line x1="180" x2="50" y1="140" y2="140" />
-                    <line x1="195" x2="50" y1="100" y2="100" />
-                  </g>
-                )}
+                // Ch 3
+                coulombQ1,
+                coulombQ2,
+                coulombDist,
+                dielectric,
+                plateDist,
+                voltage,
+                plateArea,
+                magnetPos: inductionMagnetX,
+                magnetOscillating: false,
+                coilTurns: 20,
+                switchClosed: !selfIndSwitchOpen,
+                inductanceL: selfIndLValue,
+                dopingType:
+                  semiconductorDopeType === 'pure'
+                    ? 'intrinsic'
+                    : semiconductorDopeType === 'n'
+                    ? 'n-type'
+                    : 'p-type',
 
-                {/* Projected view on left */}
-                <rect x="44" y="60" width="2" height="80" fill="#10b981" />
-                <circle cx="45" cy="100" r="1.5" fill="#10b981" />
-              </svg>
-            )}
-
-            {/* 2. ortho-principles SIMULATION */}
-            {selectedLessonId === "ortho-principles" && (
-              <div className="flex flex-col items-center space-y-4">
-                <svg viewBox="0 0 300 160" className="w-72 h-auto">
-                  {/* Plane */}
-                  <line x1="20" y1="130" x2="280" y2="130" stroke="#475569" strokeWidth="3" />
-                  <text x="20" y="145" fill="#475569" className="text-[9px] font-bold">مستوى الإسقاط</text>
-
-                  {/* Rotating beam */}
-                  {(() => {
-                    const rad = (orthoAngle * Math.PI) / 180;
-                    const len = 80;
-                    const startX = 150;
-                    const startY = 130 - len * Math.sin(rad);
-                    const endX = startX + len * Math.cos(rad);
-                    const endY = 130;
-                    
-                    // Projected shadow segment
-                    const shadowStartX = startX;
-                    const shadowEndX = endX;
-                    
-                    return (
-                      <g>
-                        {/* The solid rod */}
-                        <line x1={startX} y1={startY} x2={endX} y2={130 - len * Math.sin(rad)} stroke="#f59e0b" strokeWidth="4" strokeLinecap="round" />
-                        <circle cx={startX} cy={130 - len * Math.sin(rad)} r="4" fill="#ef4444" />
-                        
-                        {/* Projection vertical lines */}
-                        <line x1={startX} y1={130 - len * Math.sin(rad)} x2={startX} y2="130" stroke="rgba(255,255,255,0.15)" strokeDasharray="2" />
-                        <line x1={endX} y1={130 - len * Math.sin(rad)} x2={endX} y2="130" stroke="rgba(255,255,255,0.15)" strokeDasharray="2" />
-
-                        {/* Projected shadow on plane */}
-                        <line x1={shadowStartX} y1="130" x2={shadowEndX} y2="130" stroke="#10b981" strokeWidth="6" strokeLinecap="round" />
-                      </g>
-                    );
-                  })()}
-                </svg>
-                <div className="text-center">
-                  <span className="text-xs text-slate-400">طول الظل المسقط: </span>
-                  <span className="text-xs font-black text-emerald-400 font-mono">{(80 * Math.cos((orthoAngle * Math.PI) / 180)).toFixed(1)} مم</span>
-                </div>
-              </div>
-            )}
-
-            {/* 3. three-planes SIMULATION */}
-            {selectedLessonId === "three-planes" && (
-              <div className="w-full max-w-sm grid grid-cols-3 gap-2.5 text-center text-[10px] font-bold">
-                {projectionAngle === "first" ? (
-                  <>
-                    <div className="border border-slate-800 p-4 rounded-xl bg-slate-900/40">الجانبي الأيمن</div>
-                    <div className="border-2 border-amber-500 p-4 rounded-xl bg-slate-900 text-white flex flex-col items-center justify-center">
-                      <span>الرأسي</span>
-                      <span className="text-[8px] text-slate-500 mt-1">Front View</span>
-                    </div>
-                    <div className="border border-slate-800 p-4 rounded-xl bg-slate-900/40">الجانبي الأيسر</div>
-                    <div></div>
-                    <div className="border-2 border-sky-500 p-4 rounded-xl bg-slate-900 text-white flex flex-col items-center justify-center">
-                      <span>الأفقي</span>
-                      <span className="text-[8px] text-slate-500 mt-1">Top View</span>
-                    </div>
-                    <div></div>
-                  </>
-                ) : (
-                  <>
-                    <div></div>
-                    <div className="border-2 border-sky-500 p-4 rounded-xl bg-slate-900 text-white flex flex-col items-center justify-center">
-                      <span>الأفقي</span>
-                      <span className="text-[8px] text-slate-500 mt-1">Top View</span>
-                    </div>
-                    <div></div>
-                    <div className="border border-slate-800 p-4 rounded-xl bg-slate-900/40">الجانبي الأيسر</div>
-                    <div className="border-2 border-amber-500 p-4 rounded-xl bg-slate-900 text-white flex flex-col items-center justify-center">
-                      <span>الرأسي</span>
-                      <span className="text-[8px] text-slate-500 mt-1">Front View</span>
-                    </div>
-                    <div className="border border-slate-800 p-4 rounded-xl bg-slate-900/40">الجانبي الأيمن</div>
-                  </>
-                )}
-              </div>
-            )}
-
-            {/* 4. isometric-oblique SIMULATION */}
-            {selectedLessonId === "isometric-oblique" && (
-              <svg viewBox="0 0 240 180" className="w-60 h-auto">
-                {isometricStyle === "iso" ? (
-                  <g stroke="#f59e0b" strokeWidth="2" fill="none">
-                    {/* Isometric block representation (30 degrees axes) */}
-                    <polygon points="120,40 160,60 120,80 80,60" fill="rgba(255,255,255,0.05)" />
-                    <polygon points="80,60 120,80 120,130 80,110" fill="rgba(255,255,255,0.08)" />
-                    <polygon points="120,80 160,60 160,110 120,130" fill="rgba(255,255,255,0.12)" />
-                    <line x1="120" y1="80" x2="120" y2="130" />
-                    {/* 30 degree helper dashed lines */}
-                    <line x1="80" y1="60" x2="40" y2="80" stroke="#475569" strokeDasharray="2" />
-                    <line x1="160" y1="60" x2="200" y2="80" stroke="#475569" strokeDasharray="2" />
-                    <text x="50" y="75" fill="#475569" className="text-[8px] font-mono">°٣٠</text>
-                    <text x="175" y="75" fill="#475569" className="text-[8px] font-mono">°٣٠</text>
-                  </g>
-                ) : (
-                  <g stroke="#38bdf8" strokeWidth="2" fill="none">
-                    {/* Oblique block (front facing plane normal, depth mitered at 45) */}
-                    <rect x="60" y="70" width="80" height="60" fill="rgba(255,255,255,0.08)" />
-                    <polygon points="60,70 100,35 180,35 140,70" />
-                    <polygon points="140,70 180,35 180,95 140,130" fill="rgba(255,255,255,0.12)" />
-                    {/* 45 degree angle */}
-                    <line x1="140" y1="70" x2="180" y2="35" stroke="#ef4444" />
-                    <text x="160" y="60" fill="#ef4444" className="text-[8px] font-mono">°٤٥ (نصف العمق)</text>
-                  </g>
-                )}
-              </svg>
-            )}
-
-            {/* 5. dim-1-1 SIMULATION */}
-            {selectedLessonId === "dim-1-1" && (
-              <svg viewBox="0 0 240 180" className="w-60 h-auto">
-                {/* Object box */}
-                <rect x="50" y="80" width="140" height="60" fill="rgba(255,255,255,0.05)" stroke="#64748b" strokeWidth="2.5" />
-                
-                {/* Extensions lines */}
-                <line x1="50" y1="80" x2="50" y2={80 - dimDistance * 5} stroke="#94a3b8" strokeWidth="1" />
-                <line x1="190" y1="80" x2="190" y2={80 - dimDistance * 5} stroke="#94a3b8" strokeWidth="1" />
-
-                {/* Dimension line with arrows */}
-                <g stroke={dimDistance >= 8 && dimDistance <= 10 ? "#10b981" : "#ef4444"} strokeWidth="1.5">
-                  <line x1="50" y1={85 - dimDistance * 5} x2="190" y2={85 - dimDistance * 5} />
-                  <polygon points={`50,${85 - dimDistance * 5} 58,${82 - dimDistance * 5} 58,${88 - dimDistance * 5}`} fill="currentColor" />
-                  <polygon points={`190,${85 - dimDistance * 5} 182,${82 - dimDistance * 5} 182,${88 - dimDistance * 5}`} fill="currentColor" />
-                </g>
-                <text x="100" y={78 - dimDistance * 5} fill={dimDistance >= 8 && dimDistance <= 10 ? "#10b981" : "#ef4444"} className="text-[10px] font-bold font-mono text-center">١٤٠ مم</text>
-              </svg>
-            )}
-
-            {/* 6. sketch-1-2 SIMULATION */}
-            {selectedLessonId === "sketch-1-2" && (
-              <div className="flex flex-col items-center space-y-3 w-full">
-                <span className="text-[10px] text-slate-400">حاول تتبع خطوط الدائرة التوجيهية باليد الحرة:</span>
-                <div
-                  className="w-60 h-40 bg-slate-900 border-2 border-dashed border-slate-700 rounded-2xl relative cursor-crosshair overflow-hidden"
-                  onMouseDown={() => setFreehandDrawing(true)}
-                  onMouseUp={() => {
-                    setFreehandDrawing(false);
-                    // Generate random score simulating drawing accuracy
-                    if (freehandPoints.length > 5) {
-                      setSketchScore(Math.floor(70 + Math.random() * 25));
-                    }
-                  }}
-                  onMouseMove={(e) => {
-                    if (!freehandDrawing) return;
-                    const rect = e.currentTarget.getBoundingClientRect();
-                    const x = e.clientX - rect.left;
-                    const y = e.clientY - rect.top;
-                    setFreehandPoints((prev) => [...prev, { x, y }]);
-                  }}
-                >
-                  {/* Circle Trace guidelines & Freehand rendering wrapped in a single SVG container */}
-                  <svg className="absolute inset-0 w-full h-full pointer-events-none">
-                    <circle cx="120" cy="80" r="45" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
-                    <line x1="120" y1="20" x2="120" y2="140" stroke="rgba(255,255,255,0.05)" />
-                    <line x1="40" y1="80" x2="200" y2="80" stroke="rgba(255,255,255,0.05)" />
-
-                    {freehandPoints.map((pt, i) => (
-                      <circle key={i} cx={pt.x} cy={pt.y} r="1.5" fill="#f59e0b" />
-                    ))}
-                  </svg>
-                </div>
-              </div>
-            )}
-
-            {/* 7. metals-intro SIMULATION */}
-            {selectedLessonId === "metals-intro" && (
-              <div className="flex flex-col items-center space-y-4">
-                <span className="text-xs font-bold text-slate-300">
-                  فحص: {metalTestType === "magnet" ? "الاستجابة المغناطيسية" : metalTestType === "spark" ? "شرر حجر الجلخ للصلب" : "الوزن والكثافة النوعية"}
-                </span>
-                
-                {metalTestType === "magnet" && (
-                  <svg viewBox="0 0 200 120" className="w-52 h-auto">
-                    {/* Magnet */}
-                    <path d="M40,30 Q20,30 20,50 L20,70 Q20,90 40,90" fill="none" stroke="#ef4444" strokeWidth="15" strokeLinecap="round" />
-                    <path d="M100,30 Q120,30 120,50 L120,70 Q120,90 100,90" fill="none" stroke="#38bdf8" strokeWidth="15" strokeLinecap="round" />
-                    
-                    {/* Metal sample block */}
-                    <rect x="150" y="45" width="30" height="30" fill={metalSelected === "copper" ? "#b45309" : metalSelected === "aluminum" ? "#94a3b8" : "#475569"} rx="3" className={metalSelected === "steel" || metalSelected === "cast-iron" ? "translate-x-[-40px] transition-all duration-700" : "transition-all duration-700"} />
-                    <text x="145" y="105" fill="#94a3b8" className="text-[9px] font-bold">
-                      {metalSelected === "steel" || metalSelected === "cast-iron" ? "➜ ينجذب بقوة" : "✗ لا يستجيب للمغنطة"}
-                    </text>
-                  </svg>
-                )}
-
-                {metalTestType === "spark" && (
-                  <div className="flex flex-col items-center space-y-2">
-                    <div className="w-32 h-20 bg-slate-900 border border-slate-800 rounded-lg flex items-center justify-center relative overflow-hidden">
-                      {/* Grindstone */}
-                      <circle cx="40" cy="40" r="25" fill="#334155" className="animate-spin" />
-                      
-                      {/* Metal Rod pressed */}
-                      <rect x="75" y="35" width="30" height="10" fill="silver" />
-                      
-                      {/* Sparks generation */}
-                      {(metalSelected === "steel" || metalSelected === "cast-iron") && (
-                        <div className="absolute left-[50px] top-[35px] w-14 h-14 border-b-2 border-r-2 border-dashed border-amber-400 rounded-full animate-ping" />
-                      )}
-                    </div>
-                    <span className="text-[10px] text-slate-400">
-                      {metalSelected === "steel" ? "شرر كثيف وطويل ومتشعب (صلب كربوني)" :
-                       metalSelected === "cast-iron" ? "شرر قصير أحمر مائل للبرتقالي" : "لا ينتج أي شرر عند حك الفلزات اللاحديدية"}
-                    </span>
-                  </div>
-                )}
-
-                {metalTestType === "density" && (
-                  <div className="flex items-center gap-6">
-                    <div className="text-center font-mono space-y-1">
-                      <span className="text-[9px] text-slate-400 block">الوزن النوعي (الكثافة):</span>
-                      <span className="text-sm font-black text-emerald-400">
-                        {metalSelected === "steel" ? "7.8" : metalSelected === "cast-iron" ? "7.2" : metalSelected === "copper" ? "8.9" : "2.7"} g/cm³
-                      </span>
-                    </div>
-                    <div className="w-16 h-28 bg-blue-950 border border-blue-800 rounded-xl relative overflow-hidden">
-                      {/* Water */}
-                      <rect x="0" y="30" width="64" height="80" fill="rgba(56,189,248,0.2)" />
-                      {/* Sinking ball representing density speed */}
-                      <circle cx="32" cy={metalSelected === "aluminum" ? "45" : "80"} r="8" fill={metalSelected === "copper" ? "#b45309" : "gray"} className="transition-all duration-1000" />
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* 8. iron-production SIMULATION */}
-            {selectedLessonId === "iron-production" && (
-              <svg viewBox="0 0 200 180" className="w-52 h-auto text-slate-300">
-                {/* Furnace silhouette */}
-                <polygon points="60,20 140,20 160,130 130,160 70,160 40,130" fill="rgba(255,255,255,0.05)" stroke="#ef4444" strokeWidth="2" />
-                
-                {/* Fire / Molten metal level inside */}
-                {furnaceTemp >= 1300 && (
-                  <polygon points="65,90 135,90 140,130 130,158 70,158 60,130" fill="url(#molten-iron-grad)" className="animate-pulse" />
-                )}
-
-                {/* Slag outlet */}
-                <rect x="15" y="115" width="30" height="8" fill="#475569" />
-                {furnaceTapped && <line x1="45" y1="119" x2="10" y2="119" stroke="#94a3b8" strokeWidth="4" />}
-
-                {/* Molten iron outlet */}
-                <rect x="155" y="140" width="30" height="8" fill="#ef4444" />
-                {furnaceTapped && <line x1="155" y1="144" x2="190" y2="144" stroke="#f59e0b" strokeWidth="5" />}
-
-                <defs>
-                  <linearGradient id="molten-iron-grad" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" stopColor="#f59e0b" />
-                    <stop offset="100%" stopColor="#ef4444" />
-                  </linearGradient>
-                </defs>
-              </svg>
-            )}
-
-            {/* 9. steel-rolling SIMULATION */}
-            {selectedLessonId === "steel-rolling" && (
-              <svg viewBox="0 0 240 140" className="w-60 h-auto">
-                {/* Roller 1 (Top) */}
-                <circle cx="120" cy="35" r="22" fill="#334155" stroke="currentColor" strokeWidth="2" className="animate-spin-slow" />
-                {/* Roller 2 (Bottom) */}
-                <circle cx="120" cy="105" r="22" fill="#334155" stroke="currentColor" strokeWidth="2" className="animate-spin-slow" />
-
-                {/* Incoming Slab */}
-                <rect x="10" y="55" width="80" height="30" fill={rollingTemp === "hot" ? "#ef4444" : "#94a3b8"} />
-                
-                {/* Outgoing Sheet */}
-                <rect x="130" y="62" width="100" height="16" fill={rollingTemp === "hot" ? "#f59e0b" : "#cbd5e1"} />
-              </svg>
-            )}
-
-            {/* 10. non-ferrous-alloys SIMULATION */}
-            {selectedLessonId === "non-ferrous-alloys" && (
-              <div className="flex flex-col items-center space-y-3">
-                <svg viewBox="0 0 160 120" className="w-40 h-auto">
-                  {/* Crucible */}
-                  <path d="M40,20 L120,20 L110,90 Q80,110 50,90 Z" fill="#1e293b" stroke="#f59e0b" strokeWidth="2" />
-                  
-                  {/* Fluid mix color */}
-                  <path d="M45,40 L115,40 L108,85 Q80,102 52,85 Z" fill={alloyMixCopper > 65 ? "#b45309" : "#eab308"} className="animate-pulse" />
-                </svg>
-                <div className="text-center">
-                  <span className="text-xs text-slate-400">السبيكة الناتجة: </span>
-                  <span className="text-sm font-black text-amber-500">
-                    {alloyMixCopper >= 65 && alloyMixCopper <= 75 ? "النحاس الأصفر (صناعة المحابس والصنابير)" :
-                     alloyMixCopper > 75 ? "برنز المدافع والقطع البحرية" : "خلائط برونز طرية"}
-                  </span>
-                </div>
-              </div>
-            )}
-
-            {/* 11. engines-cycles SIMULATION */}
-            {selectedLessonId === "engines-cycles" && (
-              <svg viewBox="0 0 200 240" className="w-48 h-auto">
-                {/* Cylinder walls */}
-                <line x1="50" y1="40" x2="50" y2="200" stroke="currentColor" strokeWidth="4" />
-                <line x1="150" y1="40" x2="150" y2="200" stroke="currentColor" strokeWidth="4" />
-                <line x1="50" y1="40" x2="150" y2="40" stroke="currentColor" strokeWidth="4" />
-
-                {/* Spark Plug spark */}
-                {engineStroke === 2 && (
-                  <circle cx="100" cy="48" r="15" fill="rgba(239, 68, 68, 0.4)" className="animate-ping" />
-                )}
-
-                {/* Valves */}
-                <line x1="70" y1="25" x2="70" y2={engineStroke === 0 ? "48" : "38"} stroke={engineStroke === 0 ? "#10b981" : "currentColor"} strokeWidth="3" />
-                <line x1="130" y1="25" x2="130" y2={engineStroke === 3 ? "48" : "38"} stroke={engineStroke === 3 ? "#ef4444" : "currentColor"} strokeWidth="3" />
-
-                {/* Piston block */}
-                <rect x="52" y={engineStroke === 0 || engineStroke === 2 ? "110" : "55"} width="96" height="40" rx="3" fill="#1e293b" stroke="currentColor" strokeWidth="2" />
-                <circle cx="100" cy={engineStroke === 0 || engineStroke === 2 ? "130" : "75"} r="6" fill="#475569" />
-              </svg>
-            )}
-
-            {/* 12. car-engine-systems SIMULATION */}
-            {selectedLessonId === "car-engine-systems" && (
-              <div className="w-full max-w-sm bg-slate-900 border border-slate-800 p-4 rounded-2xl flex flex-col items-center justify-between min-h-[160px]">
-                {activeCarSystem === "fuel" && (
-                  <>
-                    <span className="text-xs font-bold text-amber-400">الكاربريتر (خلط الوقود والهواء)</span>
-                    <div className="w-full flex items-center justify-around gap-2 my-2">
-                      <div className="text-center text-[10px] bg-red-950/40 p-2.5 rounded-lg border border-red-500/20">
-                        <span>بنزين ⛽</span>
-                        <div className="font-bold text-red-400 mt-1">١ وحدة</div>
-                      </div>
-                      <span className="text-slate-500">➜ خلط ➜</span>
-                      <div className="text-center text-[10px] bg-sky-950/40 p-2.5 rounded-lg border border-sky-500/20">
-                        <span>هواء 💨</span>
-                        <div className="font-bold text-sky-400 mt-1">{carburetorRatio} وحدة</div>
-                      </div>
-                    </div>
-                  </>
-                )}
-                {activeCarSystem === "cooling" && (
-                  <>
-                    <span className="text-xs font-bold text-sky-400">دورة مياه التبريد والرديتر</span>
-                    <div className="flex items-center gap-3 my-2">
-                      <div className="w-8 h-8 rounded-full border border-sky-400 animate-spin flex items-center justify-center text-[9px]">مضخة</div>
-                      <div className="w-16 h-10 bg-blue-950 border border-blue-500 rounded flex items-center justify-center text-[8px]">المشع (الرديتر)</div>
-                    </div>
-                  </>
-                )}
-                {activeCarSystem === "lube" && (
-                  <>
-                    <span className="text-xs font-bold text-emerald-400">التزييت والكرتير السفلي</span>
-                    <p className="text-[10px] text-slate-400 text-center leading-relaxed">
-                      يتم تدوير زيت المحرك عالي اللزوجة لتقليل معامل الاحتكاك وتجنب قشط أسطوانات حديد الزهر.
-                    </p>
-                  </>
-                )}
-                {activeCarSystem === "ignition" && (
-                  <>
-                    <span className="text-xs font-bold text-indigo-400">مجموعة الاشتعال (ملف رفع الجهد)</span>
-                    <div className="text-center font-mono my-1 space-y-1">
-                      <div className="text-[11px] text-indigo-400">الجهد المنخفض (البطارية) = ١٢ فولت</div>
-                      <div className="text-[12px] text-emerald-400 font-bold">جهد الشرارة (البوبينة) = ١٥,٠٠٠ فولت!</div>
-                    </div>
-                  </>
-                )}
-              </div>
-            )}
-
-            {/* 13. electrical-units SIMULATION */}
-            {selectedLessonId === "electrical-units" && (
-              <svg viewBox="0 0 240 140" className="w-60 h-auto">
-                {/* Charge 1 */}
-                <circle cx="60" cy="70" r="16" fill={coulombQ1 > 0 ? "#ef4444" : "#3b82f6"} />
-                <text x="60" y="74" fill="white" className="text-[10px] font-bold text-center">{coulombQ1 > 0 ? `+${coulombQ1}` : coulombQ1}</text>
-
-                {/* Charge 2 */}
-                <circle cx={60 + coulombDist * 25} cy="70" r="16" fill={coulombQ2 > 0 ? "#ef4444" : "#3b82f6"} />
-                <text x={60 + coulombDist * 25} y="74" fill="white" className="text-[10px] font-bold text-center">{coulombQ2 > 0 ? `+${coulombQ2}` : coulombQ2}</text>
-
-                {/* Force vectors */}
-                {(() => {
-                  const sameSign = (coulombQ1 > 0 && coulombQ2 > 0) || (coulombQ1 < 0 && coulombQ2 < 0);
-                  const forceX1 = sameSign ? 30 : 90;
-                  const forceX2 = sameSign ? 60 + coulombDist * 25 + 30 : 60 + coulombDist * 25 - 30;
-                  return (
-                    <g stroke="#f59e0b" strokeWidth="2">
-                      {/* Vector Arrow 1 */}
-                      <line x1="60" y1="70" x2={forceX1} y2="70" />
-                      {/* Vector Arrow 2 */}
-                      <line x1={60 + coulombDist * 25} y1="70" x2={forceX2} y2="70" />
-                    </g>
-                  );
-                })()}
-              </svg>
-            )}
-
-            {/* 14. capacitors SIMULATION */}
-            {selectedLessonId === "capacitors" && (
-              <div className="flex flex-col items-center space-y-4">
-                <svg viewBox="0 0 240 120" className="w-56 h-auto">
-                  {/* Top plate */}
-                  <rect x="40" y="30" width="160" height="8" fill="#ef4444" />
-                  {/* Bottom plate */}
-                  <rect x="40" y={30 + plateDist * 12} width="160" height="8" fill="#3b82f6" />
-
-                  {/* Flux lines */}
-                  {voltage > 0 && (
-                    <g stroke="#f59e0b" strokeWidth="1" strokeDasharray="3" className="animate-pulse">
-                      <line x1="60" y1="38" x2="60" y2={30 + plateDist * 12} />
-                      <line x1="100" y1="38" x2="100" y2={30 + plateDist * 12} />
-                      <line x1="140" y1="38" x2="140" y2={30 + plateDist * 12} />
-                      <line x1="180" y1="38" x2="180" y2={30 + plateDist * 12} />
-                    </g>
-                  )}
-                </svg>
-                <div className="text-center font-mono text-[11px] text-emerald-400 font-bold">
-                  سعة المكثف (س) = {((dielectric === "ceramic" ? 6.0 : dielectric === "paper" ? 4.5 : 1.0) * 8.85 * plateArea * 0.1 / plateDist).toFixed(1)} بيكوفاراد
-                </div>
-              </div>
-            )}
-
-            {/* 15. electromagnetism-induction SIMULATION */}
-            {selectedLessonId === "electromagnetism-induction" && (
-              <svg viewBox="0 0 240 140" className="w-60 h-auto">
-                {/* Copper coil on right */}
-                <ellipse cx="170" cy="70" rx="15" ry="30" fill="none" stroke="#b45309" strokeWidth="4" />
-                <ellipse cx="180" cy="70" rx="15" ry="30" fill="none" stroke="#b45309" strokeWidth="4" />
-
-                {/* Moving Magnet bar */}
-                <g transform={`translate(${inductionMagnetX * 1.5}, 50)`}>
-                  <rect x="0" y="0" width="35" height="25" fill="#ef4444" />
-                  <text x="10" y="16" fill="white" className="text-[10px] font-bold">N</text>
-                  <rect x="35" y="0" width="35" height="25" fill="#3b82f6" />
-                  <text x="45" y="16" fill="white" className="text-[10px] font-bold">S</text>
-                </g>
-
-                {/* Galvanometer needle in bottom */}
-                <g transform="translate(100, 115)">
-                  <circle cx="0" cy="0" r="15" fill="#1e293b" stroke="currentColor" />
-                  <line x1="0" y1="0" x2={galvanometerReading * 0.15} y2="-12" stroke="#ef4444" strokeWidth="2.5" />
-                </g>
-              </svg>
-            )}
-
-            {/* 16. self-inductance SIMULATION */}
-            {selectedLessonId === "self-inductance" && (
-              <div className="flex flex-col items-center space-y-3">
-                <svg viewBox="0 0 220 120" className="w-56 h-auto">
-                  {/* Coiled inductor */}
-                  <path d="M40,60 Q50,40 60,60 Q70,40 80,60 Q90,40 100,60 Q110,40 120,60" fill="none" stroke="#f59e0b" strokeWidth="3" />
-                  
-                  {/* Light bulb */}
-                  <circle cx="170" cy="60" r="14" fill={selfIndLampGlow > 0 ? `rgba(234,179,8,${selfIndLampGlow / 100})` : "none"} stroke="currentColor" strokeWidth="2" />
-                  
-                  {/* Switch contact */}
-                  <line x1="10" y1="90" x2="30" y2={selfIndSwitchOpen ? "70" : "90"} stroke="#ef4444" strokeWidth="3.5" />
-                  <circle cx="10" cy="90" r="3" fill="#ef4444" />
-                  <circle cx="30" cy="90" r="3" fill="#ef4444" />
-
-                  {/* Spark effect */}
-                  {sparkArcFlash && (
-                    <circle cx="30" cy="90" r="12" fill="rgba(56,189,248,0.5)" className="animate-ping" />
-                  )}
-                </svg>
-                <div className="text-[10px] text-slate-400">
-                  {selfIndSwitchOpen ? "قوة دافعة كهربائية عكسية تؤدي لشرارة الفتح" : "تأخر وهج المصباح بسبب ق.د.ك العكسية للملف"}
-                </div>
-              </div>
-            )}
-
-            {/* 17. semiconductors-doping SIMULATION */}
-            {selectedLessonId === "semiconductors-doping" && (
-              <svg viewBox="0 0 220 140" className="w-56 h-auto">
-                {/* 2D silicon crystal matrix grid */}
-                <rect x="20" y="10" width="180" height="120" fill="none" stroke="rgba(255,255,255,0.05)" />
-                {/* Silicon atoms */}
-                <circle cx="50" cy="40" r="10" fill="#334155" /> <text x="45" y="43" fill="white" className="text-[8px] font-bold">Si</text>
-                <circle cx="110" cy="40" r="10" fill="#334155" /> <text x="105" y="43" fill="white" className="text-[8px] font-bold">Si</text>
-                <circle cx="170" cy="40" r="10" fill="#334155" /> <text x="165" y="43" fill="white" className="text-[8px] font-bold">Si</text>
-
-                {/* Doped center atom */}
-                <circle cx="110" cy="90" r="12" fill={semiconductorDopeType === "n" ? "#b91c1c" : semiconductorDopeType === "p" ? "#0369a1" : "#334155"} />
-                <text x="104" y="93" fill="white" className="text-[8px] font-bold">
-                  {semiconductorDopeType === "n" ? "As" : semiconductorDopeType === "p" ? "B" : "Si"}
-                </text>
-
-                {/* Electron and Hole display */}
-                {semiconductorDopeType === "n" && (
-                  <g>
-                    <circle cx="140" cy="100" r="4" fill="#fbbf24" className="animate-bounce" />
-                    <text x="146" y="103" fill="#fbbf24" className="text-[8px]">إلكترون حر زائد</text>
-                  </g>
-                )}
-                {semiconductorDopeType === "p" && (
-                  <g>
-                    <circle cx="140" cy="100" r="4" fill="none" stroke="#38bdf8" strokeWidth="1.5" strokeDasharray="1" />
-                    <text x="148" y="103" fill="#38bdf8" className="text-[8px]">فجوة موجبة (ثقب)</text>
-                  </g>
-                )}
-              </svg>
-            )}
-
-            {/* 18. structures-trusses SIMULATION */}
-            {selectedLessonId === "structures-trusses" && (
-              <svg viewBox="0 0 240 140" className="w-60 h-auto">
-                {/* Simple triangular truss members */}
-                <polygon points="40,110 120,50 200,110" fill="none" stroke="#ef4444" strokeWidth="4" /> {/* Compression top */}
-                <line x1="40" y1="110" x2="200" y2="110" stroke="#3b82f6" strokeWidth="4" /> {/* Tension bottom */}
-
-                {/* Load arrow */}
-                <g stroke="#f59e0b" strokeWidth="2.5">
-                  <line x1="120" y1="15" x2="120" y2="48" />
-                  <polygon points="120,50 115,42 125,42" fill="#f59e0b" />
-                </g>
-                <text x="130" y="30" fill="#f59e0b" className="text-[10px] font-bold font-mono">{trussLoad} kN</text>
-              </svg>
-            )}
-
-            {/* 19. arches-foundations SIMULATION */}
-            {selectedLessonId === "arches-foundations" && (
-              <div className="flex flex-col items-center space-y-3">
-                <svg viewBox="0 0 220 140" className="w-56 h-auto">
-                  {/* Ground clay line */}
-                  <rect x="10" y="110" width="200" height="25" fill="#78350f" />
-
-                  {/* Foundations */}
-                  {foundationType === "shallow" ? (
-                    <g>
-                      {/* Shallow pad foundation tilting under excessive load */}
-                      <rect x="80" y="100" width="60" height="10" fill="#cbd5e1" className={buildingWeight > 8 ? "rotate-6 translate-y-3 transition" : ""} />
-                      {/* Building */}
-                      <rect x="90" y={100 - buildingWeight * 7} width="40" height={buildingWeight * 7} fill="rgba(255,255,255,0.08)" stroke="#cbd5e1" strokeWidth="2" className={buildingWeight > 8 ? "rotate-6 translate-y-3 transition" : ""} />
-                    </g>
-                  ) : (
-                    <g>
-                      {/* Deep Pile foundations (Khawaziq) reaching stable rock layers */}
-                      <line x1="95" y1="110" x2="95" y2="135" stroke="#10b981" strokeWidth="5" />
-                      <line x1="125" y1="110" x2="125" y2="135" stroke="#10b981" strokeWidth="5" />
-                      <rect x="80" y="100" width="60" height="10" fill="#cbd5e1" />
-                      {/* Building stable */}
-                      <rect x="90" y={100 - buildingWeight * 7} width="40" height={buildingWeight * 7} fill="rgba(255,255,255,0.08)" stroke="#cbd5e1" strokeWidth="2" />
-                    </g>
-                  )}
-                </svg>
-                <span className="text-[10px] text-slate-400">
-                  {foundationType === "shallow" && buildingWeight > 8 ? "⚠️ انهيار انضغاط التربة (القواعد السطحية لا تتحمل!)" : "✅ أساسات متزنة بالخوازيق الإسمنتية"}
-                </span>
-              </div>
-            )}
-
-            {/* 20. stress-strain-hooke SIMULATION */}
-            {selectedLessonId === "stress-strain-hooke" && (
-              <div className="flex flex-col items-center space-y-3">
-                <svg viewBox="0 0 240 80" className="w-56 h-auto">
-                  <rect x="10" y="25" width="40" height="30" fill="#334155" /> {/* Anchoring */}
-                  
-                  {/* Stretching specimen */}
-                  {(() => {
-                    const E_mod = elasticMaterial === "steel" ? 200 : elasticMaterial === "copper" ? 110 : 70;
-                    const stress = elasticForce / 100; // Force / Area
-                    const strain = stress / (E_mod * 1000);
-                    const ext = strain * 200; // delta L
-                    
-                    return (
-                      <g>
-                        <rect x="50" y="32" width={100 + ext * 6000} height="16" fill="url(#metal-bar-grad)" stroke="silver" />
-                        <text x="160" y="45" fill="#10b981" className="text-[10px] font-mono">+{ext.toFixed(3)}ملم</text>
-                      </g>
-                    );
-                  })()}
-                  <defs>
-                    <linearGradient id="metal-bar-grad" x1="0%" y1="0%" x2="0%" y2="100%">
-                      <stop offset="0%" stopColor="#64748b" />
-                      <stop offset="100%" stopColor="#1e293b" />
-                    </linearGradient>
-                  </defs>
-                </svg>
-                <div className="text-[10px] text-slate-400">
-                  إجهاد الشد هـ = {(elasticForce / 100).toFixed(1)} نيوتن/ملم² | معامل مرونة ي = {elasticMaterial === "steel" ? "200" : elasticMaterial === "copper" ? "110" : "70"} GPa
-                </div>
-              </div>
-            )}
-
-            {/* 21. fluid-mechanics-viscosity SIMULATION */}
-            {selectedLessonId === "fluid-mechanics-viscosity" && (
-              <svg viewBox="0 0 200 140" className="w-48 h-auto">
-                {/* Measuring cylinder */}
-                <rect x="70" y="10" width="60" height="110" fill="none" stroke="currentColor" strokeWidth="2.5" />
-                {/* Fluid filling */}
-                <rect x="72" y="25" width="56" height="94" fill={viscosityFluid === "water" ? "rgba(56,189,248,0.15)" : viscosityFluid === "oil" ? "rgba(234,179,8,0.25)" : "rgba(180,83,9,0.35)"} />
-
-                {/* Ball */}
-                <circle cx="100" cy={fluidBallY} r="8" fill="#cbd5e1" stroke="currentColor" />
-              </svg>
-            )}
-
-            {/* 22. environmental-pollution SIMULATION */}
-            {selectedLessonId === "environmental-pollution" && (
-              <svg viewBox="0 0 240 140" className="w-60 h-auto">
-                {/* Factory with smokestack */}
-                <rect x="20" y="80" width="50" height="40" fill="#334155" />
-                <rect x="30" y="40" width="12" height="40" fill="#475569" />
-                
-                {/* Smoke emissions */}
-                <circle cx="36" cy="25" r={pollutionSlider * 0.2 + 5} fill="rgba(244,63,94,0.3)" className="animate-pulse" />
-
-                {/* Forest trees withering if SOx is high */}
-                <g transform="translate(140, 75)">
-                  <polygon points="20,10 5,45 35,45" fill={pollutionSlider > 50 ? "#a16207" : "#16a34a"} />
-                  <rect x="17" y="45" width="6" height="15" fill="#78350f" />
-                </g>
-                <text x="140" y="130" fill={pollutionSlider > 50 ? "#ef4444" : "#10b981"} className="text-[9px] font-bold">
-                  {pollutionSlider > 50 ? "أمطار حمضية سامة! 🌧️" : "بيئة مائية وهوائية متزنة"}
-                </text>
-              </svg>
-            )}
-
+                // Ch 4
+                trussLoad,
+                trussType: 'warren',
+                foundationType,
+                buildingWeight,
+                elasticForce,
+                elasticMaterial,
+                viscosityFluid,
+                fluidBallY,
+                fluidBallRolling,
+                pollutionSlider,
+                acidRainActive: pollutionSlider > 50,
+              }}
+            />
           </div>
 
           {/* Visual Footer details */}
